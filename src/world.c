@@ -1,5 +1,6 @@
 #include <jwb.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define IS_NAN(n) ((n) != (n))
 
