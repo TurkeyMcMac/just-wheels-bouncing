@@ -83,6 +83,8 @@ jwb_ehandle_t jwb_world_add_ent(
 	double mass,
 	double radius);
 
+int jwb_world_ent_exists(jwb_world_t *world, jwb_ehandle_t ent);
+
 void jwb_world_get_pos(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
