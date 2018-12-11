@@ -1,5 +1,5 @@
 name = jwb
-version = 0.0.0
+version = 0.0.1
 library = lib$(name).so.$(version)
 lib = include
 src = src

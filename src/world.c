@@ -88,50 +88,68 @@ void jwb_world_get_pos(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
 	struct jwb_vect *dest)
-{}
+{
+	*dest = world->ents[ent].pos;
+}
 
 void jwb_world_get_vel(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
 	struct jwb_vect *dest)
-{}
+{
+	*dest = world->ents[ent].vel;
+}
 
 void jwb_world_set_pos(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
-	const struct jwb_vect *dest)
-{}
+	const struct jwb_vect *pos)
+{
+	world->ents[ent].pos = *pos;
+}
 
 void jwb_world_set_vel(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
-	const struct jwb_vect *dest)
-{}
+	const struct jwb_vect *vel)
+{
+	world->ents[ent].vel = *vel;
+}
 
 void jwb_world_translate(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
 	const struct jwb_vect *delta)
-{}
+{
+	world->ents[ent].pos.x += delta->x;
+	world->ents[ent].pos.y += delta->y;
+}
 
 void jwb_world_accelerate(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
 	const struct jwb_vect *delta)
-{}
+{
+	world->ents[ent].vel.x += delta->x;
+	world->ents[ent].vel.y += delta->y;
+}
 
 double jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent)
 {
-	return 0;
+	return world->ents[ent].mass;
 }
 
 double jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent)
 {
-	return 0;
+	return world->ents[ent].radius;
 }
 
 void jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass)
-{}
+{
+	world->ents[ent].mass = mass;
+}
 
 void jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, double radius)
-{}
+{
+	world->ents[ent].radius = radius;
+}
