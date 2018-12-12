@@ -10,6 +10,15 @@
 
 #define IS_NAN(n) ((n) != (n))
 
+static unsigned long frame(long num, unsigned long lim)
+{
+	long mod = num % lim;
+	if (mod < 0) {
+		mod += lim;
+	}
+	return (unsigned long)mod;
+}
+
 jwb_ehandle_t alloc_new_ent(jwb_world_t *world)
 {
 	if (world->n_ents >= world->ent_cap) {
@@ -25,6 +34,25 @@ jwb_ehandle_t alloc_new_ent(jwb_world_t *world)
 		}
 	}
 	return world->n_ents++;
+}
+
+static void place_ent(jwb_world_t *world, jwb_ehandle_t ent)
+{
+	size_t x, y;
+	struct jwb_vect pos;
+	size_t cell_idx;
+	jwb_ehandle_t cell;
+	pos = world->ents[ent].pos;
+	x = frame(pos.x / world->cell_size, world->width);
+	y = frame(pos.y / world->cell_size, world->height);
+	cell_idx = y * world->width + x;
+	cell = world->cells[cell_idx];
+	world->ents[ent].last = ~cell_idx;
+	world->ents[ent].next = cell;
+	if (cell >= 0) {
+		world->ents[cell].last = ent;
+	}
+	world->cells[cell_idx] = ent;
 }
 
 int jwb_world_alloc(
@@ -63,6 +91,7 @@ int jwb_world_alloc(
 	/* world->on_hit = jwb_do_hit; */
 	world->freed = -1;
 	world->flags = HAS_WALLS | REMOVED_ENTS_LOCKED;
+	world->cell_size = 0.;
 
 error_entities:
 	if (!cell_buf) {

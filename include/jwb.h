@@ -50,6 +50,7 @@ typedef void (*jwb_hit_handler_t)(
 	struct jwb_vect *where);
 
 typedef struct jwb__world {
+	double cell_size;
 	jwb_hit_handler_t on_hit;
 	size_t width, height;
 	size_t n_ents;
