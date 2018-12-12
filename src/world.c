@@ -2,7 +2,29 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Private flags for jwb_world_t::flags */
+#	define HAS_WALLS (1 << 0)
+#	define REMOVED_ENTS_LOCKED (1 << 1)
+
+#define NAN (0.0 / 0.0)
 #define IS_NAN(n) ((n) != (n))
+
+jwb_ehandle_t alloc_new_ent(jwb_world_t *world)
+{
+	if (world->n_ents >= world->ent_cap) {
+		size_t new_cap;
+		struct jwb__entity *new_buf;
+		new_cap = world->ent_cap * 3 / 2 + 1;
+		new_buf = realloc(world->ents, new_cap * sizeof(*new_buf));
+		if (new_buf) {
+			world->ents = new_buf;
+			world->ent_cap = new_cap;
+		} else {
+			return -JWBE_NO_MEMORY;
+		}
+	}
+	return world->n_ents++;
+}
 
 int jwb_world_alloc(
 	jwb_world_t *world,
@@ -38,7 +60,8 @@ int jwb_world_alloc(
 	world->n_ents = 0;
 	world->ent_cap = ent_buf_size;
 	/* world->on_hit = jwb_do_hit; */
-	world->has_walls = 0;
+	world->freed = -1;
+	world->flags = HAS_WALLS | REMOVED_ENTS_LOCKED;
 
 error_entities:
 	if (!cell_buf) {
@@ -50,7 +73,11 @@ error_cells:
 
 void jwb_world_set_walls(jwb_world_t *world, int on)
 {
-	world->has_walls = on;
+	if (on) {
+		world->flags |= HAS_WALLS;
+	} else {
+		world->flags &= ~HAS_WALLS;
+	}
 }
 
 void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit)
@@ -62,7 +89,9 @@ void jwb_world_step(jwb_world_t *world)
 {}
 
 void jwb_world_clear_removed(jwb_world_t *world)
-{}
+{
+	world->flags &= ~REMOVED_ENTS_LOCKED;
+}
 
 void jwb_world_destroy(jwb_world_t *world)
 {
@@ -77,7 +106,45 @@ jwb_ehandle_t jwb_world_add_ent(
 	double mass,
 	double radius)
 {
-	return -1;
+	jwb_ehandle_t ent;
+	if ((world->flags & REMOVED_ENTS_LOCKED) == 0 && world->freed >= 0) {
+		ent = world->freed;
+		world->freed = world->ents[ent].next;
+	} else {
+		ent = alloc_new_ent(world);
+		if (ent < 0) {
+			return ent;
+		}
+	}
+	world->ents[ent].pos = *pos;
+	world->ents[ent].vel = *vel;
+	world->ents[ent].mass = mass;
+	world->ents[ent].radius = radius;
+	place_ent(world, ent);
+	return ent;
+}
+
+int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent)
+{
+	if (jwb_world_ent_exists(world, ent)) {
+		jwb_ehandle_t next, last;
+		next = world->ents[ent].next;
+		last = world->ents[ent].last;
+		if (next > 0) {
+			world->ents[next].last = last;
+		}
+		if (last > 0) {
+			world->ents[last].next = next;
+		} else {
+			last = ~last;
+			world->cells[last] = next;
+		}
+		world->ents[ent].next = world->freed;
+		world->freed = ent;
+		world->ents[ent].mass = NAN;
+		return 0;
+	}
+	return -JWBE_INVALID_ENTITY;
 }
 
 int jwb_world_ent_exists(jwb_world_t *world, jwb_ehandle_t ent)

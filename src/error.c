@@ -8,6 +8,8 @@ const char *jwb_errmsg(int code)
 	switch (code) {
 	case JWBE_NO_MEMORY:
 		return "Out of memory";
+	case JWBE_INVALID_ENTITY:
+		return "Invalid entity handle";
 	case 0:
 		return "No error";
 	default:

@@ -4,6 +4,7 @@
 #include <stddef.h>
 
 #define JWBE_NO_MEMORY 1
+#define JWBE_INVALID_ENTITY 2
 const char *jwb_errmsg(int errcode);
 
 typedef struct {
@@ -55,7 +56,8 @@ typedef struct jwb__world {
 	size_t ent_cap;
 	jwb_ehandle_t *cells;
 	struct jwb__entity *ents;
-	int has_walls;
+	jwb_ehandle_t freed;
+	int flags;
 } jwb_world_t;
 
 int jwb_world_alloc(
