@@ -1,4 +1,6 @@
 #include <jwb.h>
+#define _GNU_SOURCE
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -6,7 +8,6 @@
 #	define HAS_WALLS (1 << 0)
 #	define REMOVED_ENTS_LOCKED (1 << 1)
 
-#define NAN (0.0 / 0.0)
 #define IS_NAN(n) ((n) != (n))
 
 jwb_ehandle_t alloc_new_ent(jwb_world_t *world)

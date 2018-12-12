@@ -1,4 +1,6 @@
 #include <jwb.h>
+#define _GNU_SOURCE
+#include <math.h>
 
 void jwb_rotation(jwb_rotation_t *rot, double angle)
 {
