@@ -115,8 +115,102 @@ void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit)
 	world->on_hit = on_hit;
 }
 
+void check_ent_hit(jwb_world_t *world, jwb_ehandle_t ent1, jwb_ehandle_t ent2)
+{
+	double rad1, rad2;
+	double mass1, mass2;
+	struct jwb_vect pos1, pos2, relative;
+	struct jwb_vect vel1, vel2;
+	double bounced1, bounced2;
+	jwb_rotation_t rot;
+	pos1 = world->ents[ent1].pos;
+	pos2 = world->ents[ent2].pos;
+	relative.x = pos2.x - pos1.x;
+	relative.y = pos2.y - pos1.y;
+	rad1 = world->ents[ent1].radius;
+	rad2 = world->ents[ent2].radius;
+	if (rad1 + rad2 >= jwb_vect_magnitude(&relative)) {
+		return;
+	}
+	mass1 = world->ents[ent1].mass;
+	mass2 = world->ents[ent2].mass;
+	vel1 = world->ents[ent1].vel;
+	vel2 = world->ents[ent2].vel;
+	jwb_vect_rotation(&relative, &rot); /* FIXME: Recalculates magnitude. */
+	jwb_vect_rotate(&vel1, &rot);
+	jwb_vect_rotate(&vel2, &rot);
+	bounced1 = (mass1 - mass2) / (mass1 + mass2) * vel1.y + 2 * mass2
+		/ (mass1 + mass2) * vel2.y;
+	bounced2 = (mass2 - mass1) / (mass2 + mass1) * vel2.y + 1 * mass1
+		/ (mass2 + mass1) * vel1.y;
+	vel1.y = bounced1;
+	vel2.y = bounced2;
+	jwb_rotation_flip(&rot);
+	jwb_vect_rotate(&vel1, &rot);
+	jwb_vect_rotate(&vel2, &rot);
+	world->ents[ent1].vel = vel1;
+	world->ents[ent2].vel = vel2;
+}
+
+void update_cell(jwb_world_t *world, size_t x, size_t y)
+{
+	jwb_ehandle_t next = world->cells[y * world->width + x];
+	while (next >= 0) {
+		jwb_ehandle_t self, next_other;
+		self = next;
+		next = world->ents[next].next;
+		next_other = next;
+		while (next_other >= 0) {
+			jwb_ehandle_t other;
+			other = next_other;
+			next_other = world->ents[next_other].next;
+			check_ent_hit(world, self, other);
+		}
+	}
+}
+
+void update_cells(
+	jwb_world_t *world,
+	size_t x1,
+	size_t y1,
+	size_t x2,
+	size_t y2)
+{
+	jwb_ehandle_t next1, next2;
+	next1 = world->cells[y1 * world->width + x1];
+	next2 = world->cells[y2 * world->width + x2];
+	while (next1 >= 0) {
+		jwb_ehandle_t self, next_other;
+		self = next1;
+		next1 = world->ents[next1].next;
+		next_other = next2;
+		while (next_other >= 0) {
+			jwb_ehandle_t other;
+			other = next_other;
+			next_other = world->ents[next_other].next;
+			check_ent_hit(world, self, other);
+		}
+	}
+}
+
 void jwb_world_step(jwb_world_t *world)
-{}
+{
+	/* TODO: Unroll this loop a bit. */
+	size_t x, y;
+	for (y = 0; y < world->height; ++y) {
+		for (x = 0; x < world->width; ++x) {
+			update_cell(world, x, y);
+			update_cells(world, x, y, frame(x + 1, world->width),
+				y);
+			update_cells(world, x, y, frame(x + 1, world->width),
+				frame(y + 1, world->height));
+			update_cells(world, x, y, x,
+				frame(y + 1, world->height));
+			update_cells(world, x, y, frame(x - 1, world->width),
+				frame(y + 1, world->height));
+		}
+	}
+}
 
 void jwb_world_clear_removed(jwb_world_t *world)
 {

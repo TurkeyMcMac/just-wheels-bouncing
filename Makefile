@@ -13,7 +13,7 @@ CC = c89
 
 .PHONY: shared
 shared: $(objects)
-	$(CC) $(flags) -shared -fPIC -o $(library) $(objects)
+	$(CC) $(flags) -shared -fPIC -o $(library) $(objects) $(link-flags)
 
 .PHONY: objects
 objects: $(objects)
