@@ -76,6 +76,8 @@ void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);
 
 void jwb_world_step(jwb_world_t *world);
 
+int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent);
+
 void jwb_world_clear_removed(jwb_world_t *world);
 
 void jwb_world_destroy(jwb_world_t *world);
