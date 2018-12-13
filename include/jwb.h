@@ -39,6 +39,7 @@ struct jwb__entity {
 	struct jwb_vect pos, vel;
 	double mass;
 	double radius;
+	int flags;
 };
 #define JWB_ENTITY_SIZE sizeof(struct jwb__entity)
 

@@ -8,7 +8,8 @@
 #	define HAS_WALLS (1 << 0)
 #	define REMOVED_ENTS_LOCKED (1 << 1)
 
-#define IS_NAN(n) ((n) != (n))
+/* Private flags for jwb__entity::flags */
+#	define REMOVED (1 << 0)
 
 static unsigned long frame(long num, unsigned long lim)
 {
@@ -246,6 +247,7 @@ jwb_ehandle_t jwb_world_add_ent(
 	world->ents[ent].vel = *vel;
 	world->ents[ent].mass = mass;
 	world->ents[ent].radius = radius;
+	world->flags = 0;
 	place_ent(world, ent);
 	return ent;
 }
@@ -267,7 +269,7 @@ int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent)
 		}
 		world->ents[ent].next = world->freed;
 		world->freed = ent;
-		world->ents[ent].mass = NAN;
+		world->ents[ent].flags |= REMOVED;
 		return 0;
 	}
 	return -JWBE_INVALID_ENTITY;
@@ -275,7 +277,8 @@ int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent)
 
 int jwb_world_ent_exists(jwb_world_t *world, jwb_ehandle_t ent)
 {
-	return ent < (long)world->n_ents && IS_NAN(world->ents[ent].mass);
+	return ent < (long)world->n_ents
+		&& (world->ents[ent].flags & REMOVED) == 0;
 }
 
 void jwb_world_get_pos(
