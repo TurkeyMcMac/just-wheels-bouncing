@@ -118,7 +118,7 @@ void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit)
 
 void check_ent_hit(jwb_world_t *world, jwb_ehandle_t ent1, jwb_ehandle_t ent2)
 {
-	double rad1, rad2;
+	double rad1, rad2, distance;
 	double mass1, mass2;
 	struct jwb_vect pos1, pos2, relative;
 	struct jwb_vect vel1, vel2;
@@ -130,7 +130,8 @@ void check_ent_hit(jwb_world_t *world, jwb_ehandle_t ent1, jwb_ehandle_t ent2)
 	relative.y = pos2.y - pos1.y;
 	rad1 = world->ents[ent1].radius;
 	rad2 = world->ents[ent2].radius;
-	if (rad1 + rad2 >= jwb_vect_magnitude(&relative)) {
+	distance = jwb_vect_magnitude(&relative);
+	if (rad1 + rad2 < distance || distance == 0.) {
 		return;
 	}
 	mass1 = world->ents[ent1].mass;
