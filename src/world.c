@@ -92,6 +92,7 @@ int jwb_world_alloc(
 	world->freed = -1;
 	world->flags = HAS_WALLS | REMOVED_ENTS_LOCKED;
 	world->cell_size = 0.;
+	return ret;
 
 error_entities:
 	if (!cell_buf) {
