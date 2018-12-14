@@ -1,10 +1,10 @@
 #include <jwb.h>
-#define _GNU_SOURCE
 #include <math.h>
 
 void jwb_rotation(jwb_rotation_t *rot, double angle)
 {
-	sincos(angle, &rot->sin, &rot->cos);
+	rot->sin = sin(angle);
+	rot->cos = cos(angle);
 }
 
 double jwb_rotation_angle(const jwb_rotation_t *rot)
