@@ -20,6 +20,15 @@ static unsigned long frame(long num, unsigned long lim)
 	return (unsigned long)mod;
 }
 
+static double fframe(double num, double lim)
+{
+	double mod = fmod(num, lim);
+	if (mod < 0) {
+		mod += lim;
+	}
+	return mod;
+}
+
 jwb_ehandle_t alloc_new_ent(jwb_world_t *world)
 {
 	if (world->n_ents >= world->ent_cap) {
@@ -37,23 +46,49 @@ jwb_ehandle_t alloc_new_ent(jwb_world_t *world)
 	return world->n_ents++;
 }
 
-static void place_ent(jwb_world_t *world, jwb_ehandle_t ent)
+static size_t reposition(jwb_world_t *world, jwb_ehandle_t ent)
 {
 	size_t x, y;
 	struct jwb_vect pos;
-	size_t cell_idx;
-	jwb_ehandle_t cell;
 	pos = world->ents[ent].pos;
-	x = frame(pos.x / world->cell_size, world->width);
-	y = frame(pos.y / world->cell_size, world->height);
-	cell_idx = y * world->width + x;
-	cell = world->cells[cell_idx];
+	pos.x = fframe(pos.x, world->width * world->cell_size);
+	pos.y = fframe(pos.y, world->height * world->cell_size);
+	x = pos.x / world->cell_size;
+	y = pos.y / world->cell_size;
+	world->ents[ent].pos = pos;
+	return y * world->width + x;
+}
+
+static void unlink_ent(jwb_world_t *world, jwb_ehandle_t ent)
+{
+	jwb_ehandle_t next, last;
+	next = world->ents[ent].next;
+	last = world->ents[ent].last;
+	if (next > 0) {
+		world->ents[next].last = last;
+	}
+	if (last > 0) {
+		world->ents[last].next = next;
+	} else {
+		last = ~last;
+		world->cells[last] = next;
+	}
+}
+
+static void link_ent(jwb_world_t *world, jwb_ehandle_t ent, size_t cell_idx)
+{
+	jwb_ehandle_t cell = world->cells[cell_idx];
 	world->ents[ent].last = ~cell_idx;
 	world->ents[ent].next = cell;
 	if (cell >= 0) {
 		world->ents[cell].last = ent;
 	}
 	world->cells[cell_idx] = ent;
+}
+
+static void place_ent(jwb_world_t *world, jwb_ehandle_t ent)
+{
+	link_ent(world, ent, reposition(world, ent));
 }
 
 int jwb_world_alloc(
@@ -196,6 +231,26 @@ void update_cells(
 	}
 }
 
+static void move_ents(jwb_world_t *world, size_t x, size_t y)
+{
+	size_t here = y * world->width + x;
+	jwb_ehandle_t next = world->cells[here];
+	while (next >= 0) {
+		jwb_ehandle_t self;
+		size_t cell;
+		self = next;
+		next = world->ents[next].next;
+		world->ents[self].pos.x += world->ents[self].vel.x;
+		world->ents[self].pos.y += world->ents[self].vel.y;
+		cell = reposition(world, self);
+		if (cell != here) {
+			/*printf("%lu -> %lu\n", here, cell);*/
+			unlink_ent(world, self);
+			link_ent(world, self, cell);
+		}
+	}
+}
+
 void jwb_world_step(jwb_world_t *world)
 {
 	/* TODO: Unroll this loop a bit. */
@@ -211,6 +266,11 @@ void jwb_world_step(jwb_world_t *world)
 				frame(y + 1, world->height));
 			update_cells(world, x, y, frame(x - 1, world->width),
 				frame(y + 1, world->height));
+		}
+	}
+	for (y = 0; y < world->height; ++y) {
+		for (x = 0; x < world->width; ++x) {
+			move_ents(world, x, y);
 		}
 	}
 }
@@ -255,18 +315,7 @@ jwb_ehandle_t jwb_world_add_ent(
 int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent)
 {
 	if (jwb_world_ent_exists(world, ent)) {
-		jwb_ehandle_t next, last;
-		next = world->ents[ent].next;
-		last = world->ents[ent].last;
-		if (next > 0) {
-			world->ents[next].last = last;
-		}
-		if (last > 0) {
-			world->ents[last].next = next;
-		} else {
-			last = ~last;
-			world->cells[last] = next;
-		}
+		unlink_ent(world, ent);
 		world->ents[ent].next = world->freed;
 		world->freed = ent;
 		world->ents[ent].flags |= REMOVED;
