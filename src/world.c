@@ -77,10 +77,10 @@ static void unlink_ent(jwb_world_t *world, jwb_ehandle_t ent)
 	jwb_ehandle_t next, last;
 	next = world->ents[ent].next;
 	last = world->ents[ent].last;
-	if (next > 0) {
+	if (next >= 0) {
 		world->ents[next].last = last;
 	}
-	if (last > 0) {
+	if (last >= 0) {
 		world->ents[last].next = next;
 	} else {
 		last = ~last;
