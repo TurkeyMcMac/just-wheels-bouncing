@@ -173,7 +173,7 @@ void check_ent_hit(jwb_world_t *world, jwb_ehandle_t ent1, jwb_ehandle_t ent2)
 	struct jwb_vect vel1, vel2;
 	double bounced1, bounced2;
 	double overlap;
-	struct jwb_vect cor1, cor2;
+	double cor1, cor2;
 	jwb_rotation_t rot;
 	pos1 = world->ents[ent1].pos;
 	pos2 = world->ents[ent2].pos;
@@ -198,21 +198,18 @@ void check_ent_hit(jwb_world_t *world, jwb_ehandle_t ent1, jwb_ehandle_t ent2)
 		/ (mass2 + mass1) * vel1.y;
 	vel1.y = bounced1;
 	vel2.y = bounced2;
-	overlap = rad1 + rad2 - distance;
-	cor1.y = overlap / (mass1 / mass2 + 1);
-	cor2.y = overlap - cor1.y;
-	cor1.x = cor2.x = 0.;
+	overlap = 1. - distance / (rad1 + rad2);
+	cor1 = -overlap / (mass1 / mass2 + 1.);
+	cor2 = cor1 + overlap;
 	jwb_rotation_flip(&rot);
 	jwb_vect_rotate(&vel1, &rot);
 	jwb_vect_rotate(&vel2, &rot);
-	jwb_vect_rotate(&cor1, &rot);
-	jwb_vect_rotate(&cor2, &rot);
 	world->ents[ent1].vel = vel1;
 	world->ents[ent2].vel = vel2;
-	world->ents[ent1].correct.x += cor1.x;
-	world->ents[ent1].correct.y += cor1.y;
-	world->ents[ent2].correct.x += cor2.x;
-	world->ents[ent2].correct.y += cor2.y;
+	world->ents[ent1].correct.x += relative.x * cor1;
+	world->ents[ent1].correct.y += relative.y * cor1;
+	world->ents[ent2].correct.x += relative.x * cor2;
+	world->ents[ent2].correct.y += relative.y * cor2;
 }
 
 void update_cell(jwb_world_t *world, size_t x, size_t y)
