@@ -18,6 +18,7 @@
 
 /* Private flags for jwb__entity::flags */
 #	define REMOVED (1 << 0)
+#	define MOVED_THIS_STEP (1 << 1)
 
 static unsigned long frame(long num, unsigned long lim)
 {
@@ -264,6 +265,10 @@ static void move_ents(jwb_world_t *world, size_t x, size_t y)
 		size_t cell;
 		self = next;
 		next = world->ents[next].next;
+		if (world->ents[self].flags & MOVED_THIS_STEP) {
+			world->ents[self].flags &= ~MOVED_THIS_STEP;
+			continue;
+		}
 		world->ents[self].pos.x += world->ents[self].vel.x
 			+ world->ents[self].correct.x;
 		world->ents[self].pos.y += world->ents[self].vel.y
@@ -272,6 +277,9 @@ static void move_ents(jwb_world_t *world, size_t x, size_t y)
 		world->ents[self].correct.y = 0.;
 		cell = reposition(world, self);
 		if (cell != here) {
+			if (cell > here) {
+				world->ents[self].flags |= MOVED_THIS_STEP;
+			}
 			unlink_ent(world, self);
 			link_ent(world, self, cell);
 		}
