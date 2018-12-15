@@ -190,14 +190,15 @@ void check_ent_hit(jwb_world_t *world, jwb_ehandle_t ent1, jwb_ehandle_t ent2)
 	vel1 = world->ents[ent1].vel;
 	vel2 = world->ents[ent2].vel;
 	jwb_vect_rotation(&relative, &rot); /* FIXME: Recalculates magnitude. */
+	jwb_rotation_flip(&rot);
 	jwb_vect_rotate(&vel1, &rot);
 	jwb_vect_rotate(&vel2, &rot);
-	bounced1 = (mass1 - mass2) / (mass1 + mass2) * vel1.y + 2 * mass2
-		/ (mass1 + mass2) * vel2.y;
-	bounced2 = (mass2 - mass1) / (mass2 + mass1) * vel2.y + 1 * mass1
-		/ (mass2 + mass1) * vel1.y;
-	vel1.y = bounced1;
-	vel2.y = bounced2;
+	bounced1 = (mass1 - mass2) / (mass1 + mass2) * vel1.x + 2 * mass2
+		/ (mass1 + mass2) * vel2.x;
+	bounced2 = (mass2 - mass1) / (mass2 + mass1) * vel2.x + 2 * mass1
+		/ (mass2 + mass1) * vel1.x;
+	vel1.x = bounced1;
+	vel2.x = bounced2;
 	overlap = 1. - distance / (rad1 + rad2);
 	cor1 = -overlap / (mass1 / mass2 + 1.);
 	cor2 = cor1 + overlap;
