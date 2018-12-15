@@ -4,6 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef JWBO_NO_ALLOC
+#	define ALLOC(size) ((void)(size), NULL)
+#	define FREE(ptr) ((void)(ptr))
+#else
+#	define ALLOC(size) malloc((size))
+#	define FREE(ptr) free((ptr))
+#endif /* JWBO_NO_ALLOC */
+
 /* Private flags for jwb_world_t::flags */
 #	define HAS_WALLS (1 << 0)
 #	define REMOVED_ENTS_LOCKED (1 << 1)
@@ -23,6 +31,9 @@ static unsigned long frame(long num, unsigned long lim)
 jwb_ehandle_t alloc_new_ent(jwb_world_t *world)
 {
 	if (world->n_ents >= world->ent_cap) {
+#ifdef JWBO_NO_ALLOC
+		return -JWBE_NO_MEMORY;
+#else
 		size_t new_cap;
 		struct jwb__entity *new_buf;
 		new_cap = world->ent_cap * 3 / 2 + 1;
@@ -33,6 +44,7 @@ jwb_ehandle_t alloc_new_ent(jwb_world_t *world)
 		} else {
 			return -JWBE_NO_MEMORY;
 		}
+#endif /* JWBO_NO_ALLOC */
 	}
 	return world->n_ents++;
 }
@@ -69,7 +81,7 @@ int jwb_world_alloc(
 		world->cells = cell_buf;
 	} else {
 		size_t size = width * height * JWB_CELL_SIZE;
-		world->cells = malloc(size);
+		world->cells = ALLOC(size);
 		if (!world->cells) {
 			ret = -JWBE_NO_MEMORY;
 			goto error_cells;
@@ -79,7 +91,7 @@ int jwb_world_alloc(
 	if (ent_buf) {
 		world->ents = ent_buf;
 	} else {
-		world->ents = malloc(ent_buf_size * JWB_ENTITY_SIZE);
+		world->ents = ALLOC(ent_buf_size * JWB_ENTITY_SIZE);
 		if (!world->ents) {
 			ret = -JWBE_NO_MEMORY;
 			goto error_entities;
@@ -97,7 +109,7 @@ int jwb_world_alloc(
 
 error_entities:
 	if (!cell_buf) {
-		free(world->cells);
+		FREE(world->cells);
 	}
 error_cells:
 	return ret;
@@ -222,8 +234,8 @@ void jwb_world_clear_removed(jwb_world_t *world)
 
 void jwb_world_destroy(jwb_world_t *world)
 {
-	free(world->cells);
-	free(world->ents);
+	FREE(world->cells);
+	FREE(world->ents);
 }
 
 jwb_ehandle_t jwb_world_add_ent(
