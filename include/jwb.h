@@ -37,6 +37,7 @@ typedef long jwb_ehandle_t;
 struct jwb__entity {
 	jwb_ehandle_t next, last;
 	struct jwb_vect pos, vel;
+	struct jwb_vect correct; /* Correctional displacement */
 	double mass;
 	double radius;
 	int flags;
