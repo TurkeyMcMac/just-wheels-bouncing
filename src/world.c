@@ -19,6 +19,7 @@
 /* Private flags for jwb__entity::flags */
 #	define REMOVED (1 << 0)
 #	define MOVED_THIS_STEP (1 << 1)
+#	define DESTROYED (1 << 2)
 
 static double fframe(double num, double lim)
 {
@@ -523,20 +524,31 @@ jwb_ehandle_t jwb_world_add_ent(
 
 int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent)
 {
-	if (jwb_world_ent_exists(world, ent)) {
+	int status = jwb_world_confirm_ent(world, ent);
+	if (status == 0) {
 		unlink_ent(world, ent);
 		world->ents[ent].next = world->freed;
 		world->freed = ent;
 		world->ents[ent].flags |= REMOVED;
 		return 0;
 	}
-	return -JWBE_INVALID_ENTITY;
+	return status;
 }
 
-int jwb_world_ent_exists(jwb_world_t *world, jwb_ehandle_t ent)
+int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent)
 {
-	return ent < (long)world->n_ents
-		&& (world->ents[ent].flags & REMOVED) == 0;
+	int flags;
+	if (ent >= (long)world->n_ents) {
+		return -JWBE_DESTROYED_ENTITY;
+	}
+	flags = world->ents[ent].flags;
+	if (flags & DESTROYED) {
+		return -JWBE_DESTROYED_ENTITY;
+	} else if (flags & REMOVED) {
+		return -JWBE_REMOVED_ENTITY;
+	} else {
+		return 0;
+	}
 }
 
 void jwb_world_get_pos(

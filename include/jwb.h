@@ -4,7 +4,8 @@
 #include <stddef.h>
 
 #define JWBE_NO_MEMORY 1
-#define JWBE_INVALID_ENTITY 2
+#define JWBE_REMOVED_ENTITY 2
+#define JWBE_DESTROYED_ENTITY 3
 const char *jwb_errmsg(int errcode);
 
 typedef struct {
@@ -90,7 +91,7 @@ jwb_ehandle_t jwb_world_add_ent(
 	double mass,
 	double radius);
 
-int jwb_world_ent_exists(jwb_world_t *world, jwb_ehandle_t ent);
+int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent);
 
 void jwb_world_get_pos(
 	jwb_world_t *world,
