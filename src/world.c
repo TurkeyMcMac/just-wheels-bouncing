@@ -335,18 +335,6 @@ static void update_top_left(jwb_world_t *world)
 	cell_translate(world, 0, 0, &wrap_left);
 }
 
-static void update_top(jwb_world_t *world)
-{
-	size_t x;
-	for (x = 1; x < world->width - 1; ++x) {
-		update_cell(world, x, 0);
-		update_cells(world, x, 0, x + 1, 0);
-		update_cells(world, x, 0, x + 1, 1);
-		update_cells(world, x, 0, x, 1);
-		update_cells(world, x, 0, x - 1, 1);
-	}
-}
-
 static void update_top_right(jwb_world_t *world)
 {
 	struct jwb_vect wrap_right;
@@ -385,7 +373,7 @@ static void update_left(jwb_world_t *world)
 static void update_middle(jwb_world_t *world)
 {
 	size_t x, y;
-	for (y = 1; y < world->height - 1; ++y) {
+	for (y = 0; y < world->height - 1; ++y) {
 		for (x = 1; x < world->width - 1; ++x) {
 			update_cell(world, x, y);
 			update_cells(world, x, y, x + 1, y);
@@ -485,7 +473,6 @@ void jwb_world_step(jwb_world_t *world)
 	/* TODO: Unroll this loop a bit. */
 	size_t x, y;
 	update_top_left(world);
-	update_top(world);
 	update_top_right(world);
 	update_left(world);
 	update_middle(world);
