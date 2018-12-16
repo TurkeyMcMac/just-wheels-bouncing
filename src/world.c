@@ -14,7 +14,6 @@
 
 /* Private flags for jwb_world_t::flags */
 #	define HAS_WALLS (1 << 0)
-#	define REMOVED_ENTS_LOCKED (1 << 1)
 
 /* Private flags for jwb__entity::flags */
 #	define REMOVED (1 << 0)
@@ -51,6 +50,34 @@ jwb_ehandle_t alloc_new_ent(jwb_world_t *world)
 	return world->n_ents++;
 }
 
+static void unlink_dead(
+	jwb_world_t *world,
+	jwb_ehandle_t ent,
+	jwb_ehandle_t *list)
+{
+	jwb_ehandle_t next, last;
+	next = world->ents[ent].next;
+	last = world->ents[ent].last;
+	if (next >= 0) {
+		world->ents[next].last = last;
+	}
+	if (last >= 0) {
+		world->ents[last].next = next;
+	} else {
+		*list = next;
+	}
+}
+
+static void link_dead(
+	jwb_world_t *world,
+	jwb_ehandle_t ent,
+	jwb_ehandle_t *list)
+{
+	world->ents[ent].last = -1;
+	world->ents[ent].next = *list;
+	*list = ent;
+}
+
 static size_t reposition(jwb_world_t *world, jwb_ehandle_t ent)
 {
 	size_t x, y;
@@ -64,7 +91,7 @@ static size_t reposition(jwb_world_t *world, jwb_ehandle_t ent)
 	return y * world->width + x;
 }
 
-static void unlink_ent(jwb_world_t *world, jwb_ehandle_t ent)
+static void unlink_living(jwb_world_t *world, jwb_ehandle_t ent)
 {
 	jwb_ehandle_t next, last;
 	next = world->ents[ent].next;
@@ -80,7 +107,7 @@ static void unlink_ent(jwb_world_t *world, jwb_ehandle_t ent)
 	}
 }
 
-static void link_ent(jwb_world_t *world, jwb_ehandle_t ent, size_t cell_idx)
+static void link_living(jwb_world_t *world, jwb_ehandle_t ent, size_t cell_idx)
 {
 	jwb_ehandle_t cell = world->cells[cell_idx];
 	world->ents[ent].last = ~cell_idx;
@@ -93,7 +120,7 @@ static void link_ent(jwb_world_t *world, jwb_ehandle_t ent, size_t cell_idx)
 
 static void place_ent(jwb_world_t *world, jwb_ehandle_t ent)
 {
-	link_ent(world, ent, reposition(world, ent));
+	link_living(world, ent, reposition(world, ent));
 }
 
 int jwb_world_alloc(
@@ -131,7 +158,8 @@ int jwb_world_alloc(
 	world->ent_cap = ent_buf_size;
 	/* world->on_hit = jwb_do_hit; */
 	world->freed = -1;
-	world->flags = HAS_WALLS | REMOVED_ENTS_LOCKED;
+	world->available = -1;
+	world->flags = HAS_WALLS;
 	world->cell_size = 0.;
 	return ret;
 
@@ -270,8 +298,8 @@ static void move_ents(jwb_world_t *world, size_t x, size_t y)
 			if (cell > here) {
 				world->ents[self].flags |= MOVED_THIS_STEP;
 			}
-			unlink_ent(world, self);
-			link_ent(world, self, cell);
+			unlink_living(world, self);
+			link_living(world, self, cell);
 		}
 	}
 }
@@ -485,11 +513,6 @@ void jwb_world_step(jwb_world_t *world)
 	}
 }
 
-void jwb_world_clear_removed(jwb_world_t *world)
-{
-	world->flags &= ~REMOVED_ENTS_LOCKED;
-}
-
 void jwb_world_destroy(jwb_world_t *world)
 {
 	FREE(world->cells);
@@ -504,9 +527,9 @@ jwb_ehandle_t jwb_world_add_ent(
 	double radius)
 {
 	jwb_ehandle_t ent;
-	if ((world->flags & REMOVED_ENTS_LOCKED) == 0 && world->freed >= 0) {
-		ent = world->freed;
-		world->freed = world->ents[ent].next;
+	if (world->available >= 0) {
+		ent = world->available;
+		unlink_dead(world, ent, &world->available);
 	} else {
 		ent = alloc_new_ent(world);
 		if (ent < 0) {
@@ -517,7 +540,7 @@ jwb_ehandle_t jwb_world_add_ent(
 	world->ents[ent].vel = *vel;
 	world->ents[ent].mass = mass;
 	world->ents[ent].radius = radius;
-	world->flags = 0;
+	world->ents[ent].flags = 0;
 	place_ent(world, ent);
 	return ent;
 }
@@ -526,13 +549,30 @@ int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent)
 {
 	int status = jwb_world_confirm_ent(world, ent);
 	if (status == 0) {
-		unlink_ent(world, ent);
-		world->ents[ent].next = world->freed;
-		world->freed = ent;
+		unlink_living(world, ent);
+		link_dead(world, ent, &world->freed);
 		world->ents[ent].flags |= REMOVED;
 		return 0;
 	}
 	return status;
+}
+
+int jwb_world_destroy_ent(jwb_world_t *world, jwb_ehandle_t ent)
+{
+	int status = jwb_world_confirm_ent(world, ent);
+	switch (-status) {
+	case 0:
+		unlink_living(world, ent);
+		break;
+	case JWBE_REMOVED_ENTITY:
+		unlink_dead(world, ent, &world->freed);
+		break;
+	default:
+		return status;
+	}
+	link_dead(world, ent, &world->available);
+	world->ents[ent].flags |= DESTROYED;
+	return 0;
 }
 
 int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent)

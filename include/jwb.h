@@ -61,6 +61,7 @@ typedef struct jwb__world {
 	jwb_ehandle_t *cells;
 	struct jwb__entity *ents;
 	jwb_ehandle_t freed;
+	jwb_ehandle_t available;
 	int flags;
 } jwb_world_t;
 
@@ -80,7 +81,7 @@ void jwb_world_step(jwb_world_t *world);
 
 int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent);
 
-void jwb_world_clear_removed(jwb_world_t *world);
+int jwb_world_destroy_ent(jwb_world_t *world, jwb_ehandle_t ent);
 
 void jwb_world_destroy(jwb_world_t *world);
 
