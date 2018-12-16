@@ -470,7 +470,6 @@ static void update_bottom_right(jwb_world_t *world)
 
 void jwb_world_step(jwb_world_t *world)
 {
-	/* TODO: Unroll this loop a bit. */
 	size_t x, y;
 	update_top_left(world);
 	update_top_right(world);
@@ -480,19 +479,6 @@ void jwb_world_step(jwb_world_t *world)
 	update_bottom_left(world);
 	update_bottom(world);
 	update_bottom_right(world);
-	/*
-	for (x = 0; x < world->width; ++x) {
-		update_cell(world, x, y);
-		update_cells(world, x, y, frame(x + 1, world->width),
-			y);
-		update_cells(world, x, y, frame(x + 1, world->width),
-			frame(y + 1, world->height));
-		update_cells(world, x, y, x,
-			frame(y + 1, world->height));
-		update_cells(world, x, y, frame(x - 1, world->width),
-			frame(y + 1, world->height));
-	}
-	*/
 	for (y = 0; y < world->height; ++y) {
 		for (x = 0; x < world->width; ++x) {
 			move_ents(world, x, y);
