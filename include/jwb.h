@@ -49,8 +49,7 @@ struct jwb__world;
 typedef void (*jwb_hit_handler_t)(
 	struct jwb__world *world,
 	jwb_ehandle_t e1,
-	jwb_ehandle_t e2,
-	struct jwb_vect *where);
+	jwb_ehandle_t e2);
 
 typedef struct jwb__world {
 	double cell_size;
@@ -76,6 +75,11 @@ int jwb_world_alloc(
 void jwb_world_set_walls(jwb_world_t *world, int on);
 
 void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);
+
+void jwb_elastic_collision(
+	jwb_world_t *world,
+	jwb_ehandle_t e1,
+	jwb_ehandle_t e2);
 
 void jwb_world_step(jwb_world_t *world);
 

@@ -156,7 +156,7 @@ int jwb_world_alloc(
 	world->height = height;
 	world->n_ents = 0;
 	world->ent_cap = ent_buf_size;
-	/* world->on_hit = jwb_do_hit; */
+	world->on_hit = jwb_elastic_collision;
 	world->freed = -1;
 	world->available = -1;
 	world->flags = HAS_WALLS;
@@ -185,7 +185,7 @@ void jwb_world_on_hit(WORLD *world, jwb_hit_handler_t on_hit)
 	world->on_hit = on_hit;
 }
 
-void check_ent_hit(WORLD *world, EHANDLE ent1, EHANDLE ent2)
+void jwb_elastic_collision(WORLD *world, EHANDLE ent1, EHANDLE ent2)
 {
 	double rad1, rad2, distance;
 	double mass1, mass2;
@@ -245,7 +245,7 @@ static void update_cell(WORLD *world, size_t x, size_t y)
 			EHANDLE other;
 			other = next_other;
 			next_other = world->ents[next_other].next;
-			check_ent_hit(world, self, other);
+			world->on_hit(world, self, other);
 		}
 	}
 }
@@ -269,7 +269,7 @@ static void update_cells(
 			EHANDLE other;
 			other = next_other;
 			next_other = world->ents[next_other].next;
-			check_ent_hit(world, self, other);
+			world->on_hit(world, self, other);
 		}
 	}
 }
