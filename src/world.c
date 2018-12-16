@@ -20,15 +20,6 @@
 #	define REMOVED (1 << 0)
 #	define MOVED_THIS_STEP (1 << 1)
 
-static unsigned long frame(long num, unsigned long lim)
-{
-	long mod = num % lim;
-	if (mod < 0) {
-		mod += lim;
-	}
-	return (unsigned long)mod;
-}
-
 static double fframe(double num, double lim)
 {
 	double mod = fmod(num, lim);
@@ -213,7 +204,7 @@ void check_ent_hit(jwb_world_t *world, jwb_ehandle_t ent1, jwb_ehandle_t ent2)
 	world->ents[ent2].correct.y += relative.y * cor2;
 }
 
-void update_cell(jwb_world_t *world, size_t x, size_t y)
+static void update_cell(jwb_world_t *world, size_t x, size_t y)
 {
 	jwb_ehandle_t next = world->cells[y * world->width + x];
 	while (next >= 0) {
@@ -230,7 +221,7 @@ void update_cell(jwb_world_t *world, size_t x, size_t y)
 	}
 }
 
-void update_cells(
+static void update_cells(
 	jwb_world_t *world,
 	size_t x1,
 	size_t y1,
@@ -284,23 +275,208 @@ static void move_ents(jwb_world_t *world, size_t x, size_t y)
 	}
 }
 
+static void cell_translate(
+	jwb_world_t *world,
+	size_t x,
+	size_t y,
+	const struct jwb_vect *disp)
+{
+	jwb_ehandle_t next;
+	for (next = world->cells[y * world->width + x];
+		next >= 0;
+		next = world->ents[next].next)
+	{
+		world->ents[next].pos.x += disp->x;
+		world->ents[next].pos.y += disp->y;
+	}
+}
+
+static void update_top_left(jwb_world_t *world)
+{
+	struct jwb_vect wrap_left;
+	wrap_left.x = world->cell_size * world->width;
+	wrap_left.y = 0.;
+	update_cell(world, 0, 0);
+	update_cells(world, 0, 0, 1, 0);
+	update_cells(world, 0, 0, 1, 1);
+	update_cells(world, 0, 0, 0, 1);
+	cell_translate(world, 0, 0, &wrap_left);
+	update_cells(world, 0, 0, world->width - 1, 1);
+	wrap_left.x *= -1;
+	cell_translate(world, 0, 0, &wrap_left);
+}
+
+static void update_top(jwb_world_t *world)
+{
+	size_t x;
+	for (x = 1; x < world->width - 1; ++x) {
+		update_cell(world, x, 0);
+		update_cells(world, x, 0, x + 1, 0);
+		update_cells(world, x, 0, x + 1, 1);
+		update_cells(world, x, 0, x + 1, 0);
+		update_cells(world, x, 0, x - 1, 0);
+	}
+}
+
+static void update_top_right(jwb_world_t *world)
+{
+	struct jwb_vect wrap_right;
+	size_t x = world->width - 1;
+	wrap_right.x = -world->cell_size * world->width;
+	wrap_right.y = 0.;
+	update_cell(world, x, 0);
+	cell_translate(world, x, 0, &wrap_right);
+	update_cells(world, x, 0, 0, 0);
+	update_cells(world, x, 0, 0, 1);
+	wrap_right.x *= -1;
+	cell_translate(world, x, 0, &wrap_right);
+	update_cells(world, x, 0, x, 1);
+	update_cells(world, x, 0, x - 1, 1);
+}
+
+static void update_left(jwb_world_t *world)
+{
+	struct jwb_vect wrap_left;
+	size_t y;
+	wrap_left.x = world->cell_size * world->width;
+	wrap_left.y = 0.;
+	for (y = 1; y < world->height - 1; ++y) {
+		update_cell(world, 0, y);
+		update_cells(world, 0, y, 1, y);
+		update_cells(world, 0, y, 1, y + 1);
+		update_cells(world, 0, y, 0, y + 1);
+		cell_translate(world, 0, y, &wrap_left);
+		update_cells(world, 0, y, world->width - 1, y + 1);
+		wrap_left.x *= -1.;
+		cell_translate(world, 0, y, &wrap_left);
+		wrap_left.x *= -1.;
+	}
+}
+
+static void update_middle(jwb_world_t *world)
+{
+	size_t x, y;
+	for (y = 1; y < world->height - 1; ++y) {
+		for (x = 1; x < world->width - 1; ++x) {
+			update_cell(world, x, y);
+			update_cells(world, x, y, x + 1, y);
+			update_cells(world, x, y, x + 1, y + 1);
+			update_cells(world, x, y, x, y + 1);
+			update_cells(world, x, y, x - 1, y + 1);
+		}
+	}
+}
+
+static void update_right(jwb_world_t *world)
+{
+	struct jwb_vect wrap_right;
+	size_t x, y;
+	wrap_right.x = -world->cell_size * world->width;
+	wrap_right.y = 0.;
+	x = world->width - 1;
+	for (y = 1; y < world->height - 1; ++y) {
+		update_cell(world, x, y);
+		cell_translate(world, x, y, &wrap_right);
+		update_cells(world, x, y, 0, y);
+		update_cells(world, x, y, 0, y + 1);
+		wrap_right.x *= -1.;
+		cell_translate(world, 0, y, &wrap_right);
+		wrap_right.x *= -1.;
+		update_cells(world, x, y, x, y + 1);
+		update_cells(world, x, y, x - 1, y + 1);
+	}
+}
+
+static void update_bottom_left(jwb_world_t *world)
+{
+	struct jwb_vect wrap_left, wrap_down;
+	size_t y = world->height - 1;
+	wrap_left.x = world->cell_size * world->width;
+	wrap_left.y = 0.;
+	wrap_down.x = 0.;
+	wrap_down.y = -world->cell_size * world->height;
+	update_cell(world, 0, y);
+	update_cells(world, 0, y, 1, y);
+	cell_translate(world, 0, y, &wrap_down);
+	update_cells(world, 0, y, 1, 0);
+	update_cells(world, 0, y, 0, 0);
+	cell_translate(world, 0, y, &wrap_left);
+	update_cells(world, 0, y, world->width - 1, 0);
+	wrap_left.x *= -1.;
+	cell_translate(world, 0, y, &wrap_left);
+	wrap_down.y *= -1.;
+	cell_translate(world, 0, y, &wrap_down);
+}
+
+static void update_bottom(jwb_world_t *world)
+{
+	struct jwb_vect wrap_down;
+	double x, y;
+	wrap_down.x = 0.;
+	wrap_down.y = -world->cell_size * world->height;
+	y = world->height - 1;
+	for (x = 1; x < world->width - 1; ++x) {
+		update_cell(world, x, y);
+		update_cells(world, x, y, x + 1, y);
+		cell_translate(world, x, y, &wrap_down);
+		update_cells(world, x, y, x + 1, 0);
+		update_cells(world, x, y, x, 0);
+		update_cells(world, x, y, x - 1, 0);
+		wrap_down.y *= -1.;
+		cell_translate(world, x, y, &wrap_down);
+		wrap_down.y *= -1.;
+	}
+}
+
+static void update_bottom_right(jwb_world_t *world)
+{
+	struct jwb_vect wrap_right, wrap_down;
+	double x, y;
+	wrap_right.x = -world->cell_size * world->width;
+	wrap_right.y = 0.;
+	wrap_down.x = 0.;
+	wrap_down.y = -world->cell_size * world->height;
+	x = world->width - 1;
+	y = world->height - 1;
+	update_cell(world, x, y);
+	cell_translate(world, x, y, &wrap_right);
+	update_cells(world, x, y, 0, y);
+	cell_translate(world, x, y, &wrap_down);
+	update_cells(world, x, y, 0, 0);
+	wrap_right.x *= -1.;
+	cell_translate(world, x, y, &wrap_right);
+	update_cells(world, x, y, x, 0);
+	update_cells(world, x, y, x - 1, 0);
+	wrap_down.y *= -1.;
+	cell_translate(world, x, y, &wrap_down);
+}
+
 void jwb_world_step(jwb_world_t *world)
 {
 	/* TODO: Unroll this loop a bit. */
 	size_t x, y;
-	for (y = 0; y < world->height; ++y) {
-		for (x = 0; x < world->width; ++x) {
-			update_cell(world, x, y);
-			update_cells(world, x, y, frame(x + 1, world->width),
-				y);
-			update_cells(world, x, y, frame(x + 1, world->width),
-				frame(y + 1, world->height));
-			update_cells(world, x, y, x,
-				frame(y + 1, world->height));
-			update_cells(world, x, y, frame(x - 1, world->width),
-				frame(y + 1, world->height));
-		}
+	update_top_left(world);
+	update_top(world);
+	update_top_right(world);
+	update_left(world);
+	update_middle(world);
+	update_right(world);
+	update_bottom_left(world);
+	update_bottom(world);
+	update_bottom_right(world);
+	/*
+	for (x = 0; x < world->width; ++x) {
+		update_cell(world, x, y);
+		update_cells(world, x, y, frame(x + 1, world->width),
+			y);
+		update_cells(world, x, y, frame(x + 1, world->width),
+			frame(y + 1, world->height));
+		update_cells(world, x, y, x,
+			frame(y + 1, world->height));
+		update_cells(world, x, y, frame(x - 1, world->width),
+			frame(y + 1, world->height));
 	}
+	*/
 	for (y = 0; y < world->height; ++y) {
 		for (x = 0; x < world->width; ++x) {
 			move_ents(world, x, y);
