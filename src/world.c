@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+typedef jwb_world_t WORLD;
+typedef struct jwb_vect VECT;
+typedef jwb_ehandle_t EHANDLE;
+
 #ifdef JWBO_NO_ALLOC
 #	define ALLOC(size) ((void)(size), NULL)
 #	define FREE(ptr) ((void)(ptr))
@@ -12,7 +16,7 @@
 #	define FREE(ptr) free((ptr))
 #endif /* JWBO_NO_ALLOC */
 
-/* Private flags for jwb_world_t::flags */
+/* Private flags for WORLD::flags */
 #	define HAS_WALLS (1 << 0)
 
 /* Private flags for jwb__entity::flags */
@@ -29,7 +33,7 @@ static double fframe(double num, double lim)
 	return mod;
 }
 
-jwb_ehandle_t alloc_new_ent(jwb_world_t *world)
+static EHANDLE alloc_new_ent(WORLD *world)
 {
 	if (world->n_ents >= world->ent_cap) {
 #ifdef JWBO_NO_ALLOC
@@ -50,12 +54,11 @@ jwb_ehandle_t alloc_new_ent(jwb_world_t *world)
 	return world->n_ents++;
 }
 
-static void unlink_dead(
-	jwb_world_t *world,
-	jwb_ehandle_t ent,
-	jwb_ehandle_t *list)
+static void unlink_dead(WORLD *world,
+	EHANDLE ent,
+	EHANDLE *list)
 {
-	jwb_ehandle_t next, last;
+	EHANDLE next, last;
 	next = world->ents[ent].next;
 	last = world->ents[ent].last;
 	if (next >= 0) {
@@ -68,20 +71,17 @@ static void unlink_dead(
 	}
 }
 
-static void link_dead(
-	jwb_world_t *world,
-	jwb_ehandle_t ent,
-	jwb_ehandle_t *list)
+static void link_dead(WORLD *world, EHANDLE ent, EHANDLE *list)
 {
 	world->ents[ent].last = -1;
 	world->ents[ent].next = *list;
 	*list = ent;
 }
 
-static size_t reposition(jwb_world_t *world, jwb_ehandle_t ent)
+static size_t reposition(WORLD *world, EHANDLE ent)
 {
 	size_t x, y;
-	struct jwb_vect pos;
+	VECT pos;
 	pos = world->ents[ent].pos;
 	pos.x = fframe(pos.x, world->width * world->cell_size);
 	pos.y = fframe(pos.y, world->height * world->cell_size);
@@ -91,9 +91,9 @@ static size_t reposition(jwb_world_t *world, jwb_ehandle_t ent)
 	return y * world->width + x;
 }
 
-static void unlink_living(jwb_world_t *world, jwb_ehandle_t ent)
+static void unlink_living(WORLD *world, EHANDLE ent)
 {
-	jwb_ehandle_t next, last;
+	EHANDLE next, last;
 	next = world->ents[ent].next;
 	last = world->ents[ent].last;
 	if (next >= 0) {
@@ -107,9 +107,9 @@ static void unlink_living(jwb_world_t *world, jwb_ehandle_t ent)
 	}
 }
 
-static void link_living(jwb_world_t *world, jwb_ehandle_t ent, size_t cell_idx)
+static void link_living(WORLD *world, EHANDLE ent, size_t cell_idx)
 {
-	jwb_ehandle_t cell = world->cells[cell_idx];
+	EHANDLE cell = world->cells[cell_idx];
 	world->ents[ent].last = ~cell_idx;
 	world->ents[ent].next = cell;
 	if (cell >= 0) {
@@ -118,13 +118,13 @@ static void link_living(jwb_world_t *world, jwb_ehandle_t ent, size_t cell_idx)
 	world->cells[cell_idx] = ent;
 }
 
-static void place_ent(jwb_world_t *world, jwb_ehandle_t ent)
+static void place_ent(WORLD *world, EHANDLE ent)
 {
 	link_living(world, ent, reposition(world, ent));
 }
 
 int jwb_world_alloc(
-	jwb_world_t *world,
+	WORLD *world,
 	size_t width,
 	size_t height,
 	size_t ent_buf_size,
@@ -171,7 +171,7 @@ error_cells:
 	return ret;
 }
 
-void jwb_world_set_walls(jwb_world_t *world, int on)
+void jwb_world_set_walls(WORLD *world, int on)
 {
 	if (on) {
 		world->flags |= HAS_WALLS;
@@ -180,17 +180,17 @@ void jwb_world_set_walls(jwb_world_t *world, int on)
 	}
 }
 
-void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit)
+void jwb_world_on_hit(WORLD *world, jwb_hit_handler_t on_hit)
 {
 	world->on_hit = on_hit;
 }
 
-void check_ent_hit(jwb_world_t *world, jwb_ehandle_t ent1, jwb_ehandle_t ent2)
+void check_ent_hit(WORLD *world, EHANDLE ent1, EHANDLE ent2)
 {
 	double rad1, rad2, distance;
 	double mass1, mass2;
-	struct jwb_vect pos1, pos2, relative;
-	struct jwb_vect vel1, vel2;
+	VECT pos1, pos2, relative;
+	VECT vel1, vel2;
 	double bounced1, bounced2;
 	double overlap;
 	double cor1, cor2;
@@ -233,16 +233,16 @@ void check_ent_hit(jwb_world_t *world, jwb_ehandle_t ent1, jwb_ehandle_t ent2)
 	world->ents[ent2].correct.y += relative.y * cor2;
 }
 
-static void update_cell(jwb_world_t *world, size_t x, size_t y)
+static void update_cell(WORLD *world, size_t x, size_t y)
 {
-	jwb_ehandle_t next = world->cells[y * world->width + x];
+	EHANDLE next = world->cells[y * world->width + x];
 	while (next >= 0) {
-		jwb_ehandle_t self, next_other;
+		EHANDLE self, next_other;
 		self = next;
 		next = world->ents[next].next;
 		next_other = next;
 		while (next_other >= 0) {
-			jwb_ehandle_t other;
+			EHANDLE other;
 			other = next_other;
 			next_other = world->ents[next_other].next;
 			check_ent_hit(world, self, other);
@@ -251,22 +251,22 @@ static void update_cell(jwb_world_t *world, size_t x, size_t y)
 }
 
 static void update_cells(
-	jwb_world_t *world,
+	WORLD *world,
 	size_t x1,
 	size_t y1,
 	size_t x2,
 	size_t y2)
 {
-	jwb_ehandle_t next1, next2;
+	EHANDLE next1, next2;
 	next1 = world->cells[y1 * world->width + x1];
 	next2 = world->cells[y2 * world->width + x2];
 	while (next1 >= 0) {
-		jwb_ehandle_t self, next_other;
+		EHANDLE self, next_other;
 		self = next1;
 		next1 = world->ents[next1].next;
 		next_other = next2;
 		while (next_other >= 0) {
-			jwb_ehandle_t other;
+			EHANDLE other;
 			other = next_other;
 			next_other = world->ents[next_other].next;
 			check_ent_hit(world, self, other);
@@ -274,12 +274,12 @@ static void update_cells(
 	}
 }
 
-static void move_ents(jwb_world_t *world, size_t x, size_t y)
+static void move_ents(WORLD *world, size_t x, size_t y)
 {
 	size_t here = y * world->width + x;
-	jwb_ehandle_t next = world->cells[here];
+	EHANDLE next = world->cells[here];
 	while (next >= 0) {
-		jwb_ehandle_t self;
+		EHANDLE self;
 		size_t cell;
 		self = next;
 		next = world->ents[next].next;
@@ -304,13 +304,9 @@ static void move_ents(jwb_world_t *world, size_t x, size_t y)
 	}
 }
 
-static void cell_translate(
-	jwb_world_t *world,
-	size_t x,
-	size_t y,
-	const struct jwb_vect *disp)
+static void cell_translate(WORLD *world, size_t x, size_t y, const VECT *disp)
 {
-	jwb_ehandle_t next;
+	EHANDLE next;
 	for (next = world->cells[y * world->width + x];
 		next >= 0;
 		next = world->ents[next].next)
@@ -320,9 +316,9 @@ static void cell_translate(
 	}
 }
 
-static void update_top_left(jwb_world_t *world)
+static void update_top_left(WORLD *world)
 {
-	struct jwb_vect wrap_left;
+	VECT wrap_left;
 	wrap_left.x = world->cell_size * world->width;
 	wrap_left.y = 0.;
 	update_cell(world, 0, 0);
@@ -335,9 +331,9 @@ static void update_top_left(jwb_world_t *world)
 	cell_translate(world, 0, 0, &wrap_left);
 }
 
-static void update_top_right(jwb_world_t *world)
+static void update_top_right(WORLD *world)
 {
-	struct jwb_vect wrap_right;
+	VECT wrap_right;
 	size_t x = world->width - 1;
 	wrap_right.x = -world->cell_size * world->width;
 	wrap_right.y = 0.;
@@ -351,9 +347,9 @@ static void update_top_right(jwb_world_t *world)
 	update_cells(world, x, 0, x - 1, 1);
 }
 
-static void update_left(jwb_world_t *world)
+static void update_left(WORLD *world)
 {
-	struct jwb_vect wrap_left;
+	VECT wrap_left;
 	size_t y;
 	wrap_left.x = world->cell_size * world->width;
 	wrap_left.y = 0.;
@@ -370,7 +366,7 @@ static void update_left(jwb_world_t *world)
 	}
 }
 
-static void update_middle(jwb_world_t *world)
+static void update_middle(WORLD *world)
 {
 	size_t x, y;
 	for (y = 0; y < world->height - 1; ++y) {
@@ -384,9 +380,9 @@ static void update_middle(jwb_world_t *world)
 	}
 }
 
-static void update_right(jwb_world_t *world)
+static void update_right(WORLD *world)
 {
-	struct jwb_vect wrap_right;
+	VECT wrap_right;
 	size_t x, y;
 	wrap_right.x = -world->cell_size * world->width;
 	wrap_right.y = 0.;
@@ -404,9 +400,9 @@ static void update_right(jwb_world_t *world)
 	}
 }
 
-static void update_bottom_left(jwb_world_t *world)
+static void update_bottom_left(WORLD *world)
 {
-	struct jwb_vect wrap_left, wrap_down;
+	VECT wrap_left, wrap_down;
 	size_t y = world->height - 1;
 	wrap_left.x = world->cell_size * world->width;
 	wrap_left.y = 0.;
@@ -425,9 +421,9 @@ static void update_bottom_left(jwb_world_t *world)
 	cell_translate(world, 0, y, &wrap_down);
 }
 
-static void update_bottom(jwb_world_t *world)
+static void update_bottom(WORLD *world)
 {
-	struct jwb_vect wrap_down;
+	VECT wrap_down;
 	double x, y;
 	wrap_down.x = 0.;
 	wrap_down.y = -world->cell_size * world->height;
@@ -445,9 +441,9 @@ static void update_bottom(jwb_world_t *world)
 	}
 }
 
-static void update_bottom_right(jwb_world_t *world)
+static void update_bottom_right(WORLD *world)
 {
-	struct jwb_vect wrap_right, wrap_down;
+	VECT wrap_right, wrap_down;
 	double x, y;
 	wrap_right.x = -world->cell_size * world->width;
 	wrap_right.y = 0.;
@@ -468,7 +464,7 @@ static void update_bottom_right(jwb_world_t *world)
 	cell_translate(world, x, y, &wrap_down);
 }
 
-void jwb_world_step(jwb_world_t *world)
+void jwb_world_step(WORLD *world)
 {
 	size_t x, y;
 	update_top_left(world);
@@ -486,20 +482,19 @@ void jwb_world_step(jwb_world_t *world)
 	}
 }
 
-void jwb_world_destroy(jwb_world_t *world)
+void jwb_world_destroy(WORLD *world)
 {
 	FREE(world->cells);
 	FREE(world->ents);
 }
 
-jwb_ehandle_t jwb_world_add_ent(
-	jwb_world_t *world,
-	const struct jwb_vect *pos,
-	const struct jwb_vect *vel,
+EHANDLE jwb_world_add_ent(WORLD *world,
+	const VECT *pos,
+	const VECT *vel,
 	double mass,
 	double radius)
 {
-	jwb_ehandle_t ent;
+	EHANDLE ent;
 	if (world->available >= 0) {
 		ent = world->available;
 		unlink_dead(world, ent, &world->available);
@@ -518,7 +513,7 @@ jwb_ehandle_t jwb_world_add_ent(
 	return ent;
 }
 
-int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent)
+int jwb_world_remove_ent(WORLD *world, EHANDLE ent)
 {
 	int status = jwb_world_confirm_ent(world, ent);
 	if (status == 0) {
@@ -530,7 +525,7 @@ int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent)
 	return status;
 }
 
-int jwb_world_destroy_ent(jwb_world_t *world, jwb_ehandle_t ent)
+int jwb_world_destroy_ent(WORLD *world, EHANDLE ent)
 {
 	int status = jwb_world_confirm_ent(world, ent);
 	switch (-status) {
@@ -548,7 +543,7 @@ int jwb_world_destroy_ent(jwb_world_t *world, jwb_ehandle_t ent)
 	return 0;
 }
 
-int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent)
+int jwb_world_confirm_ent(WORLD *world, EHANDLE ent)
 {
 	int flags;
 	if (ent >= (long)world->n_ents) {
@@ -564,72 +559,54 @@ int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent)
 	}
 }
 
-void jwb_world_get_pos(
-	jwb_world_t *world,
-	jwb_ehandle_t ent,
-	struct jwb_vect *dest)
+void jwb_world_get_pos(WORLD *world, EHANDLE ent, VECT *dest)
 {
 	*dest = world->ents[ent].pos;
 }
 
-void jwb_world_get_vel(
-	jwb_world_t *world,
-	jwb_ehandle_t ent,
-	struct jwb_vect *dest)
+void jwb_world_get_vel(WORLD *world, EHANDLE ent, VECT *dest)
 {
 	*dest = world->ents[ent].vel;
 }
 
-void jwb_world_set_pos(
-	jwb_world_t *world,
-	jwb_ehandle_t ent,
-	const struct jwb_vect *pos)
+void jwb_world_set_pos(WORLD *world, EHANDLE ent, const VECT *pos)
 {
 	world->ents[ent].pos = *pos;
 }
 
-void jwb_world_set_vel(
-	jwb_world_t *world,
-	jwb_ehandle_t ent,
-	const struct jwb_vect *vel)
+void jwb_world_set_vel(WORLD *world, EHANDLE ent, const VECT *vel)
 {
 	world->ents[ent].vel = *vel;
 }
 
-void jwb_world_translate(
-	jwb_world_t *world,
-	jwb_ehandle_t ent,
-	const struct jwb_vect *delta)
+void jwb_world_translate(WORLD *world, EHANDLE ent, const VECT *delta)
 {
 	world->ents[ent].pos.x += delta->x;
 	world->ents[ent].pos.y += delta->y;
 }
 
-void jwb_world_accelerate(
-	jwb_world_t *world,
-	jwb_ehandle_t ent,
-	const struct jwb_vect *delta)
+void jwb_world_accelerate(WORLD *world, EHANDLE ent, const VECT *delta)
 {
 	world->ents[ent].vel.x += delta->x;
 	world->ents[ent].vel.y += delta->y;
 }
 
-double jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent)
+double jwb_world_get_mass(WORLD *world, EHANDLE ent)
 {
 	return world->ents[ent].mass;
 }
 
-double jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent)
+double jwb_world_get_radius(WORLD *world, EHANDLE ent)
 {
 	return world->ents[ent].radius;
 }
 
-void jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass)
+void jwb_world_set_mass(WORLD *world, EHANDLE ent, double mass)
 {
 	world->ents[ent].mass = mass;
 }
 
-void jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, double radius)
+void jwb_world_set_radius(WORLD *world, EHANDLE ent, double radius)
 {
 	world->ents[ent].radius = radius;
 }
