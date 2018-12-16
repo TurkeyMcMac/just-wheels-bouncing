@@ -313,8 +313,8 @@ static void update_top(jwb_world_t *world)
 		update_cell(world, x, 0);
 		update_cells(world, x, 0, x + 1, 0);
 		update_cells(world, x, 0, x + 1, 1);
-		update_cells(world, x, 0, x + 1, 0);
-		update_cells(world, x, 0, x - 1, 0);
+		update_cells(world, x, 0, x, 1);
+		update_cells(world, x, 0, x - 1, 1);
 	}
 }
 
@@ -380,7 +380,7 @@ static void update_right(jwb_world_t *world)
 		update_cells(world, x, y, 0, y);
 		update_cells(world, x, y, 0, y + 1);
 		wrap_right.x *= -1.;
-		cell_translate(world, 0, y, &wrap_right);
+		cell_translate(world, x, y, &wrap_right);
 		wrap_right.x *= -1.;
 		update_cells(world, x, y, x, y + 1);
 		update_cells(world, x, y, x - 1, y + 1);
