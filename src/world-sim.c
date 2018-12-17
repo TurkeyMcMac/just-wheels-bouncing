@@ -1,6 +1,5 @@
 #define JWB_INTERNAL_
 #include <jwb.h>
-#define _GNU_SOURCE
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
