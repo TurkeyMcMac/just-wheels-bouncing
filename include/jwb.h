@@ -195,6 +195,13 @@ void jwb_world_set_radius_unck(
 	jwb_ehandle_t ent,
 	double radius);
 
+typedef int (*jwb_world_iter_t)(
+	jwb_world_t *world,
+	jwb_ehandle_t ent,
+	void *data);
+
+int jwb_world_for_each(jwb_world_t *world, jwb_world_iter_t iter, void *data);
+
 #ifdef JWB_INTERNAL_
 typedef jwb_world_t WORLD;
 typedef struct jwb_vect VECT;
