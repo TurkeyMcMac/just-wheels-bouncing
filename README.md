@@ -1,4 +1,17 @@
-# It's Just Wheels Bouncing
-This is a simple physics engine for simulating frictionless, perfectly elastic
-circles colliding. I hope to keep the user interface nice and simple. This is
-currently a work-in-progress.
+# Just Wheels Bouncing (JWB)
+This is a simple physics engine for simulating frictionless circles colliding. I
+hope to keep the user interface nice and simple. This is currently a
+work-in-progress.
+
+## Implemented features
+ * Perfectly elastic collisions
+ * Toroidal universe
+ * Entity resource management
+
+## Features planned
+ * Partially elastic collisions
+ * Walled universe
+ * Bindings to other languages
+ * Friction with the surface
+ * Friction between circles?
+ * Move geometric data to separate shared structures?
