@@ -77,7 +77,11 @@ int jwb_world_alloc(
 
 double jwb_world_get_cell_size(jwb_world_t *world);
 
-void jwb_world_set_cell_size(jwb_world_t *world, double cell_size);
+int jwb_world_set_cell_size(jwb_world_t *world, double cell_size);
+
+double jwb_world_get_cell_size_unck(jwb_world_t *world);
+
+void jwb_world_set_cell_size_unck(jwb_world_t *world, double cell_size);
 
 void jwb_world_set_walls(jwb_world_t *world, int on);
 
