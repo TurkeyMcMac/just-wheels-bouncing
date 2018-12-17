@@ -191,4 +191,27 @@ void jwb_world_set_radius_unck(
 	jwb_ehandle_t ent,
 	double radius);
 
+#ifdef JWB_INTERNAL_
+typedef jwb_world_t WORLD;
+typedef struct jwb_vect VECT;
+typedef jwb_ehandle_t EHANDLE;
+
+#	ifdef JWBO_NO_ALLOC
+#		define ALLOC(size) ((void)(size), NULL)
+#		define FREE(ptr) ((void)(ptr))
+#	else
+#		define ALLOC(size) malloc((size))
+#		define FREE(ptr) free((ptr))
+#	endif /* JWBO_NO_ALLOC */
+
+/* Private flags for WORLD::flags */
+#	define HAS_WALLS (1 << 0)
+
+/* Private flags for jwb__entity::flags */
+#	define REMOVED (1 << 0)
+#	define MOVED_THIS_STEP (1 << 1)
+#	define DESTROYED (1 << 2)
+
+#endif /* JWB_INTERNAL_ */
+
 #endif /* Header guard */

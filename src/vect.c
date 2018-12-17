@@ -1,3 +1,4 @@
+#define JWB_INTERNAL_
 #include <jwb.h>
 #include <math.h>
 
