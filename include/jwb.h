@@ -146,4 +146,10 @@ void jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);
 
 void jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, double radius);
 
+#ifdef JWB_INTERNAL_
+typedef jwb_world_t WORLD;
+typedef struct jwb_vect VECT;
+typedef jwb_ehandle_t EHANDLE;
+#endif /* JWB_INTERNAL_ */
+
 #endif /* Header guard */

@@ -1,12 +1,9 @@
+#define JWB_INTERNAL_
 #include <jwb.h>
 #define _GNU_SOURCE
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef jwb_world_t WORLD;
-typedef struct jwb_vect VECT;
-typedef jwb_ehandle_t EHANDLE;
 
 #ifdef JWBO_NO_ALLOC
 #	define ALLOC(size) ((void)(size), NULL)
