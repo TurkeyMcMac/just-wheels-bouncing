@@ -574,54 +574,184 @@ int jwb_world_confirm_ent(WORLD *world, EHANDLE ent)
 	}
 }
 
-void jwb_world_get_pos(WORLD *world, EHANDLE ent, VECT *dest)
+int jwb_world_get_pos(WORLD *world, EHANDLE ent, VECT *dest)
+{
+	int err;
+	if (!dest) {
+		return -JWBE_INVALID_ARGUMENT;
+	}
+	err = jwb_world_confirm_ent(world, ent);
+	if (err) {
+		return err;
+	}
+	jwb_world_get_pos_unck(world, ent, dest);
+	return 0;
+}
+
+int jwb_world_get_vel(WORLD *world, EHANDLE ent, VECT *dest)
+{
+	int err;
+	if (!dest) {
+		return -JWBE_INVALID_ARGUMENT;
+	}
+	err = jwb_world_confirm_ent(world, ent);
+	if (err) {
+		return err;
+	}
+	jwb_world_get_vel_unck(world, ent, dest);
+	return 0;
+}
+
+int jwb_world_set_pos(WORLD *world, EHANDLE ent, const VECT *pos)
+{
+	int err;
+	if (!pos) {
+		return -JWBE_INVALID_ARGUMENT;
+	}
+	err = jwb_world_confirm_ent(world, ent);
+	if (err) {
+		return err;
+	}
+	jwb_world_set_pos_unck(world, ent, pos);
+	return 0;
+}
+
+int jwb_world_set_vel(WORLD *world, EHANDLE ent, const VECT *vel)
+{
+	int err;
+	if (!vel) {
+		return -JWBE_INVALID_ARGUMENT;
+	}
+	err = jwb_world_confirm_ent(world, ent);
+	if (err) {
+		return err;
+	}
+	jwb_world_set_vel_unck(world, ent, vel);
+	return 0;
+}
+
+int jwb_world_translate(WORLD *world, EHANDLE ent, const VECT *delta)
+{
+	int err;
+	if (!delta) {
+		return -JWBE_INVALID_ARGUMENT;
+	}
+	err = jwb_world_confirm_ent(world, ent);
+	if (err) {
+		return err;
+	}
+	jwb_world_translate_unck(world, ent, delta);
+	return 0;
+}
+
+int jwb_world_accelerate(WORLD *world, EHANDLE ent, const VECT *delta)
+{
+	int err;
+	if (!delta) {
+		return -JWBE_INVALID_ARGUMENT;
+	}
+	err = jwb_world_confirm_ent(world, ent);
+	if (err) {
+		return err;
+	}
+	jwb_world_accelerate_unck(world, ent, delta);
+	return 0;
+}
+
+double jwb_world_get_mass(WORLD *world, EHANDLE ent)
+{
+	int err = jwb_world_confirm_ent(world, ent);
+	if (err) {
+		return err;
+	}
+	return jwb_world_get_mass_unck(world, ent);
+}
+
+double jwb_world_get_radius(WORLD *world, EHANDLE ent)
+{
+	int err = jwb_world_confirm_ent(world, ent);
+	if (err) {
+		return err;
+	}
+	return jwb_world_get_radius_unck(world, ent);
+}
+
+int jwb_world_set_mass(WORLD *world, EHANDLE ent, double mass)
+{
+	int err;
+	if (mass < 0.) {
+		return -JWBE_INVALID_ARGUMENT;
+	}
+	err = jwb_world_confirm_ent(world, ent);
+	if (err) {
+		return err;
+	}
+	jwb_world_set_mass_unck(world, ent, mass);
+	return 0;
+}
+
+int jwb_world_set_radius(WORLD *world, EHANDLE ent, double radius)
+{
+	int err;
+	if (radius < 0. || radius > world->cell_size) {
+		return -JWBE_INVALID_ARGUMENT;
+	}
+	err = jwb_world_confirm_ent(world, ent);
+	if (err) {
+		return err;
+	}
+	jwb_world_set_radius_unck(world, ent, radius);
+	return 0;
+}
+
+void jwb_world_get_pos_unck(WORLD *world, EHANDLE ent, VECT *dest)
 {
 	*dest = world->ents[ent].pos;
 }
 
-void jwb_world_get_vel(WORLD *world, EHANDLE ent, VECT *dest)
+void jwb_world_get_vel_unck(WORLD *world, EHANDLE ent, VECT *dest)
 {
 	*dest = world->ents[ent].vel;
 }
 
-void jwb_world_set_pos(WORLD *world, EHANDLE ent, const VECT *pos)
+void jwb_world_set_pos_unck(WORLD *world, EHANDLE ent, const VECT *pos)
 {
 	world->ents[ent].pos = *pos;
 }
 
-void jwb_world_set_vel(WORLD *world, EHANDLE ent, const VECT *vel)
+void jwb_world_set_vel_unck(WORLD *world, EHANDLE ent, const VECT *vel)
 {
 	world->ents[ent].vel = *vel;
 }
 
-void jwb_world_translate(WORLD *world, EHANDLE ent, const VECT *delta)
+void jwb_world_translate_unck(WORLD *world, EHANDLE ent, const VECT *delta)
 {
 	world->ents[ent].pos.x += delta->x;
 	world->ents[ent].pos.y += delta->y;
 }
 
-void jwb_world_accelerate(WORLD *world, EHANDLE ent, const VECT *delta)
+void jwb_world_accelerate_unck(WORLD *world, EHANDLE ent, const VECT *delta)
 {
 	world->ents[ent].vel.x += delta->x;
 	world->ents[ent].vel.y += delta->y;
 }
 
-double jwb_world_get_mass(WORLD *world, EHANDLE ent)
+double jwb_world_get_mass_unck(WORLD *world, EHANDLE ent)
 {
 	return world->ents[ent].mass;
 }
 
-double jwb_world_get_radius(WORLD *world, EHANDLE ent)
+double jwb_world_get_radius_unck(WORLD *world, EHANDLE ent)
 {
 	return world->ents[ent].radius;
 }
 
-void jwb_world_set_mass(WORLD *world, EHANDLE ent, double mass)
+void jwb_world_set_mass_unck(WORLD *world, EHANDLE ent, double mass)
 {
 	world->ents[ent].mass = mass;
 }
 
-void jwb_world_set_radius(WORLD *world, EHANDLE ent, double radius)
+void jwb_world_set_radius_unck(WORLD *world, EHANDLE ent, double radius)
 {
 	world->ents[ent].radius = radius;
 }

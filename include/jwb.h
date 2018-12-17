@@ -6,6 +6,7 @@
 #define JWBE_NO_MEMORY 1
 #define JWBE_REMOVED_ENTITY 2
 #define JWBE_DESTROYED_ENTITY 3
+#define JWBE_INVALID_ARGUMENT 4
 const char *jwb_errmsg(int errcode);
 
 typedef struct {
@@ -108,32 +109,62 @@ jwb_ehandle_t jwb_world_add_ent(
 
 int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent);
 
-void jwb_world_get_pos(
+int jwb_world_get_pos(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
 	struct jwb_vect *dest);
 
-void jwb_world_get_vel(
+int jwb_world_get_vel(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
 	struct jwb_vect *dest);
 
-void jwb_world_set_pos(
+int jwb_world_set_pos(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
 	const struct jwb_vect *dest);
 
-void jwb_world_set_vel(
+int jwb_world_set_vel(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
 	const struct jwb_vect *dest);
 
-void jwb_world_translate(
+int jwb_world_translate(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
 	const struct jwb_vect *delta);
 
-void jwb_world_accelerate(
+int jwb_world_accelerate(
+	jwb_world_t *world,
+	jwb_ehandle_t ent,
+	const struct jwb_vect *delta);
+
+void jwb_world_get_pos_unck(
+	jwb_world_t *world,
+	jwb_ehandle_t ent,
+	struct jwb_vect *dest);
+
+void jwb_world_get_vel_unck(
+	jwb_world_t *world,
+	jwb_ehandle_t ent,
+	struct jwb_vect *dest);
+
+void jwb_world_set_pos_unck(
+	jwb_world_t *world,
+	jwb_ehandle_t ent,
+	const struct jwb_vect *dest);
+
+void jwb_world_set_vel_unck(
+	jwb_world_t *world,
+	jwb_ehandle_t ent,
+	const struct jwb_vect *dest);
+
+void jwb_world_translate_unck(
+	jwb_world_t *world,
+	jwb_ehandle_t ent,
+	const struct jwb_vect *delta);
+
+void jwb_world_accelerate_unck(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
 	const struct jwb_vect *delta);
@@ -142,8 +173,22 @@ double jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);
 
 double jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);
 
-void jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);
+int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);
 
-void jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, double radius);
+int jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, double radius);
+
+double jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);
+
+double jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);
+
+void jwb_world_set_mass_unck(
+	jwb_world_t *world,
+	jwb_ehandle_t ent,
+	double mass);
+
+void jwb_world_set_radius_unck(
+	jwb_world_t *world,
+	jwb_ehandle_t ent,
+	double radius);
 
 #endif /* Header guard */

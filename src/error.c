@@ -12,6 +12,8 @@ const char *jwb_errmsg(int code)
 		return "Entity handle referenced a removed entity";
 	case JWBE_DESTROYED_ENTITY:
 		return "Entity handle referenced a destroyed entity (CRITICAL)";
+	case JWBE_INVALID_ARGUMENT:
+		return "Invalid argument";
 	case 0:
 		return "No error";
 	default:
