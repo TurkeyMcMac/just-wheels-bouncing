@@ -72,7 +72,17 @@ int jwb_world_alloc(
 	void *ent_buf,
 	void *cell_buf);
 
+#define JWB_WORLD_DEFAULT_CELL_SIZE 10.
+
+double jwb_world_get_cell_size(jwb_world_t *world);
+
+void jwb_world_set_cell_size(jwb_world_t *world, double cell_size);
+
 void jwb_world_set_walls(jwb_world_t *world, int on);
+
+#define JWB_WORLD_DEFAULT_HIT_HANDLER jwb_elastic_collision
+
+jwb_hit_handler_t jwb_world_get_hit_handler(jwb_world_t *world);
 
 void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);
 

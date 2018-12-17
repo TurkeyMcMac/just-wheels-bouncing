@@ -156,11 +156,11 @@ int jwb_world_alloc(
 	world->height = height;
 	world->n_ents = 0;
 	world->ent_cap = ent_buf_size;
-	world->on_hit = jwb_elastic_collision;
+	world->on_hit = JWB_WORLD_DEFAULT_HIT_HANDLER;
 	world->freed = -1;
 	world->available = -1;
 	world->flags = HAS_WALLS;
-	world->cell_size = 0.;
+	world->cell_size = JWB_WORLD_DEFAULT_CELL_SIZE;
 	return ret;
 
 error_entities:
@@ -178,6 +178,21 @@ void jwb_world_set_walls(WORLD *world, int on)
 	} else {
 		world->flags &= ~HAS_WALLS;
 	}
+}
+
+double jwb_world_get_cell_size(jwb_world_t *world)
+{
+	return world->cell_size;
+}
+
+void jwb_world_set_cell_size(jwb_world_t *world, double cell_size)
+{
+	world->cell_size = cell_size;
+}
+
+jwb_hit_handler_t jwb_world_get_hit_handler(WORLD *world)
+{
+	return world->on_hit;
 }
 
 void jwb_world_on_hit(WORLD *world, jwb_hit_handler_t on_hit)
