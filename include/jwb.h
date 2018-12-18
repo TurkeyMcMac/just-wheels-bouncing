@@ -275,32 +275,60 @@ void jwb_elastic_collision(
 	jwb_ehandle_t e2);
 
 /**
- * ## Getters and Setters
- * All of the following functions simply get or set bits of information.
+ * ### `typedef int (*jwb_world_iter_t)(jwb_world_t *world, jwb_ehandle_t ent, void *data);`
+ * A function for handling an iteration of looping though all entities.
+ * #### Parameters
+ *  1. `world`: The world be iterated through.
+ *  2. `ent`: The entity being visited this iteration.
+ *  3. `data`: Custom data persistent through iterations.
+ *
+ * #### Return Value
+ * If zero is returned, iteration continues. Otherwise, iteration halts.
  */
+typedef int (*jwb_world_iter_t)(
+	jwb_world_t *world,
+	jwb_ehandle_t ent,
+	void *data);
 
-double jwb_world_get_cell_size(jwb_world_t *world);
+/**
+ * ### `int jwb_world_for_each(jwb_world_t *world, jwb_world_iter_t iter, void *data);`
+ * Iterate through each existing entity in the world.
+ *
+ * #### Parameters
+ *  1. `world`: The world through which to iterate.
+ *  2. `iter`: The iterator function.
+ *  3. `data`: Custom persistent state.
+ *
+ * #### Return Value
+ * Zero if all calls to `iter` returned zero. Otherwise, the first non-zero
+ * number returned. 
+ */
+int jwb_world_for_each(jwb_world_t *world, jwb_world_iter_t iter, void *data);
 
-int jwb_world_set_cell_size(jwb_world_t *world, double cell_size);
-
-double jwb_world_get_cell_size_unck(jwb_world_t *world);
-
-void jwb_world_set_cell_size_unck(jwb_world_t *world, double cell_size);
-
-void jwb_world_set_walls(jwb_world_t *world, int on);
-
-jwb_hit_handler_t jwb_world_get_hit_handler(jwb_world_t *world);
-
-void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);
-
+/**
+ * ### `void jwb_world_step(jwb_world_t *world);`
+ * Step the world forward one tick of the simulation.
+ *
+ * #### Parameters
+ *  1. `world`: The world which will be simulated.
+ */
 void jwb_world_step(jwb_world_t *world);
 
-int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent);
-
-int jwb_world_destroy_ent(jwb_world_t *world, jwb_ehandle_t ent);
-
-void jwb_world_destroy(jwb_world_t *world);
-
+/**
+ * ### `jwb_ehandle_t jwb_world_add_ent(jwb_world_t *world, const struct jwb_vect *pos, const struct jwb_vect *vel, double mass, double radius);`
+ * Add an entity to the world.
+ *
+ * #### Parameters
+ *  1. `world`: The world to which the entity will be added.
+ *  2. `pos`: Where to put the entity. Must not be null.
+ *  3. `vel`: The initial velocity of the entity. Must not be null.
+ *  4. `mass`: The mass of the entity. Must be greater than zero.
+ *  5. `radius`: The radius of the entity. Must be greater than zero.
+ *
+ * #### Return Value
+ *  * A handle on the new entity if successful.
+ *  * `-JWBE_NO_MEMORY` if there is no room.
+ */
 jwb_ehandle_t jwb_world_add_ent(
 	jwb_world_t *world,
 	const struct jwb_vect *pos,
@@ -308,7 +336,126 @@ jwb_ehandle_t jwb_world_add_ent(
 	double mass,
 	double radius);
 
+/**
+ * ### `int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent);`
+ * Remove an entity from the world. The space is reserved for future reference.
+ *
+ * #### Parameters
+ *  1. `world`: The world from which to remove the entity.
+ *  2. `ent`: The handle of the entity to remove.
+ *
+ * #### Return Value
+ *  * `0`: Success.
+ *  * `-JWBE_REMOVED_ENTITY`: The entity was removed already.
+ *  * `-JWBE_DESTROYED_ENTITY`: The entity was destroyed.
+ */
+int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent);
+
+/**
+ * ### `int jwb_world_destroy_ent(jwb_world_t *world, jwb_ehandle_t ent);`
+ * Recycle an entity for reuse. The handle passed is now invalid.
+ *
+ * #### Parameters
+ *  1. `world`: The world from which to take the entity.
+ *  2. `ent`: The handle of the entity to destroy.
+ *
+ * #### Return Value
+ *  * `0`: Success.
+ *  * `-JWBE_DESTROYED_ENTITY`: The entity was destroyed.
+ */
+int jwb_world_destroy_ent(jwb_world_t *world, jwb_ehandle_t ent);
+
+/**
+ * ### `void jwb_world_destroy(jwb_world_t *world);`
+ * Free all resources associated with a world. The world is now invalid.
+ *
+ * #### Parameters
+ *  1. `world`: The world to be destroyed.
+ */
+void jwb_world_destroy(jwb_world_t *world);
+
+/**
+ * ### `int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent);`
+ * Confirm that an entity is still around.
+ *
+ * #### Parameters
+ *  1. `world`: The world to look in.
+ *  2. `ent`: The entity to check.
+ * #### Return Value
+ *  * `0`: The entity exists.
+ *  * `-JWBE_REMOVED_ENTITY`: The entity has been removed.
+ *  * `-JWBE_DESTROYED_ENTITY`: The entity was destroyed.
+ */
 int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent);
+
+/**
+ * ## Getters and Setters
+ * All of the following functions simply get or set bits of information. Many
+ * an unchecked version, with the suffix _unck, which does not check that the
+ * arguments are valid. Unchecked versions might be good where performance is
+ * more criticial.
+ *
+ * Checked versions will _not_ check the validity of the argument `world`.
+ * Otherwise, numeric arguments can be restricted to ranges, entity handle
+ * arguments are checked for their existence, and pointer arguments are checked
+ * both in `NULL`ness and in content. Invalid arguments cause
+ * `-JWBE_INVALID_ARGUMENT` to be returned, except in the case of entities,
+ * where either `-JWBE_ENTITY_REMOVED` or `-JWBE_ENTITY_DESTROYED` is returned
+ * depending on what happened.
+ *
+ * Most of these are pretty similar, so the descriptions are short.
+ */
+
+/**
+ * ### `double jwb_world_get_cell_size(jwb_world_t *world);`
+ * #### Parameters
+ *  1. `world`: The world to look at.
+ *
+ * #### Return Value
+ * The size of cells in the world.
+ */
+double jwb_world_get_cell_size(jwb_world_t *world);
+
+/**
+ * ### `int jwb_world_set_cell_size(jwb_world_t *world, double cell_size);`
+ * #### Parameters
+ *  1. `world`: The world to change.
+ *  2. `cell_size`: The cell size, greater than 0.
+ */
+int jwb_world_set_cell_size(jwb_world_t *world, double cell_size);
+
+/* Unnecessary. Undocumented. */
+double jwb_world_get_cell_size_unck(jwb_world_t *world);
+
+/**
+ * ### `void jwb_world_set_cell_size_unck(jwb_world_t *world, double cell_size);`
+ * #### Parameters
+ *  1. `world`: The world to change.
+ *  2. `cell_size`: The cell size, greater than 0.
+ */
+void jwb_world_set_cell_size_unck(jwb_world_t *world, double cell_size);
+
+/* Not working. Undocumented. */
+void jwb_world_set_walls(jwb_world_t *world, int on);
+
+/**
+ * ### `jwb_hit_handler_t jwb_world_get_hit_handler(jwb_world_t *world);`
+ * #### Parameters
+ *  1. `world`: The world to examine.
+ *
+ * #### Return Value
+ * The current hit handler.
+ */
+jwb_hit_handler_t jwb_world_get_hit_handler(jwb_world_t *world);
+
+/**
+ * ### `void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);`
+ * Set the hit handler.
+ *
+ * #### Parameters
+ *  1. `world`: The world to change.
+ *  2. `on_hit`: The new hit handler.
+void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);
 
 int jwb_world_get_pos(
 	jwb_world_t *world,
@@ -391,13 +538,6 @@ void jwb_world_set_radius_unck(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
 	double radius);
-
-typedef int (*jwb_world_iter_t)(
-	jwb_world_t *world,
-	jwb_ehandle_t ent,
-	void *data);
-
-int jwb_world_for_each(jwb_world_t *world, jwb_world_iter_t iter, void *data);
 
 #ifdef JWB_INTERNAL_
 /* Internal type name shortcuts, macros, and flags. */
