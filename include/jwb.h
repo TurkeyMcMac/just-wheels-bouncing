@@ -3,38 +3,167 @@
 
 #include <stddef.h>
 
+/**
+ * ## Error Handling
+ * Errors are handled using numeric error codes which can then be described in
+ * human-readable text.
+ */
+
+/**
+ * ### Error Codes
+ *  * `JWBE_NO_MEMORY`: A memory allocation failed due to lack of memory.
+ *  * `JWBE_REMOVED_ENT`: There was an attempt to access the data of a removed
+ *    entity.
+ *  * `JWBE_DESTROYED_ENT`: There was an attempt to access the data of a
+ *    destroyed entity. This indicates something wrong with your program, and
+ *    you should probably abort upon receiving this.
+ *  * `JWBE_INVALID_ARGUMENT`: An invalid argument was passed to a function.
+ */
 #define JWBE_NO_MEMORY 1
 #define JWBE_REMOVED_ENTITY 2
 #define JWBE_DESTROYED_ENTITY 3
 #define JWBE_INVALID_ARGUMENT 4
+/**
+ * ### `const char *jwb_errmsg(int errcode);`
+ * Return a string describing an error code.
+ *
+ * #### Parameters
+ *  1. `errcode`: The error code. The effect is the same regardless of sign.
+ *
+ * #### Return Value
+ * A description. This cannot be modified or freed.
+ */
 const char *jwb_errmsg(int errcode);
 
+/**
+ * ## Rotation
+ * Values used in vector rotation are cached for greater efficiency. Caches can
+ * also be created from angles and converted back again.
+ */
+
+/**
+ * ### `typedef ... jwb_rotation_t;`
+ * A cached rotation.
+ */
 typedef struct {
 	double sin, cos;
 } jwb_rotation_t;
 
+/**
+ * ### `void jwb_rotation(jwb_rotation_t *rot, double angle);`
+ * Construct a rotation from an angle.
+ *
+ * #### Parameters
+ *  1. `rot`: The destination where the rotation will be cached.
+ *  2. `angle`: The angle in radians.
+ */
 void jwb_rotation(jwb_rotation_t *rot, double angle);
 
+/**
+ * ### `double jwb_rotation_angle(const jwb_rotation_t *rot);`
+ * Get the angle corresponding to a rotation.
+ *
+ * #### Parameters
+ *  1. `rot`: The rotation to examine.
+ *
+ * #### Return Value
+ * The angle in radians.
+ */
 double jwb_rotation_angle(const jwb_rotation_t *rot);
 
+/**
+ * ### `void jwb_rotation_flip(jwb_rotation_t *rot);`
+ * Flip a rotation to rotate the other way.
+ *
+ * #### Parameters
+ *  1. `rot`: The rotation to flip.
+ */
 void jwb_rotation_flip(jwb_rotation_t *rot);
 
+/**
+ * ## Vectors
+ * Vectors are a vital concept in this simulation and have many different uses.
+ * They represent position, velocity, acceleration, and more.
+ */
+
+/**
+ * ### `struct jwb_vect;`
+ * A vector on a cartesian coordinate grid.
+ *
+ * #### Fields
+ *  * `double x`: The x component.
+ *  * `double y`: The y component.
+ */
 struct jwb_vect {
 	double x, y;
 };
 
+/**
+ * ### `void jwb_vect_rotate(struct jwb_vect *vect, const jwb_rotation_t *rot);`
+ * Rotate a vector.
+ *
+ * #### Parameters
+ *  1. `vect`: The vector to rotate.
+ *  2. `rot`: The rotation to apply to the vector.
+ */
 void jwb_vect_rotate(struct jwb_vect *vect, const jwb_rotation_t *rot);
 
+/**
+ * ### `double jwb_vect_magnitude(const struct jwb_vect *vect);`
+ * Get the magnitude/length of a vector using the pythagorean theorem.
+ *
+ * #### Parameters
+ *  1. `vect`: The vector to examine.
+ *
+ * #### Return Value
+ * The magnitude.
+ */
 double jwb_vect_magnitude(const struct jwb_vect *vect);
 
+/**
+ * ### `void jwb_vect_normalize(struct jwb_vect *vect);`
+ * Change the magnitude of a vector to 1 while keeping the x/y ratio the same.
+ *
+ * #### Parameters
+ *  1. `vect`: The vector to shorten or lengthen.
+ */
 void jwb_vect_normalize(struct jwb_vect *vect);
 
+/**
+ * ### `double jwb_vect_angle(const struct jwb_vect *vect);`
+ * Get the angle from the x-axis to the arm of a vector.
+ *
+ * #### Parameters
+ *  1. `vect`: The vector to measure.
+ *
+ * #### Return Value
+ * The angle in radians.
+ */
 double jwb_vect_angle(const struct jwb_vect *vect);
 
+/**
+ * ### `void jwb_vect_rotation(const struct jwb_vect *vect, jwb_rotation_t *rot);`
+ * Get the rotation from the x-axis to the arm of a vector.
+ *
+ * #### Parameters
+ *  1. `vect`: The vector to measure.
+ *  2. `rot`: The place to store the rotation.
+ */
 void jwb_vect_rotation(const struct jwb_vect *vect, jwb_rotation_t *rot);
 
+/**
+ * ## The World Itself
+ * All operations in this library revolve around the world structure. All things
+ * up to this point are merely auxiliary to this goal.
+ */
+
+/**
+ * ### `typedef ... jwb_ehandle_t;`
+ * An entity handle, representing a certain entity for a certain world. Valid
+ * operations on a handle are comparison to zero and passing to appropriate
+ * methods, but nothing else.
+ */
 typedef long jwb_ehandle_t;
-#define JWB_CELL_SIZE sizeof(jwb_ehandle_t)
 
 struct jwb__entity {
 	jwb_ehandle_t next, last;
@@ -44,14 +173,46 @@ struct jwb__entity {
 	double radius;
 	int flags;
 };
+
+/**
+ * ### Size Constants
+ * The constants are for manual allocations to be passed to `jwb_world_alloc`.
+ *
+ *  * `JWB_ENTITY_SIZE`: The size of an entity (not a handle, mind you,) to be
+ *    used when manually allocating an entity buffer.
+ *  * `JWB_CELL_SIZE`: The size of a segment in the world's internal grid, to be
+ *    used when manually allocating a cell buffer.
+ */
 #define JWB_ENTITY_SIZE sizeof(struct jwb__entity)
+#define JWB_CELL_SIZE sizeof(jwb_ehandle_t)
 
 struct jwb__world;
+/**
+ * ### `typedef void (*jwb_hit_handler_t)(struct jwb__world *world, jwb_ehandle_t e1, jwb_ehandle_t e2)`
+ * A function for responding when two circles collide. This is called internally
+ * by the world. Additional info can be gotten using this method through
+ * embedding the world structure.
+ *
+ * #### Parameters
+ *  1. `world`: The world where the interaction takes place.
+ *  2. `e1`: The first involved entity.
+ *  3. `e2`: The second involved entity.
+ *
+ * #### Allowed Operations
+ * Removal or destruction of either entity is permitted. Normal getters and
+ * setters are also allowed, although translation can cause strange behaviour.
+ *TODO: Add more details to this section.
+ */
 typedef void (*jwb_hit_handler_t)(
 	struct jwb__world *world,
 	jwb_ehandle_t e1,
 	jwb_ehandle_t e2);
 
+/**
+ * ### `typedef ... jwb_world_t;`
+ * The world itself. This structure holds and manages a number of entities. It
+ * can be quite large, so you might consider allocating it on the heap.
+ */
 typedef struct jwb__world {
 	double cell_size;
 	jwb_hit_handler_t on_hit;
@@ -65,6 +226,27 @@ typedef struct jwb__world {
 	int flags;
 } jwb_world_t;
 
+/**
+ * ### `int jwb_world_alloc(jwb_world_t *world, size_t width, size_t height, size_t ent_buf_size, void *ent_buf, void *cell_buf);`
+ * Allocate the necessary resources for a given world.
+ *
+ * #### Parameters
+ *  1. `world`: The uninitialized world to initialize.
+ *  2. `width`: The width of the world in cells.
+ *  3. `height`: The height of the world in cells.
+ *  4. `ent_buf_size`: The number of entities to allocate initially. If an
+ *     entity buffer is given, the buffer is assumed to have this much space.
+ *  5. `ent_buf`: The entity buffer. If this is `NULL`, a new one is allocated.
+ *     a buffer of size `ent_buf_size * JWB_ENTITY_SIZE` must be provided if
+ *     allocation is turned off.
+ *  6. `cell_buf`: The cell buffer. If this is `NULL`, a new one is allocated.
+ *     a buffer of size `width * height * JWB_CELL_SIZE` must be provided if
+ *     allocation is turned off.
+ *
+ * #### Return Value
+ *  * `0`: Success.
+ *  * `-JWBE_NO_MEMORY`: Buffer allocation failed.
+ */
 int jwb_world_alloc(
 	jwb_world_t *world,
 	size_t width,
@@ -73,7 +255,29 @@ int jwb_world_alloc(
 	void *ent_buf,
 	void *cell_buf);
 
+/**
+ * #### Defaults
+ *  1. The cells size is initially set to `JWB_WORLD_DEFAULT_CELL_SIZE`.
+ *  2. The hit handler is initially set to `JWB_WORLD_DEFAULT_HIT_HANDLER`. This
+ *     is defined as `jwb_elastic_collision`.
+ */
 #define JWB_WORLD_DEFAULT_CELL_SIZE 10.
+#define JWB_WORLD_DEFAULT_HIT_HANDLER jwb_elastic_collision
+
+/**
+ * ### `void jwb_elastic_collision(jwb_world_t *world, jwb_ehandle_t e1, jwb_ehandle_t e2);`
+ * Perform a perfectly elastic collision between two circles. This is designed
+ * to be used as a hit handler. See the documentation for `jwb_hit_handler_t`.
+ */
+void jwb_elastic_collision(
+	jwb_world_t *world,
+	jwb_ehandle_t e1,
+	jwb_ehandle_t e2);
+
+/**
+ * ## Getters and Setters
+ * All of the following functions simply get or set bits of information.
+ */
 
 double jwb_world_get_cell_size(jwb_world_t *world);
 
@@ -85,16 +289,9 @@ void jwb_world_set_cell_size_unck(jwb_world_t *world, double cell_size);
 
 void jwb_world_set_walls(jwb_world_t *world, int on);
 
-#define JWB_WORLD_DEFAULT_HIT_HANDLER jwb_elastic_collision
-
 jwb_hit_handler_t jwb_world_get_hit_handler(jwb_world_t *world);
 
 void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);
-
-void jwb_elastic_collision(
-	jwb_world_t *world,
-	jwb_ehandle_t e1,
-	jwb_ehandle_t e2);
 
 void jwb_world_step(jwb_world_t *world);
 
@@ -203,6 +400,8 @@ typedef int (*jwb_world_iter_t)(
 int jwb_world_for_each(jwb_world_t *world, jwb_world_iter_t iter, void *data);
 
 #ifdef JWB_INTERNAL_
+/* Internal type name shortcuts, macros, and flags. */
+
 typedef jwb_world_t WORLD;
 typedef struct jwb_vect VECT;
 typedef jwb_ehandle_t EHANDLE;
