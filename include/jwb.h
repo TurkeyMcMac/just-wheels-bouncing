@@ -455,6 +455,7 @@ jwb_hit_handler_t jwb_world_get_hit_handler(jwb_world_t *world);
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `on_hit`: The new hit handler.
+ */
 void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);
 
 int jwb_world_get_pos(
