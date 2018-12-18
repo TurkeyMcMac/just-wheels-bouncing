@@ -1,4 +1,12 @@
-## Error Handling
+# Just Wheels Bouncing
+This library is for physics simulations involving circles in two dimensions.
+That's it.
+
+**A note about getters and setters**: Getter and setters do not have all
+parts documented in on place. Read the 'Getter and Setters' section for
+complete information.
+
+## Error Handling <a name="error-handling"></a>
 Errors are handled using numeric error codes which can then be described in
 human-readable text.
 
@@ -290,4 +298,128 @@ Set the hit handler.
 #### Parameters
  1. `world`: The world to change.
  2. `on_hit`: The new hit handler.
+
+### `int jwb_world_get_pos(jwb_world_t *world, jwb_ehandle_t ent, struct jwb_vect *dest);`
+#### Parameters
+ 1. `world`: The world to look in.
+ 2. `ent`: The entity to look at.
+ 3. `dest`: Where to place the data.
+
+### `int jwb_world_get_vel(jwb_world_t *world, jwb_ehandle_t ent, struct jwb_vect *dest);`
+#### Parameters
+ 1. `world`: The world to look in.
+ 2. `ent`: The entity to look at.
+ 3. `dest`: Where to place the data.
+
+### `int jwb_world_set_pos(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *dest);`
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `dest`: The data to enter.
+
+### `int jwb_world_set_vel(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *dest);`
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `dest`: The data to enter.
+
+### `int jwb_world_translate(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *delta);`
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `delta`: The displacement to add to the position.
+
+### `int jwb_world_accelerate(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *delta);`
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `delta`: What to add to the velocity.
+
+### `void jwb_world_get_pos_unck(jwb_world_t *world, jwb_ehandle_t ent, struct jwb_vect *dest);`
+#### Parameters
+ 1. `world`: The world to look in.
+ 2. `ent`: The entity to look at.
+ 3. `dest`: Where to place the data.
+
+### `void jwb_world_get_vel_unck(jwb_world_t *world, jwb_ehandle_t ent, struct jwb_vect *dest);`
+#### Parameters
+ 1. `world`: The world to look in.
+ 2. `ent`: The entity to look at.
+ 3. `dest`: Where to place the data.
+
+### `void jwb_world_set_pos_unck(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *dest);`
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `dest`: The data to enter.
+
+### `void jwb_world_set_vel_unck(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *dest);`
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `dest`: The data to enter.
+
+### `void jwb_world_translate_unck(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *delta);`
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `delta`: The displacement to add to the position.
+
+### `void jwb_world_accelerate_unck(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *delta);`
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `delta`: What to add to the velocity.
+
+### `double jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);`
+#### Parameters
+ 1. `world`: The world to look at.
+ 2. `ent`: The entity to look in.
+#### Return Value
+The mass of the entity, or a negative error code on nonexistence.
+
+### `double jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);`
+#### Parameters
+ 1. `world`: The world to look at.
+ 2. `ent`: The entity to look in.
+#### Return Value
+The radius of the entity, or a negative error code on nonexistence.
+
+### `int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);`
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `mass`: What to set the mass to. Must be over zero.
+
+### `int jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, double radius);`
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `radius`: What to set the radius to. Must be over zero.
+
+### `double jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);`
+#### Parameters
+ 1. `world`: The world to look at.
+ 2. `ent`: The entity to look in.
+#### Return Value
+The mass of the entity.
+
+### `double jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);`
+#### Parameters
+ 1. `world`: The world to look at.
+ 2. `ent`: The entity to look in.
+#### Return Value
+The radius of the entity.
+
+### `void jwb_world_set_mass_unck(jwb_world_t *world, jwb_ehandle_t ent, double mass);`
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `mass`: What to set the mass to. Must be over zero.
+
+### `void jwb_world_set_radius_unck(jwb_world_t *world, jwb_ehandle_t ent, double radius);`
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `radius`: What to set the radius to. Must be over zero.
 
