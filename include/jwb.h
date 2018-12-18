@@ -14,7 +14,7 @@
  */
 
 /**
- * ## Error Handling <a name="error-handling"></a>
+ * ## Error Handling
  * Errors are handled using numeric error codes which can then be described in
  * human-readable text.
  */
