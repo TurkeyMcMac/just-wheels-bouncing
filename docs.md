@@ -236,6 +236,18 @@ void jwb_elastic_collision(
 Perform a perfectly elastic collision between two circles. This is designed
 to be used as a hit handler. See the documentation for `jwb_hit_handler_t`.
 
+### `jwb_world_apply_friction`
+```
+void jwb_world_apply_friction(jwb_world_t *world, double friction);
+```
+
+Apply an acceleration due to friction to every entity in the world.
+
+#### Parameters
+ 1. `world`: The world to go through.
+ 2. `friction`: The frictional acceleration to apply. This reduces velocity
+    when positive.
+
 ### `jwb_world_iter_t`
 ```
 typedef int (*jwb_world_iter_t)(

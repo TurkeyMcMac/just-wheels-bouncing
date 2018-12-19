@@ -48,3 +48,26 @@ void jwb_elastic_collision(WORLD *world, EHANDLE ent1, EHANDLE ent2)
 	world->ents[ent2].correct.x += relative.x * cor2;
 	world->ents[ent2].correct.y += relative.y * cor2;
 }
+
+static int apply_friction(WORLD *world, EHANDLE ent, void *fricp)
+{
+	struct jwb_vect *vel;
+	double speed, friction, ratio;
+	vel = &world->ents[ent].vel;
+	speed = jwb_vect_magnitude(vel);
+	friction = *(double *)fricp;
+	ratio = (speed - friction) / speed;
+	if (ratio > 0.) {
+		vel->x *= ratio;
+		vel->y *= ratio;
+	} else {
+		vel->x = 0.;
+		vel->y = 0.;
+	}
+	return 0;
+}
+
+void jwb_world_apply_friction(WORLD *world, double friction)
+{
+	jwb_world_for_each(world, apply_friction, &friction);
+}

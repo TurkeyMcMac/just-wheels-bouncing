@@ -351,6 +351,21 @@ void jwb_elastic_collision(
 	jwb_ehandle_t e2);
 
 /**
+ * ### `jwb_world_apply_friction`
+ * ```
+ * void jwb_world_apply_friction(jwb_world_t *world, double friction);
+ * ```
+ *
+ * Apply an acceleration due to friction to every entity in the world.
+ *
+ * #### Parameters
+ *  1. `world`: The world to go through.
+ *  2. `friction`: The frictional acceleration to apply. This reduces velocity
+ *     when positive.
+ */
+void jwb_world_apply_friction(jwb_world_t *world, double friction);
+
+/**
  * ### `jwb_world_iter_t`
  * ```
  * typedef int (*jwb_world_iter_t)(
