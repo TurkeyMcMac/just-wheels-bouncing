@@ -12,6 +12,5 @@ work-in-progress.
  * Partially elastic collisions
  * Walled universe
  * Bindings to other languages
- * Friction with the surface
  * Friction between circles?
  * Move geometric data to separate shared structures?
