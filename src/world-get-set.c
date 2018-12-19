@@ -109,6 +109,20 @@ int jwb_world_translate(WORLD *world, EHANDLE ent, const VECT *delta)
 	return 0;
 }
 
+int jwb_world_move_later(WORLD *world, EHANDLE ent, const VECT *delta)
+{
+	int err;
+	if (!delta) {
+		return -JWBE_INVALID_ARGUMENT;
+	}
+	err = jwb_world_confirm_ent(world, ent);
+	if (err) {
+		return err;
+	}
+	jwb_world_move_later_unck(world, ent, delta);
+	return 0;
+}
+
 int jwb_world_accelerate(WORLD *world, EHANDLE ent, const VECT *delta)
 {
 	int err;
@@ -193,6 +207,12 @@ void jwb_world_translate_unck(WORLD *world, EHANDLE ent, const VECT *delta)
 {
 	world->ents[ent].pos.x += delta->x;
 	world->ents[ent].pos.y += delta->y;
+}
+
+void jwb_world_move_later_unck(WORLD *world, EHANDLE ent, const VECT *delta)
+{
+	world->ents[ent].correct.x += delta->x;
+	world->ents[ent].correct.y += delta->y;
 }
 
 void jwb_world_accelerate_unck(WORLD *world, EHANDLE ent, const VECT *delta)

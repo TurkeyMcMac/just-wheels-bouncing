@@ -505,6 +505,22 @@ int jwb_world_translate(
  2. `ent`: The entity to change.
  3. `delta`: The displacement to add to the position.
 
+### `jwb_world_move_later`
+```
+int jwb_world_move_later(
+  jwb_world_t *world,
+  jwb_ehandle_t ent,
+  const struct jwb_vect *delta);
+```
+
+Schedule a translation for next update. This is like regular translation, but
+is allowed inside the hit handler.
+
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `delta`: The displacement to add to the position.
+
 ### `jwb_world_accelerate`
 ```
 int jwb_world_accelerate(
@@ -577,6 +593,22 @@ void jwb_world_translate_unck(
   jwb_ehandle_t ent,
   const struct jwb_vect *delta);
 ```
+
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The entity to change.
+ 3. `delta`: The displacement to add to the position.
+
+### `jwb_world_move_later_unck`
+```
+void jwb_world_move_later_unck(
+  jwb_world_t *world,
+  jwb_ehandle_t ent,
+  const struct jwb_vect *delta);
+```
+
+Schedule a translation for next update. This is like regular translation, but
+is allowed inside the hit handler.
 
 #### Parameters
  1. `world`: The world to change.
