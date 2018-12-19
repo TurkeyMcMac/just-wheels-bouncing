@@ -38,4 +38,4 @@ docs.md: $(header)
 
 .PHONY: clean
 clean:
-	$(RM) -r $(library) $(objects)
+	$(RM) -r $(library) $(objects) docs.md
