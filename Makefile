@@ -24,7 +24,9 @@ ifeq ($(_uname_s),Darwin)
 endif
 
 .PHONY: shared
-shared: $(objects)
+shared: $(library)
+
+$(library): $(objects)
 	$(linker) $(linker-flags) $(objects) -o $(library) $(dep-flags)
 
 .PHONY: objects
