@@ -14,7 +14,7 @@ ifeq ($(_uname_s),Linux)
 	linker = $(CC)
 	linker-flags = -shared -fPIC
 	dep-flags = -lm
-	c-flags = -fPIC $(c-flags)
+	c-flags += -fPIC
 endif
 ifeq ($(_uname_s),Darwin)
 	library = lib$(name).dylib
