@@ -268,7 +268,7 @@ typedef void (*jwb_hit_handler_t)(
 	jwb_ehandle_t e2);
 
 /**
- * ### `typedef ... jwb_world_t;`
+ * ### `jwb_world_t`
  * The world itself. This structure holds and manages a number of entities. It
  * can be quite large, so you might consider allocating it on the heap.
  */
@@ -286,7 +286,17 @@ typedef struct jwb__world {
 } jwb_world_t;
 
 /**
- * ### `int jwb_world_alloc(jwb_world_t *world, size_t width, size_t height, size_t ent_buf_size, void *ent_buf, void *cell_buf);`
+ * ### `jwb_world_alloc`
+ * ```
+ * int jwb_world_alloc(
+ *   jwb_world_t *world,
+ *   size_t width,
+ *   size_t height,
+ *   size_t ent_buf_size,
+ *   void *ent_buf,
+ *   void *cell_buf);
+ * ```
+ *
  * Allocate the necessary resources for a given world.
  *
  * #### Parameters
@@ -324,7 +334,14 @@ int jwb_world_alloc(
 #define JWB_WORLD_DEFAULT_HIT_HANDLER jwb_elastic_collision
 
 /**
- * ### `void jwb_elastic_collision(jwb_world_t *world, jwb_ehandle_t e1, jwb_ehandle_t e2);`
+ * ### `jwb_elastic_collision`
+ * ```
+ * void jwb_elastic_collision(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t e1,
+ *   jwb_ehandle_t e2);
+ * ```
+ *
  * Perform a perfectly elastic collision between two circles. This is designed
  * to be used as a hit handler. See the documentation for `jwb_hit_handler_t`.
  */
@@ -334,7 +351,14 @@ void jwb_elastic_collision(
 	jwb_ehandle_t e2);
 
 /**
- * ### `typedef int (*jwb_world_iter_t)(jwb_world_t *world, jwb_ehandle_t ent, void *data);`
+ * ### `jwb_world_iter_t`
+ * ```
+ * typedef int (*jwb_world_iter_t)(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   void *data);
+ * ```
+ *
  * A function for handling an iteration of looping though all entities.
  * #### Parameters
  *  1. `world`: The world be iterated through.
@@ -350,7 +374,14 @@ typedef int (*jwb_world_iter_t)(
 	void *data);
 
 /**
- * ### `int jwb_world_for_each(jwb_world_t *world, jwb_world_iter_t iter, void *data);`
+ * ### `jwb_world_for_each`
+ * ```
+ * int jwb_world_for_each(
+ *   jwb_world_t *world,
+ *   jwb_world_iter_t iter,
+ *   void *data);
+ * ```
+ *
  * Iterate through each existing entity in the world.
  *
  * #### Parameters
@@ -365,7 +396,11 @@ typedef int (*jwb_world_iter_t)(
 int jwb_world_for_each(jwb_world_t *world, jwb_world_iter_t iter, void *data);
 
 /**
- * ### `void jwb_world_step(jwb_world_t *world);`
+ * ### `jwb_world_step`
+ * ```
+ * void jwb_world_step(jwb_world_t *world);
+ * ```
+ *
  * Step the world forward one tick of the simulation.
  *
  * #### Parameters
@@ -374,7 +409,16 @@ int jwb_world_for_each(jwb_world_t *world, jwb_world_iter_t iter, void *data);
 void jwb_world_step(jwb_world_t *world);
 
 /**
- * ### `jwb_ehandle_t jwb_world_add_ent(jwb_world_t *world, const struct jwb_vect *pos, const struct jwb_vect *vel, double mass, double radius);`
+ * ### `jwb_world_add_ent`
+ * ```
+ * jwb_ehandle_t jwb_world_add_ent(
+ *   jwb_world_t *world,
+ *   const struct jwb_vect *pos,
+ *   const struct jwb_vect *vel,
+ *   double mass,
+ *   double radius);
+ * ```
+ *
  * Add an entity to the world.
  *
  * #### Parameters
@@ -396,7 +440,11 @@ jwb_ehandle_t jwb_world_add_ent(
 	double radius);
 
 /**
- * ### `int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent);`
+ * ### `jwb_world_remove_ent`
+ * ```
+ * int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent);
+ * ```
+ *
  * Remove an entity from the world. The space is reserved for future reference.
  *
  * #### Parameters
@@ -411,7 +459,11 @@ jwb_ehandle_t jwb_world_add_ent(
 int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent);
 
 /**
- * ### `int jwb_world_destroy_ent(jwb_world_t *world, jwb_ehandle_t ent);`
+ * ### `jwb_world_destroy_ent`
+ * ```
+ * int jwb_world_destroy_ent(jwb_world_t *world, jwb_ehandle_t ent);
+ * ```
+ *
  * Recycle an entity for reuse. The handle passed is now invalid.
  *
  * #### Parameters
@@ -425,7 +477,11 @@ int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent);
 int jwb_world_destroy_ent(jwb_world_t *world, jwb_ehandle_t ent);
 
 /**
- * ### `void jwb_world_destroy(jwb_world_t *world);`
+ * ### `jwb_world_destroy`
+ * ```
+ * void jwb_world_destroy(jwb_world_t *world);
+ * ```
+ *
  * Free all resources associated with a world. The world is now invalid.
  *
  * #### Parameters
@@ -434,7 +490,11 @@ int jwb_world_destroy_ent(jwb_world_t *world, jwb_ehandle_t ent);
 void jwb_world_destroy(jwb_world_t *world);
 
 /**
- * ### `int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent);`
+ * ### `jwb_world_confirm_ent`
+ * ```
+ * int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent);
+ * ```
+ *
  * Confirm that an entity is still around.
  *
  * #### Parameters
@@ -466,7 +526,11 @@ int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent);
  */
 
 /**
- * ### `double jwb_world_get_cell_size(jwb_world_t *world);`
+ * ### `jwb_world_get_cell_size`
+ * ```
+ * double jwb_world_get_cell_size(jwb_world_t *world);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to look at.
  *
@@ -476,7 +540,11 @@ int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent);
 double jwb_world_get_cell_size(jwb_world_t *world);
 
 /**
- * ### `int jwb_world_set_cell_size(jwb_world_t *world, double cell_size);`
+ * ### `jwb_world_set_cell_size`
+ * ```
+ * int jwb_world_set_cell_size(jwb_world_t *world, double cell_size);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `cell_size`: The cell size, greater than 0.
@@ -487,7 +555,11 @@ int jwb_world_set_cell_size(jwb_world_t *world, double cell_size);
 double jwb_world_get_cell_size_unck(jwb_world_t *world);
 
 /**
- * ### `void jwb_world_set_cell_size_unck(jwb_world_t *world, double cell_size);`
+ * ### `jwb_world_set_cell_size_unck`
+ * ```
+ * void jwb_world_set_cell_size_unck(jwb_world_t *world, double cell_size);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `cell_size`: The cell size, greater than 0.
@@ -498,7 +570,11 @@ void jwb_world_set_cell_size_unck(jwb_world_t *world, double cell_size);
 void jwb_world_set_walls(jwb_world_t *world, int on);
 
 /**
- * ### `jwb_hit_handler_t jwb_world_get_hit_handler(jwb_world_t *world);`
+ * ### `jwb_world_get_hit_handler`
+ * ```
+ * jwb_hit_handler_t jwb_world_get_hit_handler(jwb_world_t *world);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to examine.
  *
@@ -508,7 +584,11 @@ void jwb_world_set_walls(jwb_world_t *world, int on);
 jwb_hit_handler_t jwb_world_get_hit_handler(jwb_world_t *world);
 
 /**
- * ### `void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);`
+ * ### `jwb_world_on_hit`
+ * ```
+ * void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);
+ * ```
+ *
  * Set the hit handler.
  *
  * #### Parameters
@@ -518,7 +598,14 @@ jwb_hit_handler_t jwb_world_get_hit_handler(jwb_world_t *world);
 void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);
 
 /**
- * ### `int jwb_world_get_pos(jwb_world_t *world, jwb_ehandle_t ent, struct jwb_vect *dest);`
+ * ### `jwb_world_get_pos`
+ * ```
+ * int jwb_world_get_pos(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   struct jwb_vect *dest);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to look in.
  *  2. `ent`: The entity to look at.
@@ -530,7 +617,14 @@ int jwb_world_get_pos(
 	struct jwb_vect *dest);
 
 /**
- * ### `int jwb_world_get_vel(jwb_world_t *world, jwb_ehandle_t ent, struct jwb_vect *dest);`
+ * ### `jwb_world_get_vel`
+ * ```
+ * int jwb_world_get_vel(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   struct jwb_vect *dest);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to look in.
  *  2. `ent`: The entity to look at.
@@ -542,7 +636,14 @@ int jwb_world_get_vel(
 	struct jwb_vect *dest);
 
 /**
- * ### `int jwb_world_set_pos(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *dest);`
+ * ### `jwb_world_set_pos`
+ * ```
+ * int jwb_world_set_pos(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   const struct jwb_vect *dest);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `ent`: The entity to change.
@@ -554,7 +655,14 @@ int jwb_world_set_pos(
 	const struct jwb_vect *dest);
 
 /**
- * ### `int jwb_world_set_vel(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *dest);`
+ * ### `jwb_world_set_vel`
+ * ```
+ * int jwb_world_set_vel(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   const struct jwb_vect *dest);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `ent`: The entity to change.
@@ -566,7 +674,14 @@ int jwb_world_set_vel(
 	const struct jwb_vect *dest);
 
 /**
- * ### `int jwb_world_translate(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *delta);`
+ * ### `jwb_world_translate`
+ * ```
+ * int jwb_world_translate(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   const struct jwb_vect *delta);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `ent`: The entity to change.
@@ -578,7 +693,14 @@ int jwb_world_translate(
 	const struct jwb_vect *delta);
 
 /**
- * ### `int jwb_world_accelerate(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *delta);`
+ * ### `jwb_world_accelerate`
+ * ```
+ * int jwb_world_accelerate(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   const struct jwb_vect *delta);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `ent`: The entity to change.
@@ -589,7 +711,14 @@ int jwb_world_accelerate(
 	jwb_ehandle_t ent,
 	const struct jwb_vect *delta);
 /**
- * ### `void jwb_world_get_pos_unck(jwb_world_t *world, jwb_ehandle_t ent, struct jwb_vect *dest);`
+ * ### `jwb_world_get_pos_unck`
+ * ```
+ * void jwb_world_get_pos_unck(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   struct jwb_vect *dest);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to look in.
  *  2. `ent`: The entity to look at.
@@ -601,7 +730,14 @@ void jwb_world_get_pos_unck(
 	struct jwb_vect *dest);
 
 /**
- * ### `void jwb_world_get_vel_unck(jwb_world_t *world, jwb_ehandle_t ent, struct jwb_vect *dest);`
+ * ### `jwb_world_get_vel_unck`
+ * ```
+ * void jwb_world_get_vel_unck(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   struct jwb_vect *dest);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to look in.
  *  2. `ent`: The entity to look at.
@@ -613,7 +749,14 @@ void jwb_world_get_vel_unck(
 	struct jwb_vect *dest);
 
 /**
- * ### `void jwb_world_set_pos_unck(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *dest);`
+ * ### `jwb_world_set_pos_unck`
+ * ```
+ * void jwb_world_set_pos_unck(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   const struct jwb_vect *dest);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `ent`: The entity to change.
@@ -625,7 +768,14 @@ void jwb_world_set_pos_unck(
 	const struct jwb_vect *dest);
 
 /**
- * ### `void jwb_world_set_vel_unck(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *dest);`
+ * ### `jwb_world_set_vel_unck`
+ * ```
+ * void jwb_world_set_vel_unck(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   const struct jwb_vect *dest);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `ent`: The entity to change.
@@ -637,7 +787,14 @@ void jwb_world_set_vel_unck(
 	const struct jwb_vect *dest);
 
 /**
- * ### `void jwb_world_translate_unck(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *delta);`
+ * ### `jwb_world_translate_unck`
+ * ```
+ * void jwb_world_translate_unck(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   const struct jwb_vect *delta);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `ent`: The entity to change.
@@ -649,7 +806,14 @@ void jwb_world_translate_unck(
 	const struct jwb_vect *delta);
 
 /**
- * ### `void jwb_world_accelerate_unck(jwb_world_t *world, jwb_ehandle_t ent, const struct jwb_vect *delta);`
+ * ### `jwb_world_accelerate_unck`
+ * ```
+ * void jwb_world_accelerate_unck(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   const struct jwb_vect *delta);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `ent`: The entity to change.
@@ -661,7 +825,11 @@ void jwb_world_accelerate_unck(
 	const struct jwb_vect *delta);
 
 /**
- * ### `double jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);`
+ * ### `jwb_world_get_mass`
+ * ```
+ * double jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to look at.
  *  2. `ent`: The entity to look in.
@@ -671,7 +839,11 @@ void jwb_world_accelerate_unck(
 double jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);
 
 /**
- * ### `double jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);`
+ * ### `jwb_world_get_radius`
+ * ```
+ * double jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to look at.
  *  2. `ent`: The entity to look in.
@@ -681,7 +853,11 @@ double jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);
 double jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);
 
 /**
- * ### `int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);`
+ * ### `jwb_world_set_mass`
+ * ```
+ * int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `ent`: The entity to change.
@@ -690,7 +866,14 @@ double jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);
 int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);
 
 /**
- * ### `int jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, double radius);`
+ * ### `jwb_world_set_radius`
+ * ```
+ * int jwb_world_set_radius(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   double radius);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `ent`: The entity to change.
@@ -699,7 +882,11 @@ int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);
 int jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, double radius);
 
 /**
- * ### `double jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);`
+ * ### `jwb_world_get_mass_unck`
+ * ```
+ * double jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to look at.
  *  2. `ent`: The entity to look in.
@@ -709,7 +896,11 @@ int jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, double radius);
 double jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);
 
 /**
- * ### `double jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);`
+ * ### `jwb_world_get_radius_unck`
+ * ```
+ * double jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to look at.
  *  2. `ent`: The entity to look in.
@@ -719,7 +910,14 @@ double jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);
 double jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);
 
 /**
- * ### `void jwb_world_set_mass_unck(jwb_world_t *world, jwb_ehandle_t ent, double mass);`
+ * ### `jwb_world_set_mass_unck`
+ * ```
+ * void jwb_world_set_mass_unck(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   double mass);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `ent`: The entity to change.
@@ -731,7 +929,14 @@ void jwb_world_set_mass_unck(
 	double mass);
 
 /**
- * ### `void jwb_world_set_radius_unck(jwb_world_t *world, jwb_ehandle_t ent, double radius);`
+ * ### `jwb_world_set_radius_unck`
+ * ```
+ * void jwb_world_set_radius_unck(
+ *   jwb_world_t *world,
+ *   jwb_ehandle_t ent,
+ *   double radius);
+ * ```
+ *
  * #### Parameters
  *  1. `world`: The world to change.
  *  2. `ent`: The entity to change.
