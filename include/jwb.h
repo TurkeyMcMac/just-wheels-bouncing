@@ -9,7 +9,7 @@
  * That's it.
  *
  * **A note about getters and setters**: Getter and setters do not have all
- * parts documented in on place. Read the 'Getter and Setters' section for
+ * parts documented in one place. Read the 'Getters and Setters' section for
  * complete information.
  */
 
