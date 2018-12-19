@@ -7,6 +7,7 @@ work-in-progress.
  * Perfectly elastic collisions
  * Toroidal universe
  * Entity resource management
+ * Friction with the surface
 
 ## Features planned
  * Partially elastic collisions
