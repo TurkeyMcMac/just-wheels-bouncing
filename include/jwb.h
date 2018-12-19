@@ -118,7 +118,7 @@ void jwb_rotation_flip(jwb_rotation_t *rot);
  * struct jwb_vect {
  *   double x;
  *   double y;
- * }
+ * };
  * ```
  *
  * A vector on a cartesian coordinate grid.
@@ -244,7 +244,7 @@ struct jwb__world;
  * ### `jwb_hit_handler_t`
  * ```
  * typedef void (*jwb_hit_handler_t)(
- *   struct jwb__world *world,
+ *   jwb_world_t *world,
  *   jwb_ehandle_t e1,
  *   jwb_ehandle_t e2);
  * ```

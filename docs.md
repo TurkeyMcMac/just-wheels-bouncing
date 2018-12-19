@@ -82,7 +82,7 @@ They represent position, velocity, acceleration, and more.
 struct jwb_vect {
   double x;
   double y;
-}
+};
 ```
 
 A vector on a cartesian coordinate grid.
@@ -169,7 +169,7 @@ The constants are for manual allocations to be passed to `jwb_world_alloc`.
 ### `jwb_hit_handler_t`
 ```
 typedef void (*jwb_hit_handler_t)(
-  struct jwb__world *world,
+  jwb_world_t *world,
   jwb_ehandle_t e1,
   jwb_ehandle_t e2);
 ```
