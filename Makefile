@@ -23,6 +23,9 @@ ifeq ($(_uname_s),Darwin)
 	dep-flags = -lm -lc
 endif
 
+.PHONY: all
+all: $(library) docs.md
+
 .PHONY: shared
 shared: $(library)
 
