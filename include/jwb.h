@@ -34,7 +34,11 @@
 #define JWBE_DESTROYED_ENTITY 3
 #define JWBE_INVALID_ARGUMENT 4
 /**
- * ### `const char *jwb_errmsg(int errcode);`
+ * ### `jwb_errmsg`
+ * ```
+ * const char *jwb_errmsg(int errcode);`
+ * ```
+ *
  * Return a string describing an error code.
  *
  * #### Parameters
@@ -52,7 +56,7 @@ const char *jwb_errmsg(int errcode);
  */
 
 /**
- * ### `typedef ... jwb_rotation_t;`
+ * ### `jwb_rotation_t`
  * A cached rotation.
  */
 typedef struct {
@@ -60,7 +64,11 @@ typedef struct {
 } jwb_rotation_t;
 
 /**
- * ### `void jwb_rotation(jwb_rotation_t *rot, double angle);`
+ * ### `jwb_rotation`
+ * ```
+ * void jwb_rotation(jwb_rotation_t *rot, double angle);
+ * ```
+ *
  * Construct a rotation from an angle.
  *
  * #### Parameters
@@ -70,7 +78,11 @@ typedef struct {
 void jwb_rotation(jwb_rotation_t *rot, double angle);
 
 /**
- * ### `double jwb_rotation_angle(const jwb_rotation_t *rot);`
+ * ### `jwb_rotation_angle`
+ * ```
+ * double jwb_rotation_angle(const jwb_rotation_t *rot);
+ * ```
+ *
  * Get the angle corresponding to a rotation.
  *
  * #### Parameters
@@ -82,7 +94,11 @@ void jwb_rotation(jwb_rotation_t *rot, double angle);
 double jwb_rotation_angle(const jwb_rotation_t *rot);
 
 /**
- * ### `void jwb_rotation_flip(jwb_rotation_t *rot);`
+ * ### `jwb_rotation_flip`
+ * ```
+ * void jwb_rotation_flip(jwb_rotation_t *rot);
+ * ```
+ *
  * Flip a rotation to rotate the other way.
  *
  * #### Parameters
@@ -97,19 +113,30 @@ void jwb_rotation_flip(jwb_rotation_t *rot);
  */
 
 /**
- * ### `struct jwb_vect;`
+ * ### `struct jwb_vect`
+ * ```
+ * struct jwb_vect {
+ *   double x;
+ *   double y;
+ * }
+ * ```
+ *
  * A vector on a cartesian coordinate grid.
  *
  * #### Fields
- *  * `double x`: The x component.
- *  * `double y`: The y component.
+ *  * `x`: The x component.
+ *  * `y`: The y component.
  */
 struct jwb_vect {
 	double x, y;
 };
 
 /**
- * ### `void jwb_vect_rotate(struct jwb_vect *vect, const jwb_rotation_t *rot);`
+ * ### `jwb_vect_rotate`
+ * ```
+ * void jwb_vect_rotate(struct jwb_vect *vect, const jwb_rotation_t *rot);
+ * ```
+ *
  * Rotate a vector.
  *
  * #### Parameters
@@ -119,7 +146,11 @@ struct jwb_vect {
 void jwb_vect_rotate(struct jwb_vect *vect, const jwb_rotation_t *rot);
 
 /**
- * ### `double jwb_vect_magnitude(const struct jwb_vect *vect);`
+ * ### `jwb_vect_magnitude`
+ * ```
+ * double jwb_vect_magnitude(const struct jwb_vect *vect);
+ * ```
+ *
  * Get the magnitude/length of a vector using the pythagorean theorem.
  *
  * #### Parameters
@@ -131,7 +162,11 @@ void jwb_vect_rotate(struct jwb_vect *vect, const jwb_rotation_t *rot);
 double jwb_vect_magnitude(const struct jwb_vect *vect);
 
 /**
- * ### `void jwb_vect_normalize(struct jwb_vect *vect);`
+ * ### `jwb_vect_normalize`
+ * ```
+ * void jwb_vect_normalize(struct jwb_vect *vect);
+ * ```
+ *
  * Change the magnitude of a vector to 1 while keeping the x/y ratio the same.
  *
  * #### Parameters
@@ -140,7 +175,11 @@ double jwb_vect_magnitude(const struct jwb_vect *vect);
 void jwb_vect_normalize(struct jwb_vect *vect);
 
 /**
- * ### `double jwb_vect_angle(const struct jwb_vect *vect);`
+ * ### `jwb_vect_angle`
+ * ```
+ * double jwb_vect_angle(const struct jwb_vect *vect);
+ * ```
+ *
  * Get the angle from the x-axis to the arm of a vector.
  *
  * #### Parameters
@@ -152,7 +191,11 @@ void jwb_vect_normalize(struct jwb_vect *vect);
 double jwb_vect_angle(const struct jwb_vect *vect);
 
 /**
- * ### `void jwb_vect_rotation(const struct jwb_vect *vect, jwb_rotation_t *rot);`
+ * ### `jwb_vect_rotation`
+ * ```
+ * void jwb_vect_rotation(const struct jwb_vect *vect, jwb_rotation_t *rot);
+ * ```
+ *
  * Get the rotation from the x-axis to the arm of a vector.
  *
  * #### Parameters
@@ -168,7 +211,7 @@ void jwb_vect_rotation(const struct jwb_vect *vect, jwb_rotation_t *rot);
  */
 
 /**
- * ### `typedef ... jwb_ehandle_t;`
+ * ### `jwb_ehandle_t`
  * An entity handle, representing a certain entity for a certain world. Valid
  * operations on a handle are comparison to zero and passing to appropriate
  * methods, but nothing else.
@@ -198,7 +241,13 @@ struct jwb__entity {
 
 struct jwb__world;
 /**
- * ### `typedef void (*jwb_hit_handler_t)(struct jwb__world *world, jwb_ehandle_t e1, jwb_ehandle_t e2)`
+ * ### `jwb_hit_handler_t`
+ * ```
+ * typedef void (*jwb_hit_handler_t)(
+ *   struct jwb__world *world,
+ *   jwb_ehandle_t e1,
+ *   jwb_ehandle_t e2);
+ * ```
  * A function for responding when two circles collide. This is called internally
  * by the world. Additional info can be gotten using this method through
  * embedding the world structure.
