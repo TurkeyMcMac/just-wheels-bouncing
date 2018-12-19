@@ -6,7 +6,7 @@ That's it.
 parts documented in on place. Read the 'Getter and Setters' section for
 complete information.
 
-## Error Handling <a name="error-handling"></a>
+## Error Handling
 Errors are handled using numeric error codes which can then be described in
 human-readable text.
 
@@ -19,7 +19,11 @@ human-readable text.
    you should probably abort upon receiving this.
  * `JWBE_INVALID_ARGUMENT`: An invalid argument was passed to a function.
 
-### `const char *jwb_errmsg(int errcode);`
+### `jwb_errmsg`
+```
+const char *jwb_errmsg(int errcode);`
+```
+
 Return a string describing an error code.
 
 #### Parameters
@@ -32,17 +36,25 @@ A description. This cannot be modified or freed.
 Values used in vector rotation are cached for greater efficiency. Caches can
 also be created from angles and converted back again.
 
-### `typedef ... jwb_rotation_t;`
+### `jwb_rotation_t`
 A cached rotation.
 
-### `void jwb_rotation(jwb_rotation_t *rot, double angle);`
+### `jwb_rotation`
+```
+void jwb_rotation(jwb_rotation_t *rot, double angle);
+```
+
 Construct a rotation from an angle.
 
 #### Parameters
  1. `rot`: The destination where the rotation will be cached.
  2. `angle`: The angle in radians.
 
-### `double jwb_rotation_angle(const jwb_rotation_t *rot);`
+### `jwb_rotation_angle`
+```
+double jwb_rotation_angle(const jwb_rotation_t *rot);
+```
+
 Get the angle corresponding to a rotation.
 
 #### Parameters
@@ -51,7 +63,11 @@ Get the angle corresponding to a rotation.
 #### Return Value
 The angle in radians.
 
-### `void jwb_rotation_flip(jwb_rotation_t *rot);`
+### `jwb_rotation_flip`
+```
+void jwb_rotation_flip(jwb_rotation_t *rot);
+```
+
 Flip a rotation to rotate the other way.
 
 #### Parameters
@@ -61,21 +77,36 @@ Flip a rotation to rotate the other way.
 Vectors are a vital concept in this simulation and have many different uses.
 They represent position, velocity, acceleration, and more.
 
-### `struct jwb_vect;`
+### `struct jwb_vect`
+```
+struct jwb_vect {
+  double x;
+  double y;
+}
+```
+
 A vector on a cartesian coordinate grid.
 
 #### Fields
- * `double x`: The x component.
- * `double y`: The y component.
+ * `x`: The x component.
+ * `y`: The y component.
 
-### `void jwb_vect_rotate(struct jwb_vect *vect, const jwb_rotation_t *rot);`
+### `jwb_vect_rotate`
+```
+void jwb_vect_rotate(struct jwb_vect *vect, const jwb_rotation_t *rot);
+```
+
 Rotate a vector.
 
 #### Parameters
  1. `vect`: The vector to rotate.
  2. `rot`: The rotation to apply to the vector.
 
-### `double jwb_vect_magnitude(const struct jwb_vect *vect);`
+### `jwb_vect_magnitude`
+```
+double jwb_vect_magnitude(const struct jwb_vect *vect);
+```
+
 Get the magnitude/length of a vector using the pythagorean theorem.
 
 #### Parameters
@@ -84,13 +115,21 @@ Get the magnitude/length of a vector using the pythagorean theorem.
 #### Return Value
 The magnitude.
 
-### `void jwb_vect_normalize(struct jwb_vect *vect);`
+### `jwb_vect_normalize`
+```
+void jwb_vect_normalize(struct jwb_vect *vect);
+```
+
 Change the magnitude of a vector to 1 while keeping the x/y ratio the same.
 
 #### Parameters
  1. `vect`: The vector to shorten or lengthen.
 
-### `double jwb_vect_angle(const struct jwb_vect *vect);`
+### `jwb_vect_angle`
+```
+double jwb_vect_angle(const struct jwb_vect *vect);
+```
+
 Get the angle from the x-axis to the arm of a vector.
 
 #### Parameters
@@ -99,7 +138,11 @@ Get the angle from the x-axis to the arm of a vector.
 #### Return Value
 The angle in radians.
 
-### `void jwb_vect_rotation(const struct jwb_vect *vect, jwb_rotation_t *rot);`
+### `jwb_vect_rotation`
+```
+void jwb_vect_rotation(const struct jwb_vect *vect, jwb_rotation_t *rot);
+```
+
 Get the rotation from the x-axis to the arm of a vector.
 
 #### Parameters
@@ -110,7 +153,7 @@ Get the rotation from the x-axis to the arm of a vector.
 All operations in this library revolve around the world structure. All things
 up to this point are merely auxiliary to this goal.
 
-### `typedef ... jwb_ehandle_t;`
+### `jwb_ehandle_t`
 An entity handle, representing a certain entity for a certain world. Valid
 operations on a handle are comparison to zero and passing to appropriate
 methods, but nothing else.
@@ -123,7 +166,13 @@ The constants are for manual allocations to be passed to `jwb_world_alloc`.
  * `JWB_CELL_SIZE`: The size of a segment in the world's internal grid, to be
    used when manually allocating a cell buffer.
 
-### `typedef void (*jwb_hit_handler_t)(struct jwb__world *world, jwb_ehandle_t e1, jwb_ehandle_t e2)`
+### `jwb_hit_handler_t`
+```
+typedef void (*jwb_hit_handler_t)(
+  struct jwb__world *world,
+  jwb_ehandle_t e1,
+  jwb_ehandle_t e2);
+```
 A function for responding when two circles collide. This is called internally
 by the world. Additional info can be gotten using this method through
 embedding the world structure.
