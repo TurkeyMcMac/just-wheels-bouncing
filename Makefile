@@ -21,6 +21,9 @@ objects: $(objects)
 $(obj)/%.o: $(src)/%.c $(header)
 	$(CC) $(flags) -o $@ -fPIC -c $< $(link-flags)
 
+docs.md: $(header)
+	awk -f extract-docs.awk $< > $@
+
 .PHONY: clean
 clean:
 	$(RM) -r $(library) $(objects)
