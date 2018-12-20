@@ -6,7 +6,7 @@ work-in-progress.
 ## Development
 ### Building the Library
 Currently, only the shared library is buildable. Furthermore, as of now, it can
-only be built on Linux. Here is how to build it:
+only be built on Linux or Mac OS. Here is how to build it:
 
 ```
 make shared
