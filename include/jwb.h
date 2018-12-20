@@ -239,6 +239,7 @@ struct jwb__entity {
 #define JWB_ENTITY_SIZE sizeof(struct jwb__entity)
 #define JWB_CELL_SIZE sizeof(jwb_ehandle_t)
 
+struct jwb_hit_info;
 struct jwb__world;
 /**
  * ### `jwb_hit_handler_t`
@@ -246,7 +247,8 @@ struct jwb__world;
  * typedef void (*jwb_hit_handler_t)(
  *   jwb_world_t *world,
  *   jwb_ehandle_t e1,
- *   jwb_ehandle_t e2);
+ *   jwb_ehandle_t e2,
+ *   struct jwb_hit_info *info);
  * ```
  * A function for responding when two circles collide. This is called internally
  * by the world. Additional info can be gotten using this method through
@@ -256,6 +258,8 @@ struct jwb__world;
  *  1. `world`: The world where the interaction takes place.
  *  2. `e1`: The first involved entity.
  *  3. `e2`: The second involved entity.
+ *  4. `info`: Information which might be useful for calculations. See the
+ *     documentation of `struct jwb_hit_info`.
  *
  * #### Allowed Operations
  * Removal or destruction of either entity is permitted. Normal getters and
@@ -265,7 +269,29 @@ struct jwb__world;
 typedef void (*jwb_hit_handler_t)(
 	struct jwb__world *world,
 	jwb_ehandle_t e1,
-	jwb_ehandle_t e2);
+	jwb_ehandle_t e2,
+	struct jwb_hit_info *info);
+
+/**
+ * ### `struct jwb_hit_info`
+ * ```
+ * struct jwb_hit_info {
+ *   struct jwb_vect rel;
+ *   double dist;
+ * };
+ * ```
+ *
+ * Possibly useful information when calculating hits. See the documentation for
+ * `jwb_hit_handler_t`.
+ *
+ * #### Fields
+ *  * `rel`: The relative offset from the first entity to the second.
+ *  * `dist`: The magnitude of `rel`.
+ */
+struct jwb_hit_info {
+	struct jwb_vect rel;
+	double dist;
+};
 
 /**
  * ### `jwb_world_t`
@@ -338,8 +364,9 @@ int jwb_world_alloc(
  * ```
  * void jwb_elastic_collision(
  *   jwb_world_t *world,
- *   jwb_ehandle_t e1,
- *   jwb_ehandle_t e2);
+ *   jwb_ehandle_t ent1,
+ *   jwb_ehandle_t ent2,
+ *   struct jwb_hit_info *info);
  * ```
  *
  * Perform a perfectly elastic collision between two circles. This is designed
@@ -347,8 +374,9 @@ int jwb_world_alloc(
  */
 void jwb_elastic_collision(
 	jwb_world_t *world,
-	jwb_ehandle_t e1,
-	jwb_ehandle_t e2);
+	jwb_ehandle_t ent1,
+	jwb_ehandle_t ent2,
+	struct jwb_hit_info *info);
 
 /**
  * ### `jwb_world_apply_friction`

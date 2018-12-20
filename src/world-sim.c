@@ -103,6 +103,17 @@ static void place_ent(WORLD *world, EHANDLE ent)
 	link_living(world, ent, reposition(world, ent));
 }
 
+static void check_hit(WORLD *world, EHANDLE ent1, EHANDLE ent2)
+{
+	struct jwb_hit_info info;
+	info.rel.x = world->ents[ent2].pos.x - world->ents[ent1].pos.x;
+	info.rel.y = world->ents[ent2].pos.y - world->ents[ent1].pos.y;
+	info.dist = jwb_vect_magnitude(&info.rel);
+	if (info.dist < world->ents[ent1].radius + world->ents[ent2].radius) {
+		world->on_hit(world, ent1, ent2, &info);
+	}
+}
+
 static void update_cell(WORLD *world, size_t x, size_t y)
 {
 	EHANDLE next = world->cells[y * world->width + x];
@@ -115,7 +126,7 @@ static void update_cell(WORLD *world, size_t x, size_t y)
 			EHANDLE other;
 			other = next_other;
 			next_other = world->ents[next_other].next;
-			world->on_hit(world, self, other);
+			check_hit(world, self, other);
 		}
 	}
 }
@@ -139,7 +150,7 @@ static void update_cells(
 			EHANDLE other;
 			other = next_other;
 			next_other = world->ents[next_other].next;
-			world->on_hit(world, self, other);
+			check_hit(world, self, other);
 		}
 	}
 }
