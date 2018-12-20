@@ -8,6 +8,9 @@ obj = .obj
 objects = $(patsubst $(src)/%.c, $(obj)/%.o, $(wildcard $(src)/*))
 header = $(lib)/$(name).h
 c-flags = -I$(lib) -Wall -Wextra -Wpedantic -O3 $(CFLAGS)
+testdir = tests
+tests = $(patsubst $(testdir)/%.c, $(testdir)/%.o, $(wildcard $(testdir)/*.c))
+test-flags = -I$(lib) -L. -Wall -Wextra -Wpedantic -O0 $(CFLAGS)
 _uname_s := $(shell uname -s)
 ifeq ($(_uname_s),Linux)
 	library = lib$(name).so.$(version)
@@ -38,9 +41,16 @@ objects: $(objects)
 $(obj)/%.o: $(src)/%.c $(header)
 	$(CC) $(c-flags) -o $@ -c $<
 
+.PHONY: test
+test: $(tests)
+	./run-tests
+
+$(testdir)/%.o: $(testdir)/%.c $(header)
+	$(CC) $(test-flags) -o $@ -c $< -l:$(library)
+
 docs.md: $(header)
 	awk -f extract-docs.awk $< > $@
 
 .PHONY: clean
 clean:
-	$(RM) -r $(library) $(objects) docs.md
+	$(RM) -r $(library) $(objects) $(tests) docs.md
