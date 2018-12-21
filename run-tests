@@ -13,7 +13,8 @@ run_test() {
 	testfile=$1
 	log="${testfile}.log"
 	style_print 31 "$testfile failure:" > $log
-	if [ ./$testfile 2>$log >/dev/null ]; then
+	./$testfile 2>>$log >/dev/null
+	if [ $? -eq 0 ]; then
 		style_print 32 $testfile succeeded.
 		rm $log
 	else
@@ -23,14 +24,15 @@ run_test() {
 
 cd $testdir
 
-testfiles=`ls | grep '.o$'`
+testfiles=`ls -1 | grep '\.o$'`
 
-for testfile in `ls | grep '.o$'`; do
+
+for testfile in $testfiles; do
 	run_test $testfile &
 done
 wait
 
-logs=`ls | grep '.log$'`
+logs=`ls | grep '\.log$'`
 if [ "$logs" ]; then
 	style_print "31;7" Some tests failed.
 	for log in $logs; do
