@@ -1,13 +1,8 @@
+#include "test.h"
 #include <jwb.h>
 #include <assert.h>
 #include <stdlib.h>
-#include <math.h>
 #include <time.h>
-
-static double frand(void)
-{
-	return (double)(rand() % 100 + 1);
-}
 
 static int get_energy(jwb_world_t *world, jwb_ehandle_t ent, void *data)
 {
@@ -69,10 +64,10 @@ int main(void)
 	jwb_world_for_each(world, get_energy, &energy_f);
 	momentum_f.x = momentum_f.y = 0.;
 	jwb_world_for_each(world, get_momentum, &momentum_f);
-	assert(fabs(energy_i - energy_f) < 0.001);
+	assert(fequal(energy_i, energy_f));
 	momentum_i.x -= momentum_f.x;
 	momentum_i.y -= momentum_f.y;
-	assert(jwb_vect_magnitude(&momentum_i) < 0.001);
+	assert(fequal(jwb_vect_magnitude(&momentum_i), 0.));
 	/* Inelastic collisions */
 	jwb_world_on_hit(world, jwb_inelastic_collision);
 	momentum_i.x += momentum_f.x;
@@ -80,6 +75,8 @@ int main(void)
 	sim_world(world);
 	momentum_f.x = momentum_f.y = 0.;
 	jwb_world_for_each(world, get_momentum, &momentum_f);
-	assert(jwb_vect_magnitude(&momentum_i) < 0.001);
-	return 1;
+	momentum_i.x -= momentum_f.x;
+	momentum_i.y -= momentum_f.y;
+	assert(fequal(jwb_vect_magnitude(&momentum_i), 0.));
+	return 0;
 }
