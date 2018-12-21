@@ -255,6 +255,19 @@ void jwb_elastic_collision(
 Perform a perfectly elastic collision between two circles. This is designed
 to be used as a hit handler. See the documentation for `jwb_hit_handler_t`.
 
+### `jwb_inelastic_collision`
+```
+void jwb_inelastic_collision(
+  jwb_world_t *world,
+  jwb_ehandle_t ent1,
+  jwb_ehandle_t ent2,
+  struct jwb_hit_info *info);
+```
+
+Perform a collision between two circles where momentum is conserved, but not
+energy. This is designed to be used as a hit handler. See the documentation
+for `jwb_hit_handler_t`.
+
 ### `jwb_world_apply_friction`
 ```
 void jwb_world_apply_friction(jwb_world_t *world, double friction);

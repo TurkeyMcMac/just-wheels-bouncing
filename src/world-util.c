@@ -45,6 +45,47 @@ void jwb_elastic_collision(
 	world->ents[ent2].correct.y += info->rel.y * cor2;
 }
 
+void jwb_inelastic_collision(
+	WORLD *world,
+	EHANDLE ent1,
+	EHANDLE ent2,
+	struct jwb_hit_info *info)
+{
+	double mass1, mass2;
+	VECT vel1, vel2;
+	double smashed;
+	double overlap;
+	double cor1, cor2;
+	jwb_rotation_t rot;
+	if (info->dist == 0.) {
+		return;
+	}
+	mass1 = world->ents[ent1].mass;
+	mass2 = world->ents[ent2].mass;
+	vel1 = world->ents[ent1].vel;
+	vel2 = world->ents[ent2].vel;
+	jwb_vect_rotation(&info->rel, &rot); /* FIXME:Recalculates magnitude. */
+	jwb_rotation_flip(&rot);
+	jwb_vect_rotate(&vel1, &rot);
+	jwb_vect_rotate(&vel2, &rot);
+	smashed = (mass1 * vel1.x + mass2 * vel2.x) / (mass1 + mass2);
+	vel1.x = smashed;
+	vel2.x = smashed;
+	overlap = 1. - info->dist
+		/ (world->ents[ent1].radius + world->ents[ent2].radius);
+	cor1 = -overlap / (mass1 / mass2 + 1.);
+	cor2 = cor1 + overlap;
+	jwb_rotation_flip(&rot);
+	jwb_vect_rotate(&vel1, &rot);
+	jwb_vect_rotate(&vel2, &rot);
+	world->ents[ent1].vel = vel1;
+	world->ents[ent2].vel = vel2;
+	world->ents[ent1].correct.x += info->rel.x * cor1;
+	world->ents[ent1].correct.y += info->rel.y * cor1;
+	world->ents[ent2].correct.x += info->rel.x * cor2;
+	world->ents[ent2].correct.y += info->rel.y * cor2;
+}
+
 static int apply_friction(WORLD *world, EHANDLE ent, void *fricp)
 {
 	struct jwb_vect *vel;
