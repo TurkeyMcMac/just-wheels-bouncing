@@ -32,6 +32,14 @@ static int get_momentum(jwb_world_t *world, jwb_ehandle_t ent, void *data)
 	return 0;
 }
 
+static void sim_world(jwb_world_t *world)
+{
+	size_t i;
+	for (i = 0; i < 1000; ++i) {
+		jwb_world_step(world);
+	}
+}
+
 int main(void)
 {
 	jwb_world_t *world;
@@ -51,13 +59,12 @@ int main(void)
 		mass = frand();
 		jwb_world_add_ent(world, &pos, &vel, mass, radius);
 	}
+	/* Elastic collisions. */
 	energy_i = 0.;
 	jwb_world_for_each(world, get_energy, &energy_i);
 	momentum_i.x = momentum_i.y = 0.;
 	jwb_world_for_each(world, get_momentum, &momentum_i);
-	for (i = 0; i < 1000; ++i) {
-		jwb_world_step(world);
-	}
+	sim_world(world);
 	energy_f = 0.;
 	jwb_world_for_each(world, get_energy, &energy_f);
 	momentum_f.x = momentum_f.y = 0.;
@@ -65,6 +72,14 @@ int main(void)
 	assert(fabs(energy_i - energy_f) < 0.001);
 	momentum_i.x -= momentum_f.x;
 	momentum_i.y -= momentum_f.y;
+	assert(jwb_vect_magnitude(&momentum_i) < 0.001);
+	/* Inelastic collisions */
+	jwb_world_on_hit(world, jwb_inelastic_collision);
+	momentum_i.x += momentum_f.x;
+	momentum_i.y += momentum_f.y;
+	sim_world(world);
+	momentum_f.x = momentum_f.y = 0.;
+	jwb_world_for_each(world, get_momentum, &momentum_f);
 	assert(jwb_vect_magnitude(&momentum_i) < 0.001);
 	return 1;
 }
