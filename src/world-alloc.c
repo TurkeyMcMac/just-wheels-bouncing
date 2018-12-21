@@ -12,10 +12,22 @@ int jwb_world_alloc(
 	void *cell_buf)
 {
 	int ret = 0;
+	if (width == 0 || height == 0) {
+		ret = -JWBE_INVALID_ARGUMENT;
+		goto error_validity;
+	}
+	world->flags = 0;
+	world->cell_size = JWB_WORLD_DEFAULT_CELL_SIZE;
+	if (width == 1 || height == 1) {
+		world->flags |= ONE_CELL_THICK;
+		width *= 2;
+		height *= 2;
+		world->cell_size /= 2.;
+	}
 	if (cell_buf) {
 		world->cells = cell_buf;
 	} else {
-		size_t size = width * height * JWB_CELL_SIZE;
+		size_t size = width * height * sizeof(EHANDLE);
 		world->cells = ALLOC(size);
 		if (!world->cells) {
 			ret = -JWBE_NO_MEMORY;
@@ -26,7 +38,7 @@ int jwb_world_alloc(
 	if (ent_buf) {
 		world->ents = ent_buf;
 	} else {
-		world->ents = ALLOC(ent_buf_size * JWB_ENTITY_SIZE);
+		world->ents = ALLOC(ent_buf_size * sizeof(struct jwb__entity));
 		if (!world->ents) {
 			ret = -JWBE_NO_MEMORY;
 			goto error_entities;
@@ -39,8 +51,6 @@ int jwb_world_alloc(
 	world->on_hit = JWB_WORLD_DEFAULT_HIT_HANDLER;
 	world->freed = -1;
 	world->available = -1;
-	world->flags = HAS_WALLS;
-	world->cell_size = JWB_WORLD_DEFAULT_CELL_SIZE;
 	return ret;
 
 error_entities:
@@ -48,6 +58,7 @@ error_entities:
 		FREE(world->cells);
 	}
 error_cells:
+error_validity:
 	return ret;
 }
 
