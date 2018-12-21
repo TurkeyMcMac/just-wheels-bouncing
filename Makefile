@@ -10,7 +10,8 @@ header = $(lib)/$(name).h
 c-flags = -I$(lib) -Wall -Wextra -Wpedantic -O3 $(CFLAGS)
 testdir = tests
 test-header = $(testdir)/test.h
-tests = $(patsubst $(testdir)/%.c, $(testdir)/%.o, $(wildcard $(testdir)/*.c))
+tests = $(patsubst \
+	$(testdir)/%.c, $(testdir)/%.test, $(wildcard $(testdir)/*.c))
 test-flags = -I$(lib) -L/ \
 	-Wall -Wno-unused-function -Wextra -Wpedantic -O0 $(CFLAGS)
 _uname_s := $(shell uname -s)
@@ -47,7 +48,7 @@ $(obj)/%.o: $(src)/%.c $(header)
 test: $(tests)
 	./run-tests
 
-$(testdir)/%.o: $(testdir)/%.c $(header) $(test-header) $(library)
+$(testdir)/%.test: $(testdir)/%.c $(header) $(test-header) $(library)
 	$(CC) $(test-flags) -o $@ $< -l:$(PWD)/$(library)
 
 docs.md: $(header)

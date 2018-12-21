@@ -24,7 +24,7 @@ run_test() {
 
 cd $testdir
 
-testfiles=`ls -1 | grep '\.o$'`
+testfiles=`ls -1 | grep '\.test$'`
 
 
 for testfile in $testfiles; do
