@@ -38,6 +38,8 @@ if [ "$logs" ]; then
 	for log in $logs; do
 		cat $log
 	done
+	exit 1
 else
 	style_print "32;7" All tests passed.
+	exit 0
 fi
