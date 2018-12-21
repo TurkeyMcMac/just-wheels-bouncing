@@ -10,7 +10,7 @@ void jwb_rotation(jwb_rotation_t *rot, double angle)
 
 double jwb_rotation_angle(const jwb_rotation_t *rot)
 {
-	return asin(rot->sin);
+	return atan2(rot->sin, rot->cos);
 }
 
 void jwb_rotation_flip(jwb_rotation_t *rot)
@@ -40,7 +40,7 @@ void jwb_vect_normalize(struct jwb_vect *vect)
 
 double jwb_vect_angle(const struct jwb_vect *vect)
 {
-	return atan(vect->y / vect->x);
+	return atan2(vect->y, vect->x);
 }
 
 void jwb_vect_rotation(const struct jwb_vect *vect, jwb_rotation_t *rot)

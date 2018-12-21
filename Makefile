@@ -49,7 +49,7 @@ test: $(tests)
 	./run-tests
 
 $(testdir)/%.test: $(testdir)/%.c $(header) $(test-header) $(library)
-	$(CC) $(test-flags) -o $@ $< -l:$(PWD)/$(library)
+	$(CC) $(test-flags) -o $@ $< -l:$(PWD)/$(library) $(dep-flags)
 
 docs.md: $(header)
 	awk -f extract-docs.awk $< > $@
