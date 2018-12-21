@@ -9,8 +9,10 @@ objects = $(patsubst $(src)/%.c, $(obj)/%.o, $(wildcard $(src)/*))
 header = $(lib)/$(name).h
 c-flags = -I$(lib) -Wall -Wextra -Wpedantic -O3 $(CFLAGS)
 testdir = tests
+test-header = $(testdir)/test.h
 tests = $(patsubst $(testdir)/%.c, $(testdir)/%.o, $(wildcard $(testdir)/*.c))
-test-flags = -I$(lib) -L. -Wall -Wextra -Wpedantic -O0 $(CFLAGS)
+test-flags = -I$(lib) -L/ \
+	-Wall -Wno-unused-function -Wextra -Wpedantic -O0 $(CFLAGS)
 _uname_s := $(shell uname -s)
 ifeq ($(_uname_s),Linux)
 	library = lib$(name).so.$(version)
@@ -45,8 +47,8 @@ $(obj)/%.o: $(src)/%.c $(header)
 test: $(tests)
 	./run-tests
 
-$(testdir)/%.o: $(testdir)/%.c $(header)
-	$(CC) $(test-flags) -o $@ -c $< -l:$(library)
+$(testdir)/%.o: $(testdir)/%.c $(header) $(test-header) $(library)
+	$(CC) $(test-flags) -o $@ $< -l:$(PWD)/$(library)
 
 docs.md: $(header)
 	awk -f extract-docs.awk $< > $@
