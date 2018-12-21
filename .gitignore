@@ -1,3 +1,4 @@
 .obj
 lib*
 tests/*.o
+tests/*.log
