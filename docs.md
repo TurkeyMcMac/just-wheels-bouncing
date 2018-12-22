@@ -158,14 +158,6 @@ An entity handle, representing a certain entity for a certain world. Valid
 operations on a handle are comparison to zero and passing to appropriate
 methods, but nothing else.
 
-### Size Constants
-The constants are for manual allocations to be passed to `jwb_world_alloc`.
-
- * `JWB_ENTITY_SIZE`: The size of an entity (not a handle, mind you,) to be
-   used when manually allocating an entity buffer.
- * `JWB_CELL_SIZE`: The size of a segment in the world's internal grid, to be
-   used when manually allocating a cell buffer.
-
 ### `jwb_hit_handler_t`
 ```
 typedef void (*jwb_hit_handler_t)(
@@ -228,15 +220,42 @@ Allocate the necessary resources for a given world.
  4. `ent_buf_size`: The number of entities to allocate initially. If an
     entity buffer is given, the buffer is assumed to have this much space.
  5. `ent_buf`: The entity buffer. If this is `NULL`, a new one is allocated.
-    a buffer of size `ent_buf_size * JWB_ENTITY_SIZE` must be provided if
-    allocation is turned off.
+    A buffer of size `JWB_WORLD_ENT_BUF_SIZE(ent_buf_size)` must be provided
+    if allocation is turned off.
  6. `cell_buf`: The cell buffer. If this is `NULL`, a new one is allocated.
-    a buffer of size `width * height * JWB_CELL_SIZE` must be provided if
-    allocation is turned off.
+    A buffer of size `JWB_WORLD_CELL_BUF_SIZE(width, height)` must be
+    provided if allocation is turned off.
 
 #### Return Value
  * `0`: Success.
  * `-JWBE_NO_MEMORY`: Buffer allocation failed.
+
+### `JWB_WORLD_ENT_BUF_SIZE`
+```
+#define JWB_WORLD_ENT_BUF_SIZE(num) ...
+```
+
+Get the needed buffer size for a number of entities.
+
+#### Parameters
+ 1. `num`: The number of entities to account for.
+
+#### Return Value
+The needed buffer size in bytes.
+
+### `JWB_WORLD_CELL_BUF_SIZE`
+```
+#define JWB_WORLD_CELL_BUF_SIZE(width, height) ...
+```
+
+Get the needed buffer size for a world's cell grid.
+
+#### Parameters
+ 1. `width`: The number of cells across.
+ 2. `height`: The number of cells down.
+
+#### Return Value
+The needed buffer size in bytes.
 
 #### Defaults
  1. The cells size is initially set to `JWB_WORLD_DEFAULT_CELL_SIZE`.
