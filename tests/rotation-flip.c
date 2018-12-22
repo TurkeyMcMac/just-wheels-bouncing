@@ -22,7 +22,6 @@ int main(void)
 		jwb_vect_rotate(&v2, &rot);
 		assert(fequal(v1.x, v2.x));
 		assert(fequal(v1.y, v2.y));
-		assert(fequal(jwb_vect_angle(&v1), jwb_rotation_angle(&rot)));
 	}
 	return 0;
 }
