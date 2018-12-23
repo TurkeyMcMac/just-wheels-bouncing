@@ -42,8 +42,7 @@ int main(void)
 	struct jwb_vect momentum_i, momentum_f;
 	size_t i;
 	world = malloc(sizeof(*world));
-	jwb_world_alloc(world, 10, 10, 10, NULL, NULL);
-	jwb_world_set_cell_size(world, 10.);
+	jwb_world_alloc(world, 0, 10., 10, 10, 10, NULL, NULL);
 	srand(time(NULL));
 	for (i = 0; i < 10; ++i) {
 		struct jwb_vect pos, vel;
