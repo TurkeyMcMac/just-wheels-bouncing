@@ -304,6 +304,8 @@ typedef struct jwb__world {
  * ```
  * int jwb_world_alloc(
  *   jwb_world_t *world,
+ *   int flags,
+ *   double cell_size,
  *   size_t width,
  *   size_t height,
  *   size_t ent_buf_size,
@@ -315,14 +317,16 @@ typedef struct jwb__world {
  *
  * #### Parameters
  *  1. `world`: The uninitialized world to initialize.
- *  2. `width`: The width of the world in cells.
- *  3. `height`: The height of the world in cells.
- *  4. `ent_buf_size`: The number of entities to allocate initially. If an
+ *  2. `flags`: The flags which the world should have.
+ *  3. `cell_size`: The size of cells in the world.
+ *  4. `width`: The width of the world in cells.
+ *  5. `height`: The height of the world in cells.
+ *  6. `ent_buf_size`: The number of entities to allocate initially. If an
  *     entity buffer is given, the buffer is assumed to have this much space.
- *  5. `ent_buf`: The entity buffer. If this is `NULL`, a new one is allocated.
+ *  7. `ent_buf`: The entity buffer. If this is `NULL`, a new one is allocated.
  *     A buffer of size `JWB_WORLD_ENT_BUF_SIZE(ent_buf_size)` must be provided
  *     if allocation is turned off.
- *  6. `cell_buf`: The cell buffer. If this is `NULL`, a new one is allocated.
+ *  8. `cell_buf`: The cell buffer. If this is `NULL`, a new one is allocated.
  *     A buffer of size `JWB_WORLD_CELL_BUF_SIZE(width, height)` must be
  *     provided if allocation is turned off.
  *
@@ -332,6 +336,8 @@ typedef struct jwb__world {
  */
 int jwb_world_alloc(
 	jwb_world_t *world,
+	int flags,
+	double cell_size,
 	size_t width,
 	size_t height,
 	size_t ent_buf_size,
@@ -373,12 +379,9 @@ int jwb_world_alloc(
 	? 4 * (width) * (height) : (width) * (height)) * sizeof(jwb_ehandle_t))
 
 /**
- * #### Defaults
- *  1. The cells size is initially set to `JWB_WORLD_DEFAULT_CELL_SIZE`.
- *  2. The hit handler is initially set to `JWB_WORLD_DEFAULT_HIT_HANDLER`. This
- *     is defined as `jwb_elastic_collision`.
+ * ### `JWB_WORLD_DEFAULT_HIT_HANDLER`
+ * This is defined as `jwb_elastic_collision`.
  */
-#define JWB_WORLD_DEFAULT_CELL_SIZE 10.
 #define JWB_WORLD_DEFAULT_HIT_HANDLER jwb_elastic_collision
 
 /**
@@ -626,50 +629,6 @@ int jwb_world_confirm_ent(jwb_world_t *world, jwb_ehandle_t ent);
  *
  * Most of these are pretty similar, so the descriptions are short.
  */
-
-/**
- * ### `jwb_world_get_cell_size`
- * ```
- * double jwb_world_get_cell_size(jwb_world_t *world);
- * ```
- *
- * #### Parameters
- *  1. `world`: The world to look at.
- *
- * #### Return Value
- * The size of cells in the world.
- */
-double jwb_world_get_cell_size(jwb_world_t *world);
-
-/**
- * ### `jwb_world_set_cell_size`
- * ```
- * int jwb_world_set_cell_size(jwb_world_t *world, double cell_size);
- * ```
- *
- * #### Parameters
- *  1. `world`: The world to change.
- *  2. `cell_size`: The cell size, greater than 0.
- */
-int jwb_world_set_cell_size(jwb_world_t *world, double cell_size);
-
-/* Unnecessary. Undocumented. */
-double jwb_world_get_cell_size_unck(jwb_world_t *world);
-
-/**
- * ### `jwb_world_set_cell_size_unck`
- * ```
- * void jwb_world_set_cell_size_unck(jwb_world_t *world, double cell_size);
- * ```
- *
- * #### Parameters
- *  1. `world`: The world to change.
- *  2. `cell_size`: The cell size, greater than 0.
- */
-void jwb_world_set_cell_size_unck(jwb_world_t *world, double cell_size);
-
-/* Not working. Undocumented. */
-void jwb_world_set_walls(jwb_world_t *world, int on);
 
 /**
  * ### `jwb_world_get_hit_handler`

@@ -5,6 +5,8 @@
 
 int jwb_world_alloc(
 	WORLD *world,
+	int flags,
+	double cell_size,
 	size_t width,
 	size_t height,
 	size_t ent_buf_size,
@@ -16,8 +18,8 @@ int jwb_world_alloc(
 		ret = -JWBE_INVALID_ARGUMENT;
 		goto error_validity;
 	}
-	world->flags = 0;
-	world->cell_size = JWB_WORLD_DEFAULT_CELL_SIZE;
+	world->flags = flags;
+	world->cell_size = cell_size;
 	if (width == 1 || height == 1) {
 		world->flags |= ONE_CELL_THICK;
 		width *= 2;
