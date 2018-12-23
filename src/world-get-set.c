@@ -54,7 +54,7 @@ void jwb_world_on_hit(WORLD *world, jwb_hit_handler_t on_hit)
 			return -JWBE_INVALID_ARGUMENT; \
 		} \
 		err = jwb_world_confirm_ent(world, ent); \
-		if (err) { \
+		if (err == -JWBE_DESTROYED_ENTITY) { \
 			return err; \
 		} \
 		jwb_world_##name##_unck(world, ent, vect); \
@@ -98,7 +98,7 @@ VECT_METHOD(accelerate, const VECT, {
 	double jwb_world_get_##name(WORLD *world, EHANDLE ent) \
 	{ \
 		int err = jwb_world_confirm_ent(world, ent); \
-		if (err) { \
+		if (err == -JWBE_DESTROYED_ENTITY) { \
 			return err; \
 		} \
 		return jwb_world_get_mass_unck(world, ent); \
@@ -118,7 +118,7 @@ SCALAR_GETTER(radius, world->ents[ent].radius)
 			return -JWBE_INVALID_ARGUMENT; \
 		} \
 		err = jwb_world_confirm_ent(world, ent); \
-		if (err) { \
+		if (err == -JWBE_DESTROYED_ENTITY) { \
 			return err; \
 		} \
 		jwb_world_set_##name##_unck(world, ent, v); \

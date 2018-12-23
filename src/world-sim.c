@@ -388,6 +388,21 @@ EHANDLE jwb_world_add_ent(WORLD *world,
 	return ent;
 }
 
+int jwb_world_re_add_ent(WORLD *world, EHANDLE ent)
+{
+	int err = jwb_world_confirm_ent(world, ent);
+	switch (-err) {
+	case JWBE_REMOVED_ENTITY:
+		world->ents[ent].flags &= ~REMOVED;
+		place_ent(world, ent);
+		return 0;
+	case 0:
+		return 0;
+	default:
+		return err;
+	}
+}
+
 int jwb_world_remove_ent(WORLD *world, EHANDLE ent)
 {
 	int status = jwb_world_confirm_ent(world, ent);

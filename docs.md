@@ -368,6 +368,21 @@ Add an entity to the world.
  * A handle on the new entity if successful.
  * `-JWBE_NO_MEMORY` if there is no room.
 
+### `jwb_world_re_add_ent`
+```
+int jwb_world_re_add_ent(jwb_world_t *world, jwb_ehandle_t ent);
+```
+
+Add an entity which was removed.
+
+#### Parameters
+ 1. `world`: The world to add the entity to.
+ 2. `ent`: Which entity to add.
+
+#### Return Value
+ * `0`: The entity was added or existed already.
+ * `-JWBE_DESTROYED_ENTITY`: The entity specified does not exist.
+
 ### `jwb_world_remove_ent`
 ```
 int jwb_world_remove_ent(jwb_world_t *world, jwb_ehandle_t ent);
@@ -435,8 +450,7 @@ Otherwise, numeric arguments can be restricted to ranges, entity handle
 arguments are checked for their existence, and pointer arguments are checked
 both in `NULL`ness and in content. Invalid arguments cause
 `-JWBE_INVALID_ARGUMENT` to be returned, except in the case of entities,
-where either `-JWBE_ENTITY_REMOVED` or `-JWBE_ENTITY_DESTROYED` is returned
-depending on what happened.
+where `-JWBE_ENTITY_DESTROYED` is returned.
 
 Most of these are pretty similar, so the descriptions are short.
 
