@@ -41,8 +41,17 @@ int main(void)
 	double energy_i, energy_f;
 	struct jwb_vect momentum_i, momentum_f;
 	size_t i;
+	struct jwb_world_init alloc_info = {
+		.cell_size = 10.,
+		.flags = 0,
+		.width = 10,
+		.height = 10,
+		.ent_buf_size = 10,
+		.ent_buf = NULL,
+		.cell_buf = NULL
+	};
 	world = malloc(sizeof(*world));
-	jwb_world_alloc(world, 0, 10., 10, 10, 10, NULL, NULL);
+	jwb_world_alloc(world, &alloc_info);
 	srand(time(NULL));
 	for (i = 0; i < 10; ++i) {
 		struct jwb_vect pos, vel;

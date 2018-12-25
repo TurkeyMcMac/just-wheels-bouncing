@@ -200,35 +200,47 @@ Possibly useful information when calculating hits. See the documentation for
 The world itself. This structure holds and manages a number of entities. It
 can be quite large, so you might consider allocating it on the heap.
 
+### `struct jwb_world_init`
+```
+struct jwb_world_init {
+  jwb_world_t *world;
+  int flags;
+  double cell_size;
+  size_t width;
+  size_t height;
+  size_t ent_buf_size;
+  void *ent_buf;
+  void *cell_buf;
+};
+```
+
+Initialization information for use in `jwb_world_alloc`.
+
+#### Fields
+ * `world`: The uninitialized world to initialize.
+ * `flags`: The flags which the world should have.
+ * `cell_size`: The size of cells in the world.
+ * `width`: The width of the world in cells.
+ * `height`: The height of the world in cells.
+ * `ent_buf_size`: The number of entities to allocate initially. If an
+   entity buffer is given, the buffer is assumed to have this much space.
+ * `ent_buf`: The entity buffer. If this is `NULL`, a new one is allocated. A
+   buffer of size `JWB_WORLD_ENT_BUF_SIZE(ent_buf_size)` must be provided if
+   allocation is turned off.
+ * `cell_buf`: The cell buffer. If this is `NULL`, a new one is allocated. A
+   buffer of size `JWB_WORLD_CELL_BUF_SIZE(width, height)` must be provided
+   if allocation is turned off.
+
 ### `jwb_world_alloc`
 ```
-int jwb_world_alloc(
-  jwb_world_t *world,
-  int flags,
-  double cell_size,
-  size_t width,
-  size_t height,
-  size_t ent_buf_size,
-  void *ent_buf,
-  void *cell_buf);
+int jwb_world_alloc(jwb_world_t *world, struct jwb_world_init *info);
 ```
 
 Allocate the necessary resources for a given world.
 
 #### Parameters
- 1. `world`: The uninitialized world to initialize.
- 2. `flags`: The flags which the world should have.
- 3. `cell_size`: The size of cells in the world.
- 4. `width`: The width of the world in cells.
- 5. `height`: The height of the world in cells.
- 6. `ent_buf_size`: The number of entities to allocate initially. If an
-    entity buffer is given, the buffer is assumed to have this much space.
- 7. `ent_buf`: The entity buffer. If this is `NULL`, a new one is allocated.
-    A buffer of size `JWB_WORLD_ENT_BUF_SIZE(ent_buf_size)` must be provided
-    if allocation is turned off.
- 8. `cell_buf`: The cell buffer. If this is `NULL`, a new one is allocated.
-    A buffer of size `JWB_WORLD_CELL_BUF_SIZE(width, height)` must be
-    provided if allocation is turned off.
+ 1. `world`: The world to initialize.
+ 2. `info`: The initialization info. See `struct jwb_world_init`.
 
 #### Return Value
  * `0`: Success.

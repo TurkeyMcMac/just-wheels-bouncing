@@ -3,60 +3,54 @@
 #include <stdlib.h>
 #include <string.h>
 
-int jwb_world_alloc(
-	WORLD *world,
-	int flags,
-	double cell_size,
-	size_t width,
-	size_t height,
-	size_t ent_buf_size,
-	void *ent_buf,
-	void *cell_buf)
+int jwb_world_alloc(WORLD *world, struct jwb_world_init *info)
 {
 	int ret = 0;
-	if (width == 0 || height == 0) {
+	if (info->width == 0 || info->height == 0) {
 		ret = -JWBE_INVALID_ARGUMENT;
 		goto error_validity;
 	}
-	world->flags = flags;
-	world->cell_size = cell_size;
-	if (width == 1 || height == 1) {
+	world->flags = info->flags;
+	world->cell_size = info->cell_size;
+	world->width = info->width;
+	world->height = info->height;
+	if (world->width == 1 || world->height == 1) {
 		world->flags |= ONE_CELL_THICK;
-		width *= 2;
-		height *= 2;
+		world->width *= 2;
+		world->height *= 2;
 		world->cell_size /= 2.;
 	}
-	if (cell_buf) {
-		world->cells = cell_buf;
+	if (info->cell_buf) {
+		world->cells = info->cell_buf;
 	} else {
-		size_t size = width * height * sizeof(EHANDLE);
+		size_t size = world->width * world->height * sizeof(EHANDLE);
 		world->cells = ALLOC(size);
+		printf("%lu %lu\n", world->width, world->height);
 		if (!world->cells) {
 			ret = -JWBE_NO_MEMORY;
 			goto error_cells;
 		}
 		memset(world->cells, -1, size);
 	}
-	if (ent_buf) {
-		world->ents = ent_buf;
+	world->ent_cap = info->ent_buf_size;
+	if (info->ent_buf) {
+		world->ents = info->ent_buf;
 	} else {
-		world->ents = ALLOC(ent_buf_size * sizeof(struct jwb__entity));
+		world->ents = ALLOC(world->ent_cap * sizeof(*world->ents));
+		printf("%lu\n", world->ent_cap * sizeof(*world->ents));
 		if (!world->ents) {
 			ret = -JWBE_NO_MEMORY;
 			goto error_entities;
 		}
 	}
-	world->width = width;
-	world->height = height;
 	world->n_ents = 0;
-	world->ent_cap = ent_buf_size;
 	world->on_hit = JWB_WORLD_DEFAULT_HIT_HANDLER;
 	world->freed = -1;
 	world->available = -1;
 	return ret;
 
 error_entities:
-	if (!cell_buf) {
+	if (!info->cell_buf) {
 		FREE(world->cells);
 	}
 error_cells:
