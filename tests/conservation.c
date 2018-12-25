@@ -38,19 +38,18 @@ static void sim_world(jwb_world_t *world)
 int main(void)
 {
 	jwb_world_t *world;
+	struct jwb_world_init alloc_info;
 	double energy_i, energy_f;
 	struct jwb_vect momentum_i, momentum_f;
 	size_t i;
-	struct jwb_world_init alloc_info = {
-		.cell_size = 10.,
-		.flags = 0,
-		.width = 10,
-		.height = 10,
-		.ent_buf_size = 10,
-		.ent_buf = NULL,
-		.cell_buf = NULL
-	};
 	world = malloc(sizeof(*world));
+	alloc_info.cell_size = 10.;
+	alloc_info.flags = 0;
+	alloc_info.width = 10;
+	alloc_info.height = 10;
+	alloc_info.ent_buf_size = 10;
+	alloc_info.ent_buf = NULL;
+	alloc_info.cell_buf = NULL;
 	jwb_world_alloc(world, &alloc_info);
 	srand(time(NULL));
 	for (i = 0; i < 10; ++i) {
