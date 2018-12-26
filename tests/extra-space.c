@@ -9,28 +9,32 @@ struct world_outcome {
 
 static int seed;
 
-static int get_outcome(jwb_world_t *world, jwb_ehandle_t ent, void *data)
+static void get_outcome(jwb_world_t *world, struct world_outcome *outcome)
 {
-	struct world_outcome *outcome = data;
-	struct jwb_vect pos, vel;
-	jwb_world_get_pos(world, ent, &pos);
-	jwb_world_get_vel(world, ent, &vel);
-	outcome->pos.x += pos.x;
-	outcome->pos.y += pos.y;
-	outcome->vel.x += vel.x;
-	outcome->vel.y += vel.y;
-	return 0;
+	jwb_ehandle_t e;
+	for (e = jwb_world_first(world); e >= 0; e = jwb_world_next(world, e)) {
+		struct jwb_vect pos, vel;
+		jwb_world_get_pos(world, e, &pos);
+		jwb_world_get_vel(world, e, &vel);
+		outcome->pos.x += pos.x;
+		outcome->pos.y += pos.y;
+		outcome->vel.x += vel.x;
+		outcome->vel.y += vel.y;
+	}
 }
 
-static int scramble_extra(jwb_world_t *world, jwb_ehandle_t ent, void *null)
+static int scramble_extras(jwb_world_t *world)
 {
-	size_t size, i;
-	char *extra;
-	(void)null;
-	extra = jwb_world_get_extra_unck(world, ent);
+	jwb_ehandle_t e;
+	size_t size;
 	size = jwb_world_extra_size(world);
-	for (i = 0; i < size; ++i) {
-		extra[i] = rand();
+	for (e = jwb_world_first(world); e >= 0; e = jwb_world_next(world, e)) {
+		size_t i;
+		char *extra;
+		extra = jwb_world_get_extra_unck(world, e);
+		for (i = 0; i < size; ++i) {
+			extra[i] = rand();
+		}
 	}
 	return 0;
 }
@@ -61,9 +65,9 @@ static void sim_world(size_t extra_space, struct world_outcome *outcome)
 	}
 	for (i = 0; i < 1000; ++i) {
 		jwb_world_step(world);
-		jwb_world_for_each(world, scramble_extra, NULL);
+		scramble_extras(world);
 	}
-	jwb_world_for_each(world, get_outcome, outcome);
+	get_outcome(world, outcome);
 	jwb_world_destroy(world);
 	free(world);
 }

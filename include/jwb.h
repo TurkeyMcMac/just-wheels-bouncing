@@ -468,49 +468,70 @@ void jwb_inelastic_collision(
 void jwb_world_apply_friction(jwb_world_t *world, double friction);
 
 /**
- * ### `jwb_world_iter_t`
+ * ### `jwb_world_first`
  * ```
- * typedef int (*jwb_world_iter_t)(
- *   jwb_world_t *world,
- *   jwb_ehandle_t ent,
- *   void *data);
+ * jwb_ehandle_t jwb_world_first(jwb_world_t *world);
  * ```
  *
- * A function for handling an iteration of looping though all entities.
+ * Get the first placed entity for iteration.
+ *
  * #### Parameters
- *  1. `world`: The world be iterated through.
- *  2. `ent`: The entity being visited this iteration.
- *  3. `data`: Custom data persistent through iterations.
+ *  1. `world`: The iterated world.
  *
  * #### Return Value
- * If zero is returned, iteration continues. Otherwise, iteration halts.
+ * The entity being checked out, or -1 if none exist.
  */
-typedef int (*jwb_world_iter_t)(
-	jwb_world_t *world,
-	jwb_ehandle_t ent,
-	void *data);
+jwb_ehandle_t jwb_world_first(jwb_world_t *world);
 
 /**
- * ### `jwb_world_for_each`
+ * ### `jwb_world_next`
  * ```
- * int jwb_world_for_each(
- *   jwb_world_t *world,
- *   jwb_world_iter_t iter,
- *   void *data);
+ * jwb_ehandle_t jwb_world_next(jwb_world_t *world, jwb_ehandle_t now);
  * ```
  *
- * Iterate through each existing entity in the world.
+ * Get the next placed entity for iteration.
  *
  * #### Parameters
- *  1. `world`: The world through which to iterate.
- *  2. `iter`: The iterator function.
- *  3. `data`: Custom persistent state.
+ *  1. `world`: The iterated world.
+ *  2. `now`: The last examined entity when iterating.
  *
  * #### Return Value
- * Zero if all calls to `iter` returned zero. Otherwise, the first non-zero
- * number returned. 
+ * The entity being checked out, or -1 if there are no more.
  */
-int jwb_world_for_each(jwb_world_t *world, jwb_world_iter_t iter, void *data);
+jwb_ehandle_t jwb_world_next(jwb_world_t *world, jwb_ehandle_t now);
+
+/**
+ * ### `jwb_world_first_removed`
+ * ```
+ * jwb_ehandle_t jwb_world_first_removed(jwb_world_t *world);
+ * ```
+ *
+ * Get the first removed entity for iteration.
+ *
+ * #### Parameters
+ *  1. `world`: The iterated world.
+ *
+ * #### Return Value
+ * The entity being checked out, or -1 if none exist.
+ */
+jwb_ehandle_t jwb_world_first_removed(jwb_world_t *world);
+
+/**
+ * ### `jwb_world_next_removed`
+ * ```
+ * jwb_ehandle_t jwb_world_next_removed(jwb_world_t *world, jwb_ehandle_t now);
+ * ```
+ *
+ * Get the next placed entity for iteration.
+ *
+ * #### Parameters
+ *  1. `world`: The iterated world.
+ *  2. `now`: The last examined entity when iterating.
+ *
+ * #### Return Value
+ * The entity being checked out, or -1 if there are no more.
+ */
+jwb_ehandle_t jwb_world_next_removed(jwb_world_t *world, jwb_ehandle_t now);
 
 /**
  * ### `jwb_world_step`

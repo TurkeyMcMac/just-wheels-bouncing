@@ -86,13 +86,12 @@ void jwb_inelastic_collision(
 	GET(world, ent2).correct.y += info->rel.y * cor2;
 }
 
-static int apply_friction(WORLD *world, EHANDLE ent, void *fricp)
+static int apply_friction(WORLD *world, EHANDLE ent, double friction)
 {
 	struct jwb_vect *vel;
-	double speed, friction, ratio;
+	double speed, ratio;
 	vel = &GET(world, ent).vel;
 	speed = jwb_vect_magnitude(vel);
-	friction = *(double *)fricp;
 	ratio = (speed - friction) / speed;
 	if (ratio > 0.) {
 		vel->x *= ratio;
@@ -106,5 +105,8 @@ static int apply_friction(WORLD *world, EHANDLE ent, void *fricp)
 
 void jwb_world_apply_friction(WORLD *world, double friction)
 {
-	jwb_world_for_each(world, apply_friction, &friction);
+	EHANDLE e;
+	for (e = jwb_world_first(world); e >= 0; e = jwb_world_next(world, e)) {
+		apply_friction(world, e, friction);
+	}
 }

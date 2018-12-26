@@ -4,27 +4,37 @@
 #include <stdlib.h>
 #include <time.h>
 
-static int get_energy(jwb_world_t *world, jwb_ehandle_t ent, void *data)
+static double get_energy(jwb_world_t *world, jwb_ehandle_t ent)
 {
-	double *sum_energy = data;
 	double mass;
 	struct jwb_vect vel;
 	jwb_world_get_vel_unck(world, ent, &vel);
 	mass = jwb_world_get_mass_unck(world, ent);
-	*sum_energy += mass * (vel.x*vel.x + vel.y*vel.y) / 2;
-	return 0;
+	return mass * (vel.x*vel.x + vel.y*vel.y) / 2;
 }
 
-static int get_momentum(jwb_world_t *world, jwb_ehandle_t ent, void *data)
+static double get_total_energy(jwb_world_t *world)
 {
-	struct jwb_vect *sum_momentum = data;
-	double mass;
-	struct jwb_vect vel;
-	jwb_world_get_vel_unck(world, ent, &vel);
-	mass = jwb_world_get_mass_unck(world, ent);
-	sum_momentum->x += mass * vel.x;
-	sum_momentum->y += mass * vel.y;
-	return 0;
+	double energy = 0.;
+	jwb_ehandle_t e;
+	for (e = jwb_world_first(world); e >= 0; e = jwb_world_next(world, e)) {
+		energy += get_energy(world, e);
+	}
+	return energy;
+}
+
+static void get_total_momentum(jwb_world_t *world, struct jwb_vect *momentum)
+{
+	jwb_ehandle_t e;
+	momentum->x = momentum->y = 0.;
+	for (e = jwb_world_first(world); e >= 0; e = jwb_world_next(world, e)) {
+		double mass;
+		struct jwb_vect vel;
+		jwb_world_get_vel_unck(world, e, &vel);
+		mass = jwb_world_get_mass_unck(world, e);
+		momentum->x += mass * vel.x;
+		momentum->y += mass * vel.y;
+	}
 }
 
 static void sim_world(jwb_world_t *world)
@@ -63,15 +73,11 @@ int main(void)
 		jwb_world_add_ent(world, &pos, &vel, mass, radius);
 	}
 	/* Elastic collisions. */
-	energy_i = 0.;
-	jwb_world_for_each(world, get_energy, &energy_i);
-	momentum_i.x = momentum_i.y = 0.;
-	jwb_world_for_each(world, get_momentum, &momentum_i);
+	energy_i = get_total_energy(world);
+	get_total_momentum(world, &momentum_i);
 	sim_world(world);
-	energy_f = 0.;
-	jwb_world_for_each(world, get_energy, &energy_f);
-	momentum_f.x = momentum_f.y = 0.;
-	jwb_world_for_each(world, get_momentum, &momentum_f);
+	energy_f = get_total_energy(world);
+	get_total_momentum(world, &momentum_f);
 	assert(fequal(energy_i, energy_f));
 	momentum_i.x -= momentum_f.x;
 	momentum_i.y -= momentum_f.y;
@@ -81,8 +87,7 @@ int main(void)
 	momentum_i.x += momentum_f.x;
 	momentum_i.y += momentum_f.y;
 	sim_world(world);
-	momentum_f.x = momentum_f.y = 0.;
-	jwb_world_for_each(world, get_momentum, &momentum_f);
+	get_total_momentum(world, &momentum_f);
 	momentum_i.x -= momentum_f.x;
 	momentum_i.y -= momentum_f.y;
 	assert(fequal(jwb_vect_magnitude(&momentum_i), 0.));
