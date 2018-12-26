@@ -21,6 +21,7 @@ int jwb_world_alloc(WORLD *world, struct jwb_world_init *info)
 		world->cell_size /= 2.;
 	}
 	if (info->cell_buf) {
+		world->flags |= PROVIDED_ENT_BUF;
 		world->cells = info->cell_buf;
 	} else {
 		size_t size = world->width * world->height * sizeof(EHANDLE);

@@ -21,6 +21,9 @@ static EHANDLE alloc_new_ent(WORLD *world)
 #else
 		size_t new_cap;
 		char *new_buf;
+		if (world->flags & PROVIDED_ENT_BUF) {
+			return -JWBE_NO_MEMORY;
+		}
 		new_cap = world->ent_cap * 3 / 2 + 1;
 		new_buf = realloc(world->ents, new_cap * world->ent_size);
 		if (new_buf) {

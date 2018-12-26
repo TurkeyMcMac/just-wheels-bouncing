@@ -1175,6 +1175,7 @@ typedef jwb_ehandle_t EHANDLE;
 /* Private flags for WORLD::flags */
 #	define HAS_WALLS (1 << 0)
 #	define ONE_CELL_THICK (1 << 1)
+#	define PROVIDED_ENT_BUF (1 << 2)
 
 /* Private flags for jwb__entity::flags */
 #	define REMOVED (1 << 0)
