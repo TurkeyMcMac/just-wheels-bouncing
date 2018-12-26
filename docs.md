@@ -496,7 +496,8 @@ Set the hit handler.
 size_t jwb_world_extra_size(jwb_world_t *world);
 ```
 
-Get the size of each entity's extra custom space.
+Get the size of each entity's extra custom space. This will be at least the
+amount provided at initialization.
 
 #### Parameters
  1. `world`: The world to examine.

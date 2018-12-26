@@ -13,7 +13,8 @@ void jwb_world_on_hit(WORLD *world, jwb_hit_handler_t on_hit)
 
 size_t jwb_world_extra_size(WORLD *world)
 {
-	return world->ent_extra;
+	return world->ent_size - sizeof(struct jwb__entity) +
+		JWB__ENTITY_EXTRA_MIN_SIZE;
 }
 
 #define VECT_METHOD(name, vtype, code) \
@@ -34,34 +35,34 @@ size_t jwb_world_extra_size(WORLD *world)
 	{ code }
 
 VECT_METHOD(get_pos, VECT, {
-	*vect = world->ents[ent].pos;
+	*vect = GET(world, ent).pos;
 })
 
 VECT_METHOD(get_vel, VECT, {
-	*vect = world->ents[ent].vel;
+	*vect = GET(world, ent).vel;
 })
 
 VECT_METHOD(set_pos, const VECT, {
-	world->ents[ent].pos = *vect;
+	GET(world, ent).pos = *vect;
 })
 
 VECT_METHOD(set_vel, const VECT, {
-	world->ents[ent].vel = *vect;
+	GET(world, ent).vel = *vect;
 })
 
 VECT_METHOD(translate, const VECT, {
-	world->ents[ent].pos.x += vect->x;
-	world->ents[ent].pos.y += vect->y;
+	GET(world, ent).pos.x += vect->x;
+	GET(world, ent).pos.y += vect->y;
 })
 
 VECT_METHOD(move_later, const VECT, {
-	world->ents[ent].correct.x += vect->x;
-	world->ents[ent].correct.y += vect->y;
+	GET(world, ent).correct.x += vect->x;
+	GET(world, ent).correct.y += vect->y;
 })
 
 VECT_METHOD(accelerate, const VECT, {
-	world->ents[ent].vel.x += vect->x;
-	world->ents[ent].vel.y += vect->y;
+	GET(world, ent).vel.x += vect->x;
+	GET(world, ent).vel.y += vect->y;
 })
 
 #define SCALAR_GETTER(name, ret_expr) \
@@ -76,9 +77,9 @@ VECT_METHOD(accelerate, const VECT, {
 	double jwb_world_get_##name##_unck(WORLD *world, EHANDLE ent) \
 	{ return ret_expr; }
 
-SCALAR_GETTER(mass, world->ents[ent].mass)
+SCALAR_GETTER(mass, GET(world, ent).mass)
 
-SCALAR_GETTER(radius, world->ents[ent].radius)
+SCALAR_GETTER(radius, GET(world, ent).radius)
 
 #define SCALAR_SETTER(name, extra_check, code) \
 	int jwb_world_set_##name(WORLD *world, EHANDLE ent, double v) \
@@ -98,11 +99,11 @@ SCALAR_GETTER(radius, world->ents[ent].radius)
 	{ code }
 
 SCALAR_SETTER(mass, 0, {
-	world->ents[ent].mass = v;
+	GET(world, ent).mass = v;
 })
 
 SCALAR_SETTER(radius, v > world->cell_size, {
-	world->ents[ent].radius = v;
+	GET(world, ent).radius = v;
 })
 
 void *jwb_world_get_extra(WORLD *world, EHANDLE ent)
@@ -117,5 +118,5 @@ void *jwb_world_get_extra(WORLD *world, EHANDLE ent)
 
 void *jwb_world_get_extra_unck(WORLD *world, EHANDLE ent)
 {
-	return world->ents[ent].extra;
+	return GET(world, ent).extra;
 }

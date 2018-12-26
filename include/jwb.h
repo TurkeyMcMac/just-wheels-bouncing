@@ -300,9 +300,9 @@ typedef struct jwb__world {
 	size_t width, height;
 	size_t n_ents;
 	size_t ent_cap;
-	size_t ent_extra;
+	size_t ent_size;
 	jwb_ehandle_t *cells;
-	struct jwb__entity *ents;
+	char *ents;
 	jwb_ehandle_t freed;
 	jwb_ehandle_t available;
 	int flags;
@@ -693,7 +693,8 @@ void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);
  * size_t jwb_world_extra_size(jwb_world_t *world);
  * ```
  *
- * Get the size of each entity's extra custom space.
+ * Get the size of each entity's extra custom space. This will be at least the
+ * amount provided at initialization.
  *
  * #### Parameters
  *  1. `world`: The world to examine.
@@ -1138,6 +1139,9 @@ void jwb_world_set_radius_unck(
 typedef jwb_world_t WORLD;
 typedef struct jwb_vect VECT;
 typedef jwb_ehandle_t EHANDLE;
+
+#	define GET(world, ent) (*(struct jwb__entity *)&((world)->ents[(ent) \
+			* (world)->ent_size]))
 
 #	ifdef JWBO_NO_ALLOC
 #		define ALLOC(size) ((void)(size), NULL)

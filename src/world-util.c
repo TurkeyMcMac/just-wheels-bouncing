@@ -16,10 +16,10 @@ void jwb_elastic_collision(
 	if (info->dist == 0.) {
 		return;
 	}
-	mass1 = world->ents[ent1].mass;
-	mass2 = world->ents[ent2].mass;
-	vel1 = world->ents[ent1].vel;
-	vel2 = world->ents[ent2].vel;
+	mass1 = GET(world, ent1).mass;
+	mass2 = GET(world, ent2).mass;
+	vel1 = GET(world, ent1).vel;
+	vel2 = GET(world, ent2).vel;
 	jwb_vect_rotation(&info->rel, &rot); /* FIXME:Recalculates magnitude. */
 	jwb_rotation_flip(&rot);
 	jwb_vect_rotate(&vel1, &rot);
@@ -31,18 +31,18 @@ void jwb_elastic_collision(
 	vel1.x = bounced1;
 	vel2.x = bounced2;
 	overlap = 1. - info->dist
-		/ (world->ents[ent1].radius + world->ents[ent2].radius);
+		/ (GET(world, ent1).radius + GET(world, ent2).radius);
 	cor1 = -overlap / (mass1 / mass2 + 1.);
 	cor2 = cor1 + overlap;
 	jwb_rotation_flip(&rot);
 	jwb_vect_rotate(&vel1, &rot);
 	jwb_vect_rotate(&vel2, &rot);
-	world->ents[ent1].vel = vel1;
-	world->ents[ent2].vel = vel2;
-	world->ents[ent1].correct.x += info->rel.x * cor1;
-	world->ents[ent1].correct.y += info->rel.y * cor1;
-	world->ents[ent2].correct.x += info->rel.x * cor2;
-	world->ents[ent2].correct.y += info->rel.y * cor2;
+	GET(world, ent1).vel = vel1;
+	GET(world, ent2).vel = vel2;
+	GET(world, ent1).correct.x += info->rel.x * cor1;
+	GET(world, ent1).correct.y += info->rel.y * cor1;
+	GET(world, ent2).correct.x += info->rel.x * cor2;
+	GET(world, ent2).correct.y += info->rel.y * cor2;
 }
 
 void jwb_inelastic_collision(
@@ -60,10 +60,10 @@ void jwb_inelastic_collision(
 	if (info->dist == 0.) {
 		return;
 	}
-	mass1 = world->ents[ent1].mass;
-	mass2 = world->ents[ent2].mass;
-	vel1 = world->ents[ent1].vel;
-	vel2 = world->ents[ent2].vel;
+	mass1 = GET(world, ent1).mass;
+	mass2 = GET(world, ent2).mass;
+	vel1 = GET(world, ent1).vel;
+	vel2 = GET(world, ent2).vel;
 	jwb_vect_rotation(&info->rel, &rot); /* FIXME:Recalculates magnitude. */
 	jwb_rotation_flip(&rot);
 	jwb_vect_rotate(&vel1, &rot);
@@ -72,25 +72,25 @@ void jwb_inelastic_collision(
 	vel1.x = smashed;
 	vel2.x = smashed;
 	overlap = 1. - info->dist
-		/ (world->ents[ent1].radius + world->ents[ent2].radius);
+		/ (GET(world, ent1).radius + GET(world, ent2).radius);
 	cor1 = -overlap / (mass1 / mass2 + 1.);
 	cor2 = cor1 + overlap;
 	jwb_rotation_flip(&rot);
 	jwb_vect_rotate(&vel1, &rot);
 	jwb_vect_rotate(&vel2, &rot);
-	world->ents[ent1].vel = vel1;
-	world->ents[ent2].vel = vel2;
-	world->ents[ent1].correct.x += info->rel.x * cor1;
-	world->ents[ent1].correct.y += info->rel.y * cor1;
-	world->ents[ent2].correct.x += info->rel.x * cor2;
-	world->ents[ent2].correct.y += info->rel.y * cor2;
+	GET(world, ent1).vel = vel1;
+	GET(world, ent2).vel = vel2;
+	GET(world, ent1).correct.x += info->rel.x * cor1;
+	GET(world, ent1).correct.y += info->rel.y * cor1;
+	GET(world, ent2).correct.x += info->rel.x * cor2;
+	GET(world, ent2).correct.y += info->rel.y * cor2;
 }
 
 static int apply_friction(WORLD *world, EHANDLE ent, void *fricp)
 {
 	struct jwb_vect *vel;
 	double speed, friction, ratio;
-	vel = &world->ents[ent].vel;
+	vel = &GET(world, ent).vel;
 	speed = jwb_vect_magnitude(vel);
 	friction = *(double *)fricp;
 	ratio = (speed - friction) / speed;

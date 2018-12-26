@@ -20,10 +20,9 @@ static EHANDLE alloc_new_ent(WORLD *world)
 		return -JWBE_NO_MEMORY;
 #else
 		size_t new_cap;
-		struct jwb__entity *new_buf;
+		char *new_buf;
 		new_cap = world->ent_cap * 3 / 2 + 1;
-		new_buf = realloc(world->ents, new_cap *
-			JWB__ENTITY_SIZE(world->ent_extra));
+		new_buf = realloc(world->ents, new_cap * world->ent_size);
 		if (new_buf) {
 			world->ents = new_buf;
 			world->ent_cap = new_cap;
@@ -40,13 +39,13 @@ static void unlink_dead(WORLD *world,
 	EHANDLE *list)
 {
 	EHANDLE next, last;
-	next = world->ents[ent].next;
-	last = world->ents[ent].last;
+	next = GET(world, ent).next;
+	last = GET(world, ent).last;
 	if (next >= 0) {
-		world->ents[next].last = last;
+		GET(world, next).last = last;
 	}
 	if (last >= 0) {
-		world->ents[last].next = next;
+		GET(world, last).next = next;
 	} else {
 		*list = next;
 	}
@@ -54,8 +53,8 @@ static void unlink_dead(WORLD *world,
 
 static void link_dead(WORLD *world, EHANDLE ent, EHANDLE *list)
 {
-	world->ents[ent].last = -1;
-	world->ents[ent].next = *list;
+	GET(world, ent).last = -1;
+	GET(world, ent).next = *list;
 	*list = ent;
 }
 
@@ -63,25 +62,25 @@ static size_t reposition(WORLD *world, EHANDLE ent)
 {
 	size_t x, y;
 	VECT pos;
-	pos = world->ents[ent].pos;
+	pos = GET(world, ent).pos;
 	pos.x = fframe(pos.x, world->width * world->cell_size);
 	pos.y = fframe(pos.y, world->height * world->cell_size);
 	x = pos.x / world->cell_size;
 	y = pos.y / world->cell_size;
-	world->ents[ent].pos = pos;
+	GET(world, ent).pos = pos;
 	return y * world->width + x;
 }
 
 static void unlink_living(WORLD *world, EHANDLE ent)
 {
 	EHANDLE next, last;
-	next = world->ents[ent].next;
-	last = world->ents[ent].last;
+	next = GET(world, ent).next;
+	last = GET(world, ent).last;
 	if (next >= 0) {
-		world->ents[next].last = last;
+		GET(world, next).last = last;
 	}
 	if (last >= 0) {
-		world->ents[last].next = next;
+		GET(world, last).next = next;
 	} else {
 		last = ~last;
 		world->cells[last] = next;
@@ -91,10 +90,10 @@ static void unlink_living(WORLD *world, EHANDLE ent)
 static void link_living(WORLD *world, EHANDLE ent, size_t cell_idx)
 {
 	EHANDLE cell = world->cells[cell_idx];
-	world->ents[ent].last = ~cell_idx;
-	world->ents[ent].next = cell;
+	GET(world, ent).last = ~cell_idx;
+	GET(world, ent).next = cell;
 	if (cell >= 0) {
-		world->ents[cell].last = ent;
+		GET(world, cell).last = ent;
 	}
 	world->cells[cell_idx] = ent;
 }
@@ -107,10 +106,10 @@ static void place_ent(WORLD *world, EHANDLE ent)
 static void check_hit(WORLD *world, EHANDLE ent1, EHANDLE ent2)
 {
 	struct jwb_hit_info info;
-	info.rel.x = world->ents[ent2].pos.x - world->ents[ent1].pos.x;
-	info.rel.y = world->ents[ent2].pos.y - world->ents[ent1].pos.y;
+	info.rel.x = GET(world, ent2).pos.x - GET(world, ent1).pos.x;
+	info.rel.y = GET(world, ent2).pos.y - GET(world, ent1).pos.y;
 	info.dist = jwb_vect_magnitude(&info.rel);
-	if (info.dist < world->ents[ent1].radius + world->ents[ent2].radius) {
+	if (info.dist < GET(world, ent1).radius + GET(world, ent2).radius) {
 		world->on_hit(world, ent1, ent2, &info);
 	}
 }
@@ -121,12 +120,12 @@ static void update_cell(WORLD *world, size_t x, size_t y)
 	while (next >= 0) {
 		EHANDLE self, next_other;
 		self = next;
-		next = world->ents[next].next;
+		next = GET(world, next).next;
 		next_other = next;
 		while (next_other >= 0) {
 			EHANDLE other;
 			other = next_other;
-			next_other = world->ents[next_other].next;
+			next_other = GET(world, next_other).next;
 			check_hit(world, self, other);
 		}
 	}
@@ -145,12 +144,12 @@ static void update_cells(
 	while (next1 >= 0) {
 		EHANDLE self, next_other;
 		self = next1;
-		next1 = world->ents[next1].next;
+		next1 = GET(world, next1).next;
 		next_other = next2;
 		while (next_other >= 0) {
 			EHANDLE other;
 			other = next_other;
-			next_other = world->ents[next_other].next;
+			next_other = GET(world, next_other).next;
 			check_hit(world, self, other);
 		}
 	}
@@ -164,21 +163,21 @@ static void move_ents(WORLD *world, size_t x, size_t y)
 		EHANDLE self;
 		size_t cell;
 		self = next;
-		next = world->ents[next].next;
-		if (world->ents[self].flags & MOVED_THIS_STEP) {
-			world->ents[self].flags &= ~MOVED_THIS_STEP;
+		next = GET(world, next).next;
+		if (GET(world, self).flags & MOVED_THIS_STEP) {
+			GET(world, self).flags &= ~MOVED_THIS_STEP;
 			continue;
 		}
-		world->ents[self].pos.x += world->ents[self].vel.x
-			+ world->ents[self].correct.x;
-		world->ents[self].pos.y += world->ents[self].vel.y
-			+ world->ents[self].correct.y;
-		world->ents[self].correct.x = 0.;
-		world->ents[self].correct.y = 0.;
+		GET(world, self).pos.x += GET(world, self).vel.x
+			+ GET(world, self).correct.x;
+		GET(world, self).pos.y += GET(world, self).vel.y
+			+ GET(world, self).correct.y;
+		GET(world, self).correct.x = 0.;
+		GET(world, self).correct.y = 0.;
 		cell = reposition(world, self);
 		if (cell != here) {
 			if (cell > here) {
-				world->ents[self].flags |= MOVED_THIS_STEP;
+				GET(world, self).flags |= MOVED_THIS_STEP;
 			}
 			unlink_living(world, self);
 			link_living(world, self, cell);
@@ -191,10 +190,10 @@ static void cell_translate(WORLD *world, size_t x, size_t y, const VECT *disp)
 	EHANDLE next;
 	for (next = world->cells[y * world->width + x];
 		next >= 0;
-		next = world->ents[next].next)
+		next = GET(world, next).next)
 	{
-		world->ents[next].pos.x += disp->x;
-		world->ents[next].pos.y += disp->y;
+		GET(world, next).pos.x += disp->x;
+		GET(world, next).pos.y += disp->y;
 	}
 }
 
@@ -380,11 +379,11 @@ EHANDLE jwb_world_add_ent(WORLD *world,
 			return ent;
 		}
 	}
-	world->ents[ent].pos = *pos;
-	world->ents[ent].vel = *vel;
-	world->ents[ent].mass = mass;
-	world->ents[ent].radius = radius;
-	world->ents[ent].flags = 0;
+	GET(world, ent).pos = *pos;
+	GET(world, ent).vel = *vel;
+	GET(world, ent).mass = mass;
+	GET(world, ent).radius = radius;
+	GET(world, ent).flags = 0;
 	place_ent(world, ent);
 	return ent;
 }
@@ -394,7 +393,7 @@ int jwb_world_re_add_ent(WORLD *world, EHANDLE ent)
 	int err = jwb_world_confirm_ent(world, ent);
 	switch (-err) {
 	case JWBE_REMOVED_ENTITY:
-		world->ents[ent].flags &= ~REMOVED;
+		GET(world, ent).flags &= ~REMOVED;
 		place_ent(world, ent);
 		return 0;
 	case 0:
@@ -410,7 +409,7 @@ int jwb_world_remove_ent(WORLD *world, EHANDLE ent)
 	if (status == 0) {
 		unlink_living(world, ent);
 		link_dead(world, ent, &world->freed);
-		world->ents[ent].flags |= REMOVED;
+		GET(world, ent).flags |= REMOVED;
 		return 0;
 	}
 	return status;
@@ -430,7 +429,7 @@ int jwb_world_destroy_ent(WORLD *world, EHANDLE ent)
 		return status;
 	}
 	link_dead(world, ent, &world->available);
-	world->ents[ent].flags |= DESTROYED;
+	GET(world, ent).flags |= DESTROYED;
 	return 0;
 }
 
@@ -440,7 +439,7 @@ int jwb_world_confirm_ent(WORLD *world, EHANDLE ent)
 	if (ent >= (long)world->n_ents) {
 		return -JWBE_DESTROYED_ENTITY;
 	}
-	flags = world->ents[ent].flags;
+	flags = GET(world, ent).flags;
 	if (flags & DESTROYED) {
 		return -JWBE_DESTROYED_ENTITY;
 	} else if (flags & REMOVED) {
