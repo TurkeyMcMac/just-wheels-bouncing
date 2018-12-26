@@ -307,7 +307,6 @@ typedef struct jwb__world {
 	jwb_ehandle_t available;
 	int flags;
 } jwb_world_t;
-#define JWBF_REMOVE_DISTANT (1 << 0)
 
 /**
  * ### `struct jwb_world_init`
@@ -328,7 +327,8 @@ typedef struct jwb__world {
  * Initialization information for use in `jwb_world_alloc`.
  *
  * #### Fields
- *  * `flags`: The flags which the world should have.
+ *  * `flags`: The flags which the world should have. Valid flags:
+ *   * `JWBF_REMOVE_DISTANT`: Remove off-grid entities rather than wrapping.
  *  * `cell_size`: The size of cells in the world.
  *  * `width`: The width of the world in cells.
  *  * `height`: The height of the world in cells.
@@ -353,6 +353,7 @@ struct jwb_world_init {
 	void *ent_buf;
 	void *cell_buf;
 };
+#define JWBF_REMOVE_DISTANT (1 << 0)
 
 /**
  * ### `jwb_world_alloc`

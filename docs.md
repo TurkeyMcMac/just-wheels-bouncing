@@ -218,7 +218,8 @@ struct jwb_world_init {
 Initialization information for use in `jwb_world_alloc`.
 
 #### Fields
- * `flags`: The flags which the world should have.
+ * `flags`: The flags which the world should have. Valid flags:
+  * `JWBF_REMOVE_DISTANT`: Remove off-grid entities rather than wrapping.
  * `cell_size`: The size of cells in the world.
  * `width`: The width of the world in cells.
  * `height`: The height of the world in cells.
