@@ -491,6 +491,18 @@ Set the hit handler.
  1. `world`: The world to change.
  2. `on_hit`: The new hit handler.
 
+### `jwb_world_extra_size`
+```
+size_t jwb_world_extra_size(jwb_world_t *world);
+```
+
+Get the size of each entity's extra custom space.
+
+#### Parameters
+ 1. `world`: The world to examine.
+#### Return Value
+The size in bytes.
+
 ### `jwb_world_get_pos`
 ```
 int jwb_world_get_pos(

@@ -11,6 +11,11 @@ void jwb_world_on_hit(WORLD *world, jwb_hit_handler_t on_hit)
 	world->on_hit = on_hit;
 }
 
+size_t jwb_world_extra_size(WORLD *world)
+{
+	return world->ent_extra;
+}
+
 #define VECT_METHOD(name, vtype, code) \
 	int jwb_world_##name(WORLD *world, EHANDLE ent, vtype *vect) \
 	{ \

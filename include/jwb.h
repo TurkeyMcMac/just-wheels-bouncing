@@ -688,6 +688,21 @@ jwb_hit_handler_t jwb_world_get_hit_handler(jwb_world_t *world);
 void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);
 
 /**
+ * ### `jwb_world_extra_size`
+ * ```
+ * size_t jwb_world_extra_size(jwb_world_t *world);
+ * ```
+ *
+ * Get the size of each entity's extra custom space.
+ *
+ * #### Parameters
+ *  1. `world`: The world to examine.
+ * #### Return Value
+ * The size in bytes.
+ */
+size_t jwb_world_extra_size(jwb_world_t *world);
+
+/**
  * ### `jwb_world_get_pos`
  * ```
  * int jwb_world_get_pos(
