@@ -61,19 +61,6 @@ static void link_dead(WORLD *world, EHANDLE ent, EHANDLE *list)
 	*list = ent;
 }
 
-static size_t reposition(WORLD *world, EHANDLE ent)
-{
-	size_t x, y;
-	VECT pos;
-	pos = GET(world, ent).pos;
-	pos.x = fframe(pos.x, world->width * world->cell_size);
-	pos.y = fframe(pos.y, world->height * world->cell_size);
-	x = pos.x / world->cell_size;
-	y = pos.y / world->cell_size;
-	GET(world, ent).pos = pos;
-	return y * world->width + x;
-}
-
 static void unlink_living(WORLD *world, EHANDLE ent)
 {
 	EHANDLE next, last;
@@ -101,9 +88,49 @@ static void link_living(WORLD *world, EHANDLE ent, size_t cell_idx)
 	world->cells[cell_idx] = ent;
 }
 
+static void remove_unck(WORLD *world, EHANDLE ent)
+{
+	unlink_living(world, ent);
+	link_dead(world, ent, &world->freed);
+	GET(world, ent).flags |= REMOVED;
+}
+
+static size_t reposition(WORLD *world, EHANDLE ent)
+{
+	size_t x, y;
+	VECT pos;
+	pos = GET(world, ent).pos;
+	pos.x = fframe(pos.x, world->width * world->cell_size);
+	pos.y = fframe(pos.y, world->height * world->cell_size);
+	x = pos.x / world->cell_size;
+	y = pos.y / world->cell_size;
+	GET(world, ent).pos = pos;
+	return y * world->width + x;
+}
+
+static size_t reposition_nowrap(WORLD *world, EHANDLE ent)
+{
+	size_t x, y;
+	VECT pos;
+	pos = GET(world, ent).pos;
+	x = pos.x / world->cell_size;
+	y = pos.y / world->cell_size;
+	if (x >= world->width || y >= world->height) {
+		remove_unck(world, ent);
+		return -1;
+	}
+	return y * world->width + x;
+}
+
 static void place_ent(WORLD *world, EHANDLE ent)
 {
-	link_living(world, ent, reposition(world, ent));
+	size_t cell;
+	if (world->flags & JWBF_REMOVE_DISTANT) {
+		cell = reposition_nowrap(world, ent);
+	} else {
+		cell = reposition(world, ent);
+	}
+	link_living(world, ent, cell);
 }
 
 static void check_hit(WORLD *world, EHANDLE ent1, EHANDLE ent2)
@@ -177,7 +204,14 @@ static void move_ents(WORLD *world, size_t x, size_t y)
 			+ GET(world, self).correct.y;
 		GET(world, self).correct.x = 0.;
 		GET(world, self).correct.y = 0.;
-		cell = reposition(world, self);
+		if (world->flags & JWBF_REMOVE_DISTANT) {
+			cell = reposition_nowrap(world, self);
+			if (cell == (size_t)-1) {
+				continue;
+			}
+		} else {
+			cell = reposition(world, self);
+		}
 		if (cell != here) {
 			if (cell > here) {
 				GET(world, self).flags |= MOVED_THIS_STEP;
@@ -215,6 +249,14 @@ static void update_top_left(WORLD *world)
 	cell_translate(world, 0, 0, &wrap_left);
 }
 
+static void update_top_left_nowrap(WORLD *world)
+{
+	update_cell(world, 0, 0);
+	update_cells(world, 0, 0, 1, 0);
+	update_cells(world, 0, 0, 1, 1);
+	update_cells(world, 0, 0, 0, 1);
+}
+
 static void update_top_right(WORLD *world)
 {
 	VECT wrap_right;
@@ -227,6 +269,14 @@ static void update_top_right(WORLD *world)
 	update_cells(world, x, 0, 0, 1);
 	wrap_right.x *= -1;
 	cell_translate(world, x, 0, &wrap_right);
+	update_cells(world, x, 0, x, 1);
+	update_cells(world, x, 0, x - 1, 1);
+}
+
+static void update_top_right_nowrap(WORLD *world)
+{
+	size_t x = world->width - 1;
+	update_cell(world, x, 0);
 	update_cells(world, x, 0, x, 1);
 	update_cells(world, x, 0, x - 1, 1);
 }
@@ -247,6 +297,17 @@ static void update_left(WORLD *world)
 		wrap_left.x *= -1.;
 		cell_translate(world, 0, y, &wrap_left);
 		wrap_left.x *= -1.;
+	}
+}
+
+static void update_left_nowrap(WORLD *world)
+{
+	size_t y;
+	for (y = 1; y < world->height - 1; ++y) {
+		update_cell(world, 0, y);
+		update_cells(world, 0, y, 1, y);
+		update_cells(world, 0, y, 1, y + 1);
+		update_cells(world, 0, y, 0, y + 1);
 	}
 }
 
@@ -284,6 +345,17 @@ static void update_right(WORLD *world)
 	}
 }
 
+static void update_right_nowrap(WORLD *world)
+{
+	size_t x, y;
+	x = world->width - 1;
+	for (y = 1; y < world->height - 1; ++y) {
+		update_cell(world, x, y);
+		update_cells(world, x, y, x, y + 1);
+		update_cells(world, x, y, x - 1, y + 1);
+	}
+}
+
 static void update_bottom_left(WORLD *world)
 {
 	VECT wrap_left, wrap_down;
@@ -305,10 +377,17 @@ static void update_bottom_left(WORLD *world)
 	cell_translate(world, 0, y, &wrap_down);
 }
 
+static void update_bottom_left_nowrap(WORLD *world)
+{
+	size_t y = world->height - 1;
+	update_cell(world, 0, y);
+	update_cells(world, 0, y, 1, y);
+}
+
 static void update_bottom(WORLD *world)
 {
 	VECT wrap_down;
-	double x, y;
+	size_t x, y;
 	wrap_down.x = 0.;
 	wrap_down.y = -world->cell_size * world->height;
 	y = world->height - 1;
@@ -322,6 +401,16 @@ static void update_bottom(WORLD *world)
 		wrap_down.y *= -1.;
 		cell_translate(world, x, y, &wrap_down);
 		wrap_down.y *= -1.;
+	}
+}
+
+static void update_bottom_nowrap(WORLD *world)
+{
+	size_t x, y;
+	y = world->height - 1;
+	for (x = 1; x < world->width - 1; ++x) {
+		update_cell(world, x, y);
+		update_cells(world, x, y, x + 1, y);
 	}
 }
 
@@ -351,14 +440,38 @@ static void update_bottom_right(WORLD *world)
 void jwb_world_step(WORLD *world)
 {
 	size_t x, y;
-	update_top_left(world);
-	update_top_right(world);
-	update_left(world);
-	update_middle(world);
-	update_right(world);
-	update_bottom_left(world);
-	update_bottom(world);
-	update_bottom_right(world);
+	if (world->flags & JWBF_REMOVE_DISTANT) {
+		if (world->width == 1) {
+			update_cell(world, 0, 0);
+			for (y = 1; y < world->height; ++y) {
+				update_cells(world, 0, y - 1, 0, y);
+				update_cell(world, 0, y);
+			}
+		} else if (world->height == 1) {
+			update_cell(world, 0, 0);
+			for (x = 1; x < world->height; ++x) {
+				update_cells(world, x - 1, 0, x, 0);
+				update_cell(world, x, 0);
+			}
+		} else {
+			update_top_left_nowrap(world);
+			update_top_right_nowrap(world);
+			update_left_nowrap(world);
+			update_middle(world);
+			update_right_nowrap(world);
+			update_bottom_left_nowrap(world);
+			update_bottom_nowrap(world);
+		}
+	} else {
+		update_top_left(world);
+		update_top_right(world);
+		update_left(world);
+		update_middle(world);
+		update_right(world);
+		update_bottom_left(world);
+		update_bottom(world);
+		update_bottom_right(world);
+	}
 	for (y = 0; y < world->height; ++y) {
 		for (x = 0; x < world->width; ++x) {
 			move_ents(world, x, y);
@@ -410,9 +523,7 @@ int jwb_world_remove_ent(WORLD *world, EHANDLE ent)
 {
 	int status = jwb_world_confirm_ent(world, ent);
 	if (status == 0) {
-		unlink_living(world, ent);
-		link_dead(world, ent, &world->freed);
-		GET(world, ent).flags |= REMOVED;
+		remove_unck(world, ent);
 		return 0;
 	}
 	return status;

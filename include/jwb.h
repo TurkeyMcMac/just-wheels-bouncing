@@ -307,6 +307,7 @@ typedef struct jwb__world {
 	jwb_ehandle_t available;
 	int flags;
 } jwb_world_t;
+#define JWBF_REMOVE_DISTANT (1 << 0)
 
 /**
  * ### `struct jwb_world_init`
@@ -1173,7 +1174,6 @@ typedef jwb_ehandle_t EHANDLE;
 #	endif /* JWBO_NO_ALLOC */
 
 /* Private flags for WORLD::flags */
-#	define HAS_WALLS (1 << 0)
 #	define ONE_CELL_THICK (1 << 1)
 #	define PROVIDED_ENT_BUF (1 << 2)
 
