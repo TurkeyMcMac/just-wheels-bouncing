@@ -1,5 +1,5 @@
 name = jwb
-version = 0.8.5
+version = 0.9.5
 
 CC = c89
 lib = include
