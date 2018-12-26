@@ -48,6 +48,7 @@ int main(void)
 	alloc_info.width = 10;
 	alloc_info.height = 10;
 	alloc_info.ent_buf_size = 10;
+	alloc_info.ent_extra = 0;
 	alloc_info.ent_buf = NULL;
 	alloc_info.cell_buf = NULL;
 	jwb_world_alloc(world, &alloc_info);

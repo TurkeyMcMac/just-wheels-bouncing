@@ -25,7 +25,6 @@ int jwb_world_alloc(WORLD *world, struct jwb_world_init *info)
 	} else {
 		size_t size = world->width * world->height * sizeof(EHANDLE);
 		world->cells = ALLOC(size);
-		printf("%lu %lu\n", world->width, world->height);
 		if (!world->cells) {
 			ret = -JWBE_NO_MEMORY;
 			goto error_cells;
@@ -33,11 +32,12 @@ int jwb_world_alloc(WORLD *world, struct jwb_world_init *info)
 		memset(world->cells, -1, size);
 	}
 	world->ent_cap = info->ent_buf_size;
+	world->ent_extra = info->ent_extra;
 	if (info->ent_buf) {
 		world->ents = info->ent_buf;
 	} else {
-		world->ents = ALLOC(world->ent_cap * sizeof(*world->ents));
-		printf("%lu\n", world->ent_cap * sizeof(*world->ents));
+		world->ents = ALLOC(JWB_WORLD_ENT_BUF_SIZE(0, world->ent_cap,
+				world->ent_extra));
 		if (!world->ents) {
 			ret = -JWBE_NO_MEMORY;
 			goto error_entities;

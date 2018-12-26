@@ -22,7 +22,8 @@ static EHANDLE alloc_new_ent(WORLD *world)
 		size_t new_cap;
 		struct jwb__entity *new_buf;
 		new_cap = world->ent_cap * 3 / 2 + 1;
-		new_buf = realloc(world->ents, new_cap * sizeof(*new_buf));
+		new_buf = realloc(world->ents, new_cap *
+			JWB__ENTITY_SIZE(world->ent_extra));
 		if (new_buf) {
 			world->ents = new_buf;
 			world->ent_cap = new_cap;

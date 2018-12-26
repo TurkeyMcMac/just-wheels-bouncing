@@ -209,6 +209,7 @@ struct jwb_world_init {
   size_t width;
   size_t height;
   size_t ent_buf_size;
+  size_t ent_extra;
   void *ent_buf;
   void *cell_buf;
 };
@@ -217,19 +218,19 @@ struct jwb_world_init {
 Initialization information for use in `jwb_world_alloc`.
 
 #### Fields
- * `world`: The uninitialized world to initialize.
  * `flags`: The flags which the world should have.
  * `cell_size`: The size of cells in the world.
  * `width`: The width of the world in cells.
  * `height`: The height of the world in cells.
  * `ent_buf_size`: The number of entities to allocate initially. If an
    entity buffer is given, the buffer is assumed to have this much space.
+ * `ent_extra`: Extra space to allocate for each entity.
  * `ent_buf`: The entity buffer. If this is `NULL`, a new one is allocated. A
-   buffer of size `JWB_WORLD_ENT_BUF_SIZE(ent_buf_size)` must be provided if
+   buffer of size `JWB_WORLD_ENT_BUF_SIZE(...)` must be provided if
    allocation is turned off.
  * `cell_buf`: The cell buffer. If this is `NULL`, a new one is allocated. A
-   buffer of size `JWB_WORLD_CELL_BUF_SIZE(width, height)` must be provided
-   if allocation is turned off.
+   buffer of size `JWB_WORLD_CELL_BUF_SIZE(...)` must be provided if
+   allocation is turned off.
 
 ### `jwb_world_alloc`
 ```

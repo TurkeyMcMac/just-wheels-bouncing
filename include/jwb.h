@@ -225,7 +225,15 @@ struct jwb__entity {
 	double mass;
 	double radius;
 	int flags;
+	char extra[sizeof(double) - sizeof(int) /* Variadic */];
 };
+#define JWB__NUM_ALIGN sizeof(double)
+#define JWB__ENTITY_EXTRA_MIN_SIZE sizeof(((struct jwb__entity *)0)->extra)
+#define JWB__ENTITY_SIZE(extra) (sizeof(struct jwb__entity) \
+		+ ((extra) <= JWB__ENTITY_EXTRA_MIN_SIZE \
+		? 0 \
+		: ((extra) - JWB__ENTITY_EXTRA_MIN_SIZE + JWB__NUM_ALIGN - 1) \
+		/ JWB__NUM_ALIGN * JWB__NUM_ALIGN))
 
 struct jwb_hit_info;
 struct jwb__world;
@@ -292,6 +300,7 @@ typedef struct jwb__world {
 	size_t width, height;
 	size_t n_ents;
 	size_t ent_cap;
+	size_t ent_extra;
 	jwb_ehandle_t *cells;
 	struct jwb__entity *ents;
 	jwb_ehandle_t freed;
@@ -309,6 +318,7 @@ typedef struct jwb__world {
  *   size_t width;
  *   size_t height;
  *   size_t ent_buf_size;
+ *   size_t ent_extra;
  *   void *ent_buf;
  *   void *cell_buf;
  * };
@@ -317,19 +327,19 @@ typedef struct jwb__world {
  * Initialization information for use in `jwb_world_alloc`.
  *
  * #### Fields
- *  * `world`: The uninitialized world to initialize.
  *  * `flags`: The flags which the world should have.
  *  * `cell_size`: The size of cells in the world.
  *  * `width`: The width of the world in cells.
  *  * `height`: The height of the world in cells.
  *  * `ent_buf_size`: The number of entities to allocate initially. If an
  *    entity buffer is given, the buffer is assumed to have this much space.
+ *  * `ent_extra`: Extra space to allocate for each entity.
  *  * `ent_buf`: The entity buffer. If this is `NULL`, a new one is allocated. A
- *    buffer of size `JWB_WORLD_ENT_BUF_SIZE(ent_buf_size)` must be provided if
+ *    buffer of size `JWB_WORLD_ENT_BUF_SIZE(...)` must be provided if
  *    allocation is turned off.
  *  * `cell_buf`: The cell buffer. If this is `NULL`, a new one is allocated. A
- *    buffer of size `JWB_WORLD_CELL_BUF_SIZE(width, height)` must be provided
- *    if allocation is turned off.
+ *    buffer of size `JWB_WORLD_CELL_BUF_SIZE(...)` must be provided if
+ *    allocation is turned off.
  */
 struct jwb_world_init {
 	jwb_world_t *world;
@@ -338,6 +348,7 @@ struct jwb_world_init {
 	size_t width;
 	size_t height;
 	size_t ent_buf_size;
+	size_t ent_extra;
 	void *ent_buf;
 	void *cell_buf;
 };
@@ -374,7 +385,8 @@ int jwb_world_alloc(jwb_world_t *world, struct jwb_world_init *info);
  * #### Return Value
  * The needed buffer size in bytes.
  */
-#define JWB_WORLD_ENT_BUF_SIZE(num) ((num) * sizeof(struct jwb__entity))
+#define JWB_WORLD_ENT_BUF_SIZE(flags, num, extra_space) ((void)(flags), \
+	(num) * JWB__ENTITY_SIZE(extra_space))
 
 /**
  * ### `JWB_WORLD_CELL_BUF_SIZE`
@@ -391,8 +403,9 @@ int jwb_world_alloc(jwb_world_t *world, struct jwb_world_init *info);
  * #### Return Value
  * The needed buffer size in bytes.
  */
-#define JWB_WORLD_CELL_BUF_SIZE(width, height) (((width) == 1 || (height) == 1 \
-	? 4 * (width) * (height) : (width) * (height)) * sizeof(jwb_ehandle_t))
+#define JWB_WORLD_CELL_BUF_SIZE(flags, width, height) ((void)(flags), \
+	((width) == 1 || (height) == 1 ? 4 : 1) \
+	* (width) * (height) * sizeof(jwb_ehandle_t))
 
 /**
  * ### `JWB_WORLD_DEFAULT_HIT_HANDLER`
