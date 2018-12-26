@@ -95,15 +95,24 @@ static void remove_unck(WORLD *world, EHANDLE ent)
 	GET(world, ent).flags |= REMOVED;
 }
 
+static void pos_to_idx(WORLD *world, struct jwb_vect *pos, size_t *x, size_t *y)
+{
+	*x = (pos->x - world->offset.x) / world->cell_size;
+	*y = (pos->y - world->offset.y) / world->cell_size;
+}
+
 static size_t reposition(WORLD *world, EHANDLE ent)
 {
 	size_t x, y;
 	VECT pos;
 	pos = GET(world, ent).pos;
+	pos.x -= world->offset.x;
+	pos.y -= world->offset.y;
 	pos.x = fframe(pos.x, world->width * world->cell_size);
 	pos.y = fframe(pos.y, world->height * world->cell_size);
-	x = pos.x / world->cell_size;
-	y = pos.y / world->cell_size;
+	pos.x += world->offset.x;
+	pos.y += world->offset.y;
+	pos_to_idx(world, &pos, &x, &y);
 	GET(world, ent).pos = pos;
 	return y * world->width + x;
 }
@@ -113,8 +122,9 @@ static size_t reposition_nowrap(WORLD *world, EHANDLE ent)
 	size_t x, y;
 	VECT pos;
 	pos = GET(world, ent).pos;
-	x = pos.x / world->cell_size;
-	y = pos.y / world->cell_size;
+	pos.x -= world->offset.x;
+	pos.y -= world->offset.y;
+	pos_to_idx(world, &pos, &x, &y);
 	if (x >= world->width || y >= world->height) {
 		return -1;
 	}

@@ -47,6 +47,7 @@ int jwb_world_alloc(WORLD *world, struct jwb_world_init *info)
 	world->on_hit = JWB_WORLD_DEFAULT_HIT_HANDLER;
 	world->freed = -1;
 	world->available = -1;
+	world->offset.x = world->offset.y = 0.;
 	return ret;
 
 error_entities:

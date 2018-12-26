@@ -296,6 +296,7 @@ struct jwb_hit_info {
  */
 typedef struct jwb__world {
 	double cell_size;
+	struct jwb_vect offset;
 	jwb_hit_handler_t on_hit;
 	size_t width, height;
 	size_t n_ents;
