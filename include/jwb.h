@@ -306,6 +306,7 @@ typedef struct jwb__world {
 	char *ents;
 	jwb_ehandle_t freed;
 	jwb_ehandle_t available;
+	jwb_ehandle_t tracking;
 	int flags;
 } jwb_world_t;
 
@@ -754,6 +755,38 @@ int jwb_world_offset(jwb_world_t *world, const struct jwb_vect *off);
  *  2. `dest`: The place to put the current offset.
  */
 int jwb_world_get_offset(jwb_world_t *world, struct jwb_vect *dest);
+
+/**
+ * ### `jwb_world_track`
+ * ```
+ * int jwb_world_track(jwb_world_t *world, jwb_ehandle_t ent);
+ * ```
+ *
+ * Track an entity. The tracked entity will stay at the same position relative
+ * to the grid as long as it is tracked and it is not moved through `translate`
+ * functions.
+ *
+ * #### Parameters
+ *  1. `world`: The world to change.
+ *  2. `ent`: The new tracked target. If this is negative, no entity is tracked;
+ *     this is not an error.
+ */
+int jwb_world_track(jwb_world_t *world, jwb_ehandle_t ent);
+
+/**
+ * ### `jwb_world_tracking`
+ * ```
+ * ```
+ *
+ * Get the currently tracked entity.
+ *
+ * #### Parameters
+ *  1. `world`: The world to look in.
+ *
+ * #### Return Value
+ * The current tracking target. A negative value indicates the absence of one.
+ */
+jwb_ehandle_t jwb_world_tracking(jwb_world_t *world);
 
 /**
  * ### `jwb_world_get_pos`

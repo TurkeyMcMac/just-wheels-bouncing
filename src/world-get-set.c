@@ -35,6 +35,24 @@ int jwb_world_get_offset(WORLD *world, VECT *dest)
 	return 0;
 }
 
+int jwb_world_track(WORLD *world, EHANDLE ent)
+{
+	if (ent < 0) {
+		world->tracking = -1;
+		return 0;
+	}
+	if (jwb_world_confirm_ent(world, ent) == -JWBE_DESTROYED_ENTITY) {
+		return -1;
+	}
+	world->tracking = ent;
+	return 0;
+}
+
+EHANDLE jwb_world_tracking(WORLD *world)
+{
+	return world->tracking;
+}
+
 #define VECT_METHOD(name, vtype, code) \
 	int jwb_world_##name(WORLD *world, EHANDLE ent, vtype *vect) \
 	{ \

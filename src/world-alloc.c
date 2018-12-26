@@ -48,6 +48,7 @@ int jwb_world_alloc(WORLD *world, struct jwb_world_init *info)
 	world->freed = -1;
 	world->available = -1;
 	world->offset.x = world->offset.y = 0.;
+	world->tracking = -1;
 	return ret;
 
 error_entities:

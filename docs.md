@@ -545,6 +545,32 @@ Check the offset of the world's grid.
  1. `world`: The world to change.
  2. `dest`: The place to put the current offset.
 
+### `jwb_world_track`
+```
+int jwb_world_track(jwb_world_t *world, jwb_ehandle_t ent);
+```
+
+Track an entity. The tracked entity will stay at the same position relative
+to the grid as long as it is tracked and it is not moved through `translate`
+functions.
+
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `ent`: The new tracked target. If this is negative, no entity is tracked;
+    this is not an error.
+
+### `jwb_world_tracking`
+```
+```
+
+Get the currently tracked entity.
+
+#### Parameters
+ 1. `world`: The world to look in.
+
+#### Return Value
+The current tracking target. A negative value indicates the absence of one.
+
 ### `jwb_world_get_pos`
 ```
 int jwb_world_get_pos(
