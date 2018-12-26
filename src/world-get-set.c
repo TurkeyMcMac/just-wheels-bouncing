@@ -99,3 +99,18 @@ SCALAR_SETTER(mass, 0, {
 SCALAR_SETTER(radius, v > world->cell_size, {
 	world->ents[ent].radius = v;
 })
+
+void *jwb_world_get_extra(WORLD *world, EHANDLE ent)
+{
+	int err;
+	err = jwb_world_confirm_ent(world, ent);
+	if (err == -JWBE_DESTROYED_ENTITY) {
+		return NULL;
+	}
+	return jwb_world_get_extra_unck(world, ent);
+}
+
+void *jwb_world_get_extra_unck(WORLD *world, EHANDLE ent)
+{
+	return world->ents[ent].extra;
+}

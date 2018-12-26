@@ -1024,10 +1024,46 @@ int jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, double radius);
  * #### Parameters
  *  1. `world`: The world to look at.
  *  2. `ent`: The entity to look in.
+ *
  * #### Return Value
  * The mass of the entity.
  */
 double jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);
+
+/**
+ * ### `jwb_world_get_extra`
+ * ```
+ * void *jwb_world_get_extra(jwb_world_t *world, jwb_ehandle_t ent);
+ * ```
+ *
+ * Get extra data for an entity.
+ *
+ * #### Parameters
+ *  1. `world`: The world to look in.
+ *  2. `ent`: The entity to look at.
+ *
+ * #### Return Value
+ * The extra data buffer with the capacity specified for `jwb_world_alloc`.
+ * On failure, `NULL` is returned to indicate `JWBE_DESTROYED_ENTITY`.
+ */
+void *jwb_world_get_extra(jwb_world_t *world, jwb_ehandle_t ent);
+
+/**
+ * ### `jwb_world_get_extra_unck`
+ * ```
+ * void *jwb_world_get_extra_unck(jwb_world_t *world, jwb_ehandle_t ent);
+ * ```
+ *
+ * Get extra data for an entity.
+ *
+ * #### Parameters
+ *  1. `world`: The world to look in.
+ *  2. `ent`: The entity to look at.
+ *
+ * #### Return Value
+ * The extra data buffer with the capacity specified for `jwb_world_alloc`.
+ */
+void *jwb_world_get_extra_unck(jwb_world_t *world, jwb_ehandle_t ent);
 
 /**
  * ### `jwb_world_get_radius_unck`
