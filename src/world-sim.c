@@ -116,7 +116,6 @@ static size_t reposition_nowrap(WORLD *world, EHANDLE ent)
 	x = pos.x / world->cell_size;
 	y = pos.y / world->cell_size;
 	if (x >= world->width || y >= world->height) {
-		remove_unck(world, ent);
 		return -1;
 	}
 	return y * world->width + x;
@@ -127,6 +126,9 @@ static void place_ent(WORLD *world, EHANDLE ent)
 	size_t cell;
 	if (REMOVING_DISTANT(world)) {
 		cell = reposition_nowrap(world, ent);
+		if (cell == (size_t)-1) {
+			return;
+		}
 	} else {
 		cell = reposition(world, ent);
 	}
@@ -207,6 +209,7 @@ static void move_ents(WORLD *world, size_t x, size_t y)
 		if (REMOVING_DISTANT(world)) {
 			cell = reposition_nowrap(world, self);
 			if (cell == (size_t)-1) {
+				remove_unck(world, self);
 				continue;
 			}
 		} else {
