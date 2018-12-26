@@ -728,6 +728,34 @@ void jwb_world_on_hit(jwb_world_t *world, jwb_hit_handler_t on_hit);
 size_t jwb_world_extra_size(jwb_world_t *world);
 
 /**
+ * ### `jwb_world_offset`
+ * ```
+ * int jwb_world_offset(jwb_world_t *world, const struct jwb_vect *off);
+ * ```
+ *
+ * Set the offset of the world's grid.
+ *
+ * #### Parameters
+ *  1. `world`: The world to change.
+ *  2. `off`: The new offset.
+ */
+int jwb_world_offset(jwb_world_t *world, const struct jwb_vect *off);
+
+/**
+ * ### `jwb_world_get_offset`
+ * ```
+ * int jwb_world_get_offset(jwb_world_t *world, struct jwb_vect *dest);
+ * ```
+ *
+ * Check the offset of the world's grid.
+ *
+ * #### Parameters
+ *  1. `world`: The world to change.
+ *  2. `dest`: The place to put the current offset.
+ */
+int jwb_world_get_offset(jwb_world_t *world, struct jwb_vect *dest);
+
+/**
  * ### `jwb_world_get_pos`
  * ```
  * int jwb_world_get_pos(

@@ -17,6 +17,24 @@ size_t jwb_world_extra_size(WORLD *world)
 		JWB__ENTITY_EXTRA_MIN_SIZE;
 }
 
+int jwb_world_offset(WORLD *world, const VECT *off)
+{
+	if (!off) {
+		return -JWBE_INVALID_ARGUMENT;
+	}
+	world->offset = *off;
+	return 0;
+}
+
+int jwb_world_get_offset(WORLD *world, VECT *dest)
+{
+	if (!dest) {
+		return -JWBE_INVALID_ARGUMENT;
+	}
+	*dest = world->offset;
+	return 0;
+}
+
 #define VECT_METHOD(name, vtype, code) \
 	int jwb_world_##name(WORLD *world, EHANDLE ent, vtype *vect) \
 	{ \

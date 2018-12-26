@@ -523,6 +523,28 @@ amount provided at initialization.
 #### Return Value
 The size in bytes.
 
+### `jwb_world_offset`
+```
+int jwb_world_offset(jwb_world_t *world, const struct jwb_vect *off);
+```
+
+Set the offset of the world's grid.
+
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `off`: The new offset.
+
+### `jwb_world_get_offset`
+```
+int jwb_world_get_offset(jwb_world_t *world, struct jwb_vect *dest);
+```
+
+Check the offset of the world's grid.
+
+#### Parameters
+ 1. `world`: The world to change.
+ 2. `dest`: The place to put the current offset.
+
 ### `jwb_world_get_pos`
 ```
 int jwb_world_get_pos(
