@@ -125,7 +125,7 @@ static size_t reposition_nowrap(WORLD *world, EHANDLE ent)
 static void place_ent(WORLD *world, EHANDLE ent)
 {
 	size_t cell;
-	if (world->flags & JWBF_REMOVE_DISTANT) {
+	if (REMOVING_DISTANT(world)) {
 		cell = reposition_nowrap(world, ent);
 	} else {
 		cell = reposition(world, ent);
@@ -204,7 +204,7 @@ static void move_ents(WORLD *world, size_t x, size_t y)
 			+ GET(world, self).correct.y;
 		GET(world, self).correct.x = 0.;
 		GET(world, self).correct.y = 0.;
-		if (world->flags & JWBF_REMOVE_DISTANT) {
+		if (REMOVING_DISTANT(world)) {
 			cell = reposition_nowrap(world, self);
 			if (cell == (size_t)-1) {
 				continue;
@@ -440,7 +440,7 @@ static void update_bottom_right(WORLD *world)
 void jwb_world_step(WORLD *world)
 {
 	size_t x, y;
-	if (world->flags & JWBF_REMOVE_DISTANT) {
+	if (REMOVING_DISTANT(world)) {
 		if (world->width == 1) {
 			update_cell(world, 0, 0);
 			for (y = 1; y < world->height; ++y) {

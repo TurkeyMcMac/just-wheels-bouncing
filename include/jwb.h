@@ -1166,6 +1166,15 @@ typedef jwb_ehandle_t EHANDLE;
 #	define GET(world, ent) (*(struct jwb__entity *)&((world)->ents[(ent) \
 			* (world)->ent_size]))
 
+#	ifdef JWBO_ALWAYS_REMOVE_DISTANT
+#		define REMOVING_DISTANT(world) ((void)(world), 1)
+#	elif defined(JWBO_NEVER_REMOVE_DISTANT)
+#		define REMOVING_DISTANT(world) ((void)(world), 0)
+#	else
+#		define REMOVING_DISTANT(world) \
+			((world)->flags & JWBF_REMOVE_DISTANT)
+#	endif
+
 #	ifdef JWBO_NO_ALLOC
 #		define ALLOC(size) ((void)(size), NULL)
 #		define FREE(ptr) ((void)(ptr))
