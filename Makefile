@@ -12,8 +12,9 @@ testdir = tests
 test-header = $(testdir)/test.h
 tests = $(patsubst \
 	$(testdir)/%.c, $(testdir)/%.test, $(wildcard $(testdir)/*.c))
-test-flags = -I$(lib) -L$(PWD) \
-	-Wall -Wno-unused-function -Wextra -Wpedantic -O0 $(CFLAGS)
+test-flags = -Wall -Wno-unused-function -Wextra -Wpedantic \
+	-I$(lib) -O0 $(CFLAGS)
+test-dep-flags = $(dep-flags)
 _uname_s := $(shell uname -s)
 ifeq ($(_uname_s),Linux)
 	library = lib$(name).so.$(version)
@@ -21,12 +22,17 @@ ifeq ($(_uname_s),Linux)
 	linker-flags = -shared -fPIC
 	dep-flags = -lm
 	c-flags += -fPIC
+	test-comp = $(CC)
+	test-flags += -L.
+	test-dep-flags += -l:./$(library)
 endif
 ifeq ($(_uname_s),Darwin)
 	library = lib$(name).dylib
 	linker = $(LD)
 	linker-flags = -dylib -macosx_version_min 10.13 -current_version $(version)
 	dep-flags = -lm -lc
+	test-comp = env LD_LIBRARY_PATH=$(PWD) $(CC)
+	test-dep-flags += -ljwb
 endif
 
 .PHONY: all
@@ -49,7 +55,7 @@ test: $(tests)
 	./run-tests $(library)
 
 $(testdir)/%.test: $(testdir)/%.c $(header) $(test-header) $(library)
-	env LD_LIBRARY_PATH=$(PWD) $(CC) $(test-flags) -o $@ $< -l$(name) $(dep-flags)
+	$(test-comp) $(test-flags) -o $@ $< $(test-dep-flags)
 
 docs.md: $(header)
 	awk -f extract-docs.awk $< > $@
