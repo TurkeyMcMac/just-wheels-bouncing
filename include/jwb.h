@@ -49,7 +49,18 @@
  */
 const char *jwb_errmsg(int errcode);
 
+#ifdef JWBO_NUM_FLOAT
+#	if !(__FLT_MANT_DIG__ == 24 && __FLT_MAX_EXP__ == 128)
+#		error float is not 32 bits.
+#	endif
+typedef float jwb_num_t;
+#else
+#	if !(__DBL_MANT_DIG__ == 53 && __DBL_MAX_EXP__ == 1024)
+#		error double is not 64 bits.
+#	endif
 typedef double jwb_num_t;
+#endif
+
 
 /**
  * ## Rotation
@@ -220,6 +231,8 @@ void jwb_vect_rotation(const struct jwb_vect *vect, jwb_rotation_t *rot);
  */
 typedef long jwb_ehandle_t;
 
+#define JWB__ALIGN(num, size) (((num) + (size) - 1) / (size) * (size))
+
 struct jwb__entity {
 	jwb_ehandle_t next, last;
 	struct jwb_vect pos, vel;
@@ -227,15 +240,20 @@ struct jwb__entity {
 	jwb_num_t mass;
 	jwb_num_t radius;
 	int flags;
-	char extra[sizeof(jwb_num_t) - sizeof(int) /* Variadic */];
-};
-#define JWB__NUM_ALIGN sizeof(jwb_num_t)
-#define JWB__ENTITY_EXTRA_MIN_SIZE sizeof(((struct jwb__entity *)0)->extra)
-#define JWB__ENTITY_SIZE(extra) (sizeof(struct jwb__entity) \
+#ifndef JWBO_EXTRA_ALIGN_4
+	char padding_[8 - sizeof(int)];
+	char extra[1 /* Variadic */];
+#	define JWB__ENTITY_SIZE(extra) \
+	(sizeof(struct jwb__entity) + JWB__ALIGN((extra), 8))
+#	define JWB__ENTITY_EXTRA_MIN_SIZE 0
+#else /* defined(JWBO_EXTRA_ALIGN_4) */
+#	define JWB__ENTITY_EXTRA_MIN_SIZE (8 - sizeof(int))
+	char extra[JWB__ENTITY_EXTRA_MIN_SIZE /* Variadic */];
+#	define JWB__ENTITY_SIZE(extra) (sizeof(struct jwb__entity) \
 		+ ((extra) <= JWB__ENTITY_EXTRA_MIN_SIZE \
-		? 0 \
-		: ((extra) - JWB__ENTITY_EXTRA_MIN_SIZE + JWB__NUM_ALIGN - 1) \
-		/ JWB__NUM_ALIGN * JWB__NUM_ALIGN))
+		? 0 : JWB__ALIGN((extra) - JWB__ENTITY_EXTRA_MIN_SIZE, 4)))
+#endif /* defined(JWBO_EXTRA_ALIGN_4) */
+};
 
 struct jwb_hit_info;
 struct jwb__world;

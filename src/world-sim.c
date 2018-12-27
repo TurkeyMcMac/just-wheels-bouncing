@@ -519,6 +519,8 @@ EHANDLE jwb_world_add_ent(WORLD *world,
 	}
 	GET(world, ent).pos = *pos;
 	GET(world, ent).vel = *vel;
+	GET(world, ent).correct.x = 0.;
+	GET(world, ent).correct.y = 0.;
 	GET(world, ent).mass = mass;
 	GET(world, ent).radius = radius;
 	GET(world, ent).flags = 0;

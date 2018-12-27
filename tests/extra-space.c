@@ -82,7 +82,7 @@ static void equal_outcome(struct world_outcome *o1, struct world_outcome *o2)
 
 int main(void)
 {
-	struct world_outcome no_extra, some_extra, much_extra;
+	static struct world_outcome no_extra, some_extra, much_extra;
 	seed = time(NULL);
 	sim_world(0, &no_extra);
 	sim_world(4, &some_extra);
