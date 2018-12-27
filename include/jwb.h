@@ -49,6 +49,12 @@
  */
 const char *jwb_errmsg(int errcode);
 
+/**
+ * ### `jwb_num_t`
+ * This is the scalar type for all floating-point calculations in the library.
+ * The default is `double`, but `float` can be specified by defining
+ * `JWBO_NUM_FLOAT` during compilation.
+ */
 #ifdef JWBO_NUM_FLOAT
 #	if !(__FLT_MANT_DIG__ == 24 && __FLT_MAX_EXP__ == 128)
 #		error float is not 32 bits.
