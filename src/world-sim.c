@@ -486,11 +486,13 @@ void jwb_world_step(WORLD *world)
 		update_bottom_right(world);
 	}
 	if (world->tracking >= 0) {
-		EHANDLE ent = world->tracking;
-		world->offset.x +=
-			GET(world, ent).correct.x + GET(world, ent).vel.x;
-		world->offset.y +=
-			GET(world, ent).correct.y + GET(world, ent).vel.y;
+		struct jwb__entity *tracked = &GET(world, world->tracking);
+		if (tracked->flags & REMOVED) {
+			world->tracking = -1;
+		} else {
+			world->offset.x += tracked->correct.x + tracked->vel.x;
+			world->offset.y += tracked->correct.y + tracked->vel.y;
+		}
 	}
 	for (y = 0; y < world->height; ++y) {
 		for (x = 0; x < world->width; ++x) {
