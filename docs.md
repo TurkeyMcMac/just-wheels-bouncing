@@ -282,7 +282,9 @@ Allocate the necessary resources for a given world.
 Get the needed buffer size for a number of entities.
 
 #### Parameters
- 1. `num`: The number of entities to account for.
+ 1. `flags`: The flags applied to the relevant world.
+ 2. `num`: The number of entities to account for.
+ 3. `extra_space`: The amount of entity extra space in the relevant world.
 
 #### Return Value
 The needed buffer size in bytes.
@@ -295,8 +297,9 @@ The needed buffer size in bytes.
 Get the needed buffer size for a world's cell grid.
 
 #### Parameters
- 1. `width`: The number of cells across.
- 2. `height`: The number of cells down.
+ 1. `flags`: The flags applied to the relevant world.
+ 2. `width`: The number of cells across.
+ 3. `height`: The number of cells down.
 
 #### Return Value
 The needed buffer size in bytes.
