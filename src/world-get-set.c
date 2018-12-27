@@ -13,7 +13,7 @@ void jwb_world_on_hit(WORLD *world, jwb_hit_handler_t on_hit)
 
 size_t jwb_world_extra_size(WORLD *world)
 {
-	return world->ent_size - sizeof(struct jwb__entity) +
+	return world->ent_size - JWB__ENTITY_SIZE(0) +
 		JWB__ENTITY_EXTRA_MIN_SIZE;
 }
 

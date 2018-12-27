@@ -273,7 +273,7 @@ struct jwb__entity {
 	char padding_[8 - sizeof(int)];
 	char extra[1 /* Variadic */];
 #	define JWB__ENTITY_SIZE(extra) \
-	(sizeof(struct jwb__entity) + JWB__ALIGN((extra), 8))
+	(sizeof(struct jwb__entity) - 8 + JWB__ALIGN((extra), 8))
 #	define JWB__ENTITY_EXTRA_MIN_SIZE 0
 #else /* defined(JWBO_EXTRA_ALIGN_4) */
 #	define JWB__ENTITY_EXTRA_MIN_SIZE (8 - sizeof(int))
