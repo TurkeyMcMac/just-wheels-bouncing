@@ -14,6 +14,27 @@
  */
 
 /**
+ * ## Compilation Options
+ * Special symbols can be used to fine-tune the library. The options used when
+ * compiling the library **must** be the same as the ones used when compiling
+ * programs which use it.
+ *
+ * ### Symbols
+ *  * `JWBO_NO_ALLOC`: Never allocate anything internally. Always rely on
+ *    buffers given by the user. Using this option, the number of entities can
+ *    never be more than the number initially accounted for.
+ *  * `JWBO_NUM_FLOAT`: The numeric type is switched to `float`, rather than the
+ *    default, which is `double`. This can save some space.
+ *  * `JWBO_EXTRA_ALIGN_4`: Align the extra data of entities to a 4-byte
+ *    boundary. This saves a bit, but is less flexible than the default 8-byte
+ *    alignment.
+ *  * `JWBO_ALWAYS_REMOVE_DISTANT`: The flag `JWBF_REMOVE_DISTANT` is
+ *    effectively always active. See `struct jwb_world_init`.
+ *  * `JWBO_NEVER_REMOVE_DISTANT`: The flag `JWBF_REMOVE_DISTANT` is
+ *    effectively always inactive. See `struct jwb_world_init`.
+ */
+
+/**
  * ## Error Handling
  * Errors are handled using numeric error codes which can then be described in
  * human-readable text.
