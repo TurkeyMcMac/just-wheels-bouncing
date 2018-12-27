@@ -32,6 +32,8 @@ Return a string describing an error code.
 #### Return Value
 A description. This cannot be modified or freed.
 
+## Scalars
+
 ### `jwb_num_t`
 This is the scalar type for all floating-point calculations in the library.
 The default is `double`, but `float` can be specified by defining

@@ -50,6 +50,8 @@
 const char *jwb_errmsg(int errcode);
 
 /**
+ * ## Scalars
+ *
  * ### `jwb_num_t`
  * This is the scalar type for all floating-point calculations in the library.
  * The default is `double`, but `float` can be specified by defining
