@@ -250,7 +250,7 @@ Allocate the necessary resources for a given world.
 
 ### `JWB_WORLD_ENT_BUF_SIZE`
 ```
-#define JWB_WORLD_ENT_BUF_SIZE(num) ...
+#define JWB_WORLD_ENT_BUF_SIZE(flags, num, extra_space) ...
 ```
 
 Get the needed buffer size for a number of entities.
@@ -263,7 +263,7 @@ The needed buffer size in bytes.
 
 ### `JWB_WORLD_CELL_BUF_SIZE`
 ```
-#define JWB_WORLD_CELL_BUF_SIZE(width, height) ...
+#define JWB_WORLD_CELL_BUF_SIZE(flags, width, height) ...
 ```
 
 Get the needed buffer size for a world's cell grid.

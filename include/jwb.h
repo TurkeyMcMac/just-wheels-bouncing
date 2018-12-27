@@ -398,7 +398,7 @@ int jwb_world_alloc(jwb_world_t *world, struct jwb_world_init *info);
 /**
  * ### `JWB_WORLD_ENT_BUF_SIZE`
  * ```
- * #define JWB_WORLD_ENT_BUF_SIZE(num) ...
+ * #define JWB_WORLD_ENT_BUF_SIZE(flags, num, extra_space) ...
  * ```
  *
  * Get the needed buffer size for a number of entities.
@@ -415,7 +415,7 @@ int jwb_world_alloc(jwb_world_t *world, struct jwb_world_init *info);
 /**
  * ### `JWB_WORLD_CELL_BUF_SIZE`
  * ```
- * #define JWB_WORLD_CELL_BUF_SIZE(width, height) ...
+ * #define JWB_WORLD_CELL_BUF_SIZE(flags, width, height) ...
  * ```
  *
  * Get the needed buffer size for a world's cell grid.
