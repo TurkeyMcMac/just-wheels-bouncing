@@ -41,7 +41,7 @@ A cached rotation.
 
 ### `jwb_rotation`
 ```
-void jwb_rotation(jwb_rotation_t *rot, double angle);
+void jwb_rotation(jwb_rotation_t *rot, jwb_num_t angle);
 ```
 
 Construct a rotation from an angle.
@@ -52,7 +52,7 @@ Construct a rotation from an angle.
 
 ### `jwb_rotation_angle`
 ```
-double jwb_rotation_angle(const jwb_rotation_t *rot);
+jwb_num_t jwb_rotation_angle(const jwb_rotation_t *rot);
 ```
 
 Get the angle corresponding to a rotation.
@@ -80,8 +80,8 @@ They represent position, velocity, acceleration, and more.
 ### `struct jwb_vect`
 ```
 struct jwb_vect {
-  double x;
-  double y;
+  jwb_num_t x;
+  jwb_num_t y;
 };
 ```
 
@@ -104,7 +104,7 @@ Rotate a vector.
 
 ### `jwb_vect_magnitude`
 ```
-double jwb_vect_magnitude(const struct jwb_vect *vect);
+jwb_num_t jwb_vect_magnitude(const struct jwb_vect *vect);
 ```
 
 Get the magnitude/length of a vector using the pythagorean theorem.
@@ -127,7 +127,7 @@ Change the magnitude of a vector to 1 while keeping the x/y ratio the same.
 
 ### `jwb_vect_angle`
 ```
-double jwb_vect_angle(const struct jwb_vect *vect);
+jwb_num_t jwb_vect_angle(const struct jwb_vect *vect);
 ```
 
 Get the angle from the x-axis to the arm of a vector.
@@ -185,7 +185,7 @@ setters are also allowed, although translation can cause strange behaviour.
 ```
 struct jwb_hit_info {
   struct jwb_vect rel;
-  double dist;
+  jwb_num_t dist;
 };
 ```
 
@@ -205,7 +205,7 @@ can be quite large, so you might consider allocating it on the heap.
 struct jwb_world_init {
   jwb_world_t *world;
   int flags;
-  double cell_size;
+  jwb_num_t cell_size;
   size_t width;
   size_t height;
   size_t ent_buf_size;
@@ -305,7 +305,7 @@ for `jwb_hit_handler_t`.
 
 ### `jwb_world_apply_friction`
 ```
-void jwb_world_apply_friction(jwb_world_t *world, double friction);
+void jwb_world_apply_friction(jwb_world_t *world, jwb_num_t friction);
 ```
 
 Apply an acceleration due to friction to every entity in the world.
@@ -385,8 +385,8 @@ jwb_ehandle_t jwb_world_add_ent(
   jwb_world_t *world,
   const struct jwb_vect *pos,
   const struct jwb_vect *vel,
-  double mass,
-  double radius);
+  jwb_num_t mass,
+  jwb_num_t radius);
 ```
 
 Add an entity to the world.
@@ -761,7 +761,7 @@ void jwb_world_accelerate_unck(
 
 ### `jwb_world_get_mass`
 ```
-double jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);
+jwb_num_t jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);
 ```
 
 #### Parameters
@@ -772,7 +772,7 @@ The mass of the entity, or a negative error code on nonexistence.
 
 ### `jwb_world_get_radius`
 ```
-double jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);
+jwb_num_t jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);
 ```
 
 #### Parameters
@@ -783,7 +783,7 @@ The radius of the entity, or a negative error code on nonexistence.
 
 ### `jwb_world_set_mass`
 ```
-int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);
+int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, jwb_num_t mass);
 ```
 
 #### Parameters
@@ -796,7 +796,7 @@ int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);
 int jwb_world_set_radius(
   jwb_world_t *world,
   jwb_ehandle_t ent,
-  double radius);
+  jwb_num_t radius);
 ```
 
 #### Parameters
@@ -806,7 +806,7 @@ int jwb_world_set_radius(
 
 ### `jwb_world_get_mass_unck`
 ```
-double jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);
+jwb_num_t jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);
 ```
 
 #### Parameters
@@ -847,7 +847,7 @@ The extra data buffer with the capacity specified for `jwb_world_alloc`.
 
 ### `jwb_world_get_radius_unck`
 ```
-double jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);
+jwb_num_t jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);
 ```
 
 #### Parameters
@@ -861,7 +861,7 @@ The radius of the entity.
 void jwb_world_set_mass_unck(
   jwb_world_t *world,
   jwb_ehandle_t ent,
-  double mass);
+  jwb_num_t mass);
 ```
 
 #### Parameters
@@ -874,7 +874,7 @@ void jwb_world_set_mass_unck(
 void jwb_world_set_radius_unck(
   jwb_world_t *world,
   jwb_ehandle_t ent,
-  double radius);
+  jwb_num_t radius);
 ```
 
 #### Parameters

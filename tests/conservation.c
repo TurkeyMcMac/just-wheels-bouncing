@@ -4,18 +4,18 @@
 #include <stdlib.h>
 #include <time.h>
 
-static double get_energy(jwb_world_t *world, jwb_ehandle_t ent)
+static jwb_num_t get_energy(jwb_world_t *world, jwb_ehandle_t ent)
 {
-	double mass;
+	jwb_num_t mass;
 	struct jwb_vect vel;
 	jwb_world_get_vel_unck(world, ent, &vel);
 	mass = jwb_world_get_mass_unck(world, ent);
 	return mass * (vel.x*vel.x + vel.y*vel.y) / 2;
 }
 
-static double get_total_energy(jwb_world_t *world)
+static jwb_num_t get_total_energy(jwb_world_t *world)
 {
-	double energy = 0.;
+	jwb_num_t energy = 0.;
 	jwb_ehandle_t e;
 	for (e = jwb_world_first(world); e >= 0; e = jwb_world_next(world, e)) {
 		energy += get_energy(world, e);
@@ -28,7 +28,7 @@ static void get_total_momentum(jwb_world_t *world, struct jwb_vect *momentum)
 	jwb_ehandle_t e;
 	momentum->x = momentum->y = 0.;
 	for (e = jwb_world_first(world); e >= 0; e = jwb_world_next(world, e)) {
-		double mass;
+		jwb_num_t mass;
 		struct jwb_vect vel;
 		jwb_world_get_vel_unck(world, e, &vel);
 		mass = jwb_world_get_mass_unck(world, e);
@@ -49,7 +49,7 @@ int main(void)
 {
 	jwb_world_t *world;
 	struct jwb_world_init alloc_info;
-	double energy_i, energy_f;
+	jwb_num_t energy_i, energy_f;
 	struct jwb_vect momentum_i, momentum_f;
 	size_t i;
 	world = malloc(sizeof(*world));
@@ -65,7 +65,7 @@ int main(void)
 	srand(time(NULL));
 	for (i = 0; i < 10; ++i) {
 		struct jwb_vect pos, vel;
-		double radius, mass;
+		jwb_num_t radius, mass;
 		pos.x = frand(), pos.y = frand();
 		vel.x = frand(), vel.y = frand();
 		radius = frand();

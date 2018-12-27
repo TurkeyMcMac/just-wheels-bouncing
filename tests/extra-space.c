@@ -56,7 +56,7 @@ static void sim_world(size_t extra_space, struct world_outcome *outcome)
 	srand(seed);
 	for (i = 0; i < 10; ++i) {
 		struct jwb_vect pos, vel;
-		double radius, mass;
+		jwb_num_t radius, mass;
 		pos.x = frand(), pos.y = frand();
 		vel.x = frand(), vel.y = frand();
 		radius = frand();

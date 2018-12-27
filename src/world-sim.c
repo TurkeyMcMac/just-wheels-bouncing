@@ -4,9 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-static double fframe(double num, double lim)
+static jwb_num_t fframe(jwb_num_t num, jwb_num_t lim)
 {
-	double mod = fmod(num, lim);
+	jwb_num_t mod = fmod(num, lim);
 	if (mod < 0) {
 		mod += lim;
 	}
@@ -430,7 +430,7 @@ static void update_bottom_nowrap(WORLD *world)
 static void update_bottom_right(WORLD *world)
 {
 	VECT wrap_right, wrap_down;
-	double x, y;
+	jwb_num_t x, y;
 	wrap_right.x = -world->cell_size * world->width;
 	wrap_right.y = 0.;
 	wrap_down.x = 0.;
@@ -504,8 +504,8 @@ void jwb_world_step(WORLD *world)
 EHANDLE jwb_world_add_ent(WORLD *world,
 	const VECT *pos,
 	const VECT *vel,
-	double mass,
-	double radius)
+	jwb_num_t mass,
+	jwb_num_t radius)
 {
 	EHANDLE ent;
 	if (world->available >= 0) {

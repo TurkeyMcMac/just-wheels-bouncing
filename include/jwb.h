@@ -49,6 +49,8 @@
  */
 const char *jwb_errmsg(int errcode);
 
+typedef double jwb_num_t;
+
 /**
  * ## Rotation
  * Values used in vector rotation are cached for greater efficiency. Caches can
@@ -60,13 +62,13 @@ const char *jwb_errmsg(int errcode);
  * A cached rotation.
  */
 typedef struct {
-	double sin, cos;
+	jwb_num_t sin, cos;
 } jwb_rotation_t;
 
 /**
  * ### `jwb_rotation`
  * ```
- * void jwb_rotation(jwb_rotation_t *rot, double angle);
+ * void jwb_rotation(jwb_rotation_t *rot, jwb_num_t angle);
  * ```
  *
  * Construct a rotation from an angle.
@@ -75,12 +77,12 @@ typedef struct {
  *  1. `rot`: The destination where the rotation will be cached.
  *  2. `angle`: The angle in radians.
  */
-void jwb_rotation(jwb_rotation_t *rot, double angle);
+void jwb_rotation(jwb_rotation_t *rot, jwb_num_t angle);
 
 /**
  * ### `jwb_rotation_angle`
  * ```
- * double jwb_rotation_angle(const jwb_rotation_t *rot);
+ * jwb_num_t jwb_rotation_angle(const jwb_rotation_t *rot);
  * ```
  *
  * Get the angle corresponding to a rotation.
@@ -91,7 +93,7 @@ void jwb_rotation(jwb_rotation_t *rot, double angle);
  * #### Return Value
  * The angle in radians.
  */
-double jwb_rotation_angle(const jwb_rotation_t *rot);
+jwb_num_t jwb_rotation_angle(const jwb_rotation_t *rot);
 
 /**
  * ### `jwb_rotation_flip`
@@ -116,8 +118,8 @@ void jwb_rotation_flip(jwb_rotation_t *rot);
  * ### `struct jwb_vect`
  * ```
  * struct jwb_vect {
- *   double x;
- *   double y;
+ *   jwb_num_t x;
+ *   jwb_num_t y;
  * };
  * ```
  *
@@ -128,7 +130,7 @@ void jwb_rotation_flip(jwb_rotation_t *rot);
  *  * `y`: The y component.
  */
 struct jwb_vect {
-	double x, y;
+	jwb_num_t x, y;
 };
 
 /**
@@ -148,7 +150,7 @@ void jwb_vect_rotate(struct jwb_vect *vect, const jwb_rotation_t *rot);
 /**
  * ### `jwb_vect_magnitude`
  * ```
- * double jwb_vect_magnitude(const struct jwb_vect *vect);
+ * jwb_num_t jwb_vect_magnitude(const struct jwb_vect *vect);
  * ```
  *
  * Get the magnitude/length of a vector using the pythagorean theorem.
@@ -159,7 +161,7 @@ void jwb_vect_rotate(struct jwb_vect *vect, const jwb_rotation_t *rot);
  * #### Return Value
  * The magnitude.
  */
-double jwb_vect_magnitude(const struct jwb_vect *vect);
+jwb_num_t jwb_vect_magnitude(const struct jwb_vect *vect);
 
 /**
  * ### `jwb_vect_normalize`
@@ -177,7 +179,7 @@ void jwb_vect_normalize(struct jwb_vect *vect);
 /**
  * ### `jwb_vect_angle`
  * ```
- * double jwb_vect_angle(const struct jwb_vect *vect);
+ * jwb_num_t jwb_vect_angle(const struct jwb_vect *vect);
  * ```
  *
  * Get the angle from the x-axis to the arm of a vector.
@@ -188,7 +190,7 @@ void jwb_vect_normalize(struct jwb_vect *vect);
  * #### Return Value
  * The angle in radians.
  */
-double jwb_vect_angle(const struct jwb_vect *vect);
+jwb_num_t jwb_vect_angle(const struct jwb_vect *vect);
 
 /**
  * ### `jwb_vect_rotation`
@@ -222,12 +224,12 @@ struct jwb__entity {
 	jwb_ehandle_t next, last;
 	struct jwb_vect pos, vel;
 	struct jwb_vect correct; /* Correctional displacement */
-	double mass;
-	double radius;
+	jwb_num_t mass;
+	jwb_num_t radius;
 	int flags;
-	char extra[sizeof(double) - sizeof(int) /* Variadic */];
+	char extra[sizeof(jwb_num_t) - sizeof(int) /* Variadic */];
 };
-#define JWB__NUM_ALIGN sizeof(double)
+#define JWB__NUM_ALIGN sizeof(jwb_num_t)
 #define JWB__ENTITY_EXTRA_MIN_SIZE sizeof(((struct jwb__entity *)0)->extra)
 #define JWB__ENTITY_SIZE(extra) (sizeof(struct jwb__entity) \
 		+ ((extra) <= JWB__ENTITY_EXTRA_MIN_SIZE \
@@ -273,7 +275,7 @@ typedef void (*jwb_hit_handler_t)(
  * ```
  * struct jwb_hit_info {
  *   struct jwb_vect rel;
- *   double dist;
+ *   jwb_num_t dist;
  * };
  * ```
  *
@@ -286,7 +288,7 @@ typedef void (*jwb_hit_handler_t)(
  */
 struct jwb_hit_info {
 	struct jwb_vect rel;
-	double dist;
+	jwb_num_t dist;
 };
 
 /**
@@ -295,7 +297,7 @@ struct jwb_hit_info {
  * can be quite large, so you might consider allocating it on the heap.
  */
 typedef struct jwb__world {
-	double cell_size;
+	jwb_num_t cell_size;
 	struct jwb_vect offset;
 	jwb_hit_handler_t on_hit;
 	size_t width, height;
@@ -316,7 +318,7 @@ typedef struct jwb__world {
  * struct jwb_world_init {
  *   jwb_world_t *world;
  *   int flags;
- *   double cell_size;
+ *   jwb_num_t cell_size;
  *   size_t width;
  *   size_t height;
  *   size_t ent_buf_size;
@@ -347,7 +349,7 @@ typedef struct jwb__world {
 struct jwb_world_init {
 	jwb_world_t *world;
 	int flags;
-	double cell_size;
+	jwb_num_t cell_size;
 	size_t width;
 	size_t height;
 	size_t ent_buf_size;
@@ -459,7 +461,7 @@ void jwb_inelastic_collision(
 /**
  * ### `jwb_world_apply_friction`
  * ```
- * void jwb_world_apply_friction(jwb_world_t *world, double friction);
+ * void jwb_world_apply_friction(jwb_world_t *world, jwb_num_t friction);
  * ```
  *
  * Apply an acceleration due to friction to every entity in the world.
@@ -469,7 +471,7 @@ void jwb_inelastic_collision(
  *  2. `friction`: The frictional acceleration to apply. This reduces velocity
  *     when positive.
  */
-void jwb_world_apply_friction(jwb_world_t *world, double friction);
+void jwb_world_apply_friction(jwb_world_t *world, jwb_num_t friction);
 
 /**
  * ### `jwb_world_first`
@@ -557,8 +559,8 @@ void jwb_world_step(jwb_world_t *world);
  *   jwb_world_t *world,
  *   const struct jwb_vect *pos,
  *   const struct jwb_vect *vel,
- *   double mass,
- *   double radius);
+ *   jwb_num_t mass,
+ *   jwb_num_t radius);
  * ```
  *
  * Add an entity to the world.
@@ -578,8 +580,8 @@ jwb_ehandle_t jwb_world_add_ent(
 	jwb_world_t *world,
 	const struct jwb_vect *pos,
 	const struct jwb_vect *vel,
-	double mass,
-	double radius);
+	jwb_num_t mass,
+	jwb_num_t radius);
 
 /**
  * ### `jwb_world_re_add_ent`
@@ -1062,7 +1064,7 @@ void jwb_world_accelerate_unck(
 /**
  * ### `jwb_world_get_mass`
  * ```
- * double jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);
+ * jwb_num_t jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);
  * ```
  *
  * #### Parameters
@@ -1071,12 +1073,12 @@ void jwb_world_accelerate_unck(
  * #### Return Value
  * The mass of the entity, or a negative error code on nonexistence.
  */
-double jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);
+jwb_num_t jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);
 
 /**
  * ### `jwb_world_get_radius`
  * ```
- * double jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);
+ * jwb_num_t jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);
  * ```
  *
  * #### Parameters
@@ -1085,12 +1087,12 @@ double jwb_world_get_mass(jwb_world_t *world, jwb_ehandle_t ent);
  * #### Return Value
  * The radius of the entity, or a negative error code on nonexistence.
  */
-double jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);
+jwb_num_t jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);
 
 /**
  * ### `jwb_world_set_mass`
  * ```
- * int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);
+ * int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, jwb_num_t mass);
  * ```
  *
  * #### Parameters
@@ -1098,7 +1100,7 @@ double jwb_world_get_radius(jwb_world_t *world, jwb_ehandle_t ent);
  *  2. `ent`: The entity to change.
  *  3. `mass`: What to set the mass to. Must be over zero.
  */
-int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);
+int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, jwb_num_t mass);
 
 /**
  * ### `jwb_world_set_radius`
@@ -1106,7 +1108,7 @@ int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);
  * int jwb_world_set_radius(
  *   jwb_world_t *world,
  *   jwb_ehandle_t ent,
- *   double radius);
+ *   jwb_num_t radius);
  * ```
  *
  * #### Parameters
@@ -1114,12 +1116,12 @@ int jwb_world_set_mass(jwb_world_t *world, jwb_ehandle_t ent, double mass);
  *  2. `ent`: The entity to change.
  *  3. `radius`: What to set the radius to. Must be over zero.
  */
-int jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, double radius);
+int jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, jwb_num_t radius);
 
 /**
  * ### `jwb_world_get_mass_unck`
  * ```
- * double jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);
+ * jwb_num_t jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);
  * ```
  *
  * #### Parameters
@@ -1129,7 +1131,7 @@ int jwb_world_set_radius(jwb_world_t *world, jwb_ehandle_t ent, double radius);
  * #### Return Value
  * The mass of the entity.
  */
-double jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);
+jwb_num_t jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);
 
 /**
  * ### `jwb_world_get_extra`
@@ -1169,7 +1171,7 @@ void *jwb_world_get_extra_unck(jwb_world_t *world, jwb_ehandle_t ent);
 /**
  * ### `jwb_world_get_radius_unck`
  * ```
- * double jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);
+ * jwb_num_t jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);
  * ```
  *
  * #### Parameters
@@ -1178,7 +1180,7 @@ void *jwb_world_get_extra_unck(jwb_world_t *world, jwb_ehandle_t ent);
  * #### Return Value
  * The radius of the entity.
  */
-double jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);
+jwb_num_t jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);
 
 /**
  * ### `jwb_world_set_mass_unck`
@@ -1186,7 +1188,7 @@ double jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);
  * void jwb_world_set_mass_unck(
  *   jwb_world_t *world,
  *   jwb_ehandle_t ent,
- *   double mass);
+ *   jwb_num_t mass);
  * ```
  *
  * #### Parameters
@@ -1197,7 +1199,7 @@ double jwb_world_get_radius_unck(jwb_world_t *world, jwb_ehandle_t ent);
 void jwb_world_set_mass_unck(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
-	double mass);
+	jwb_num_t mass);
 
 /**
  * ### `jwb_world_set_radius_unck`
@@ -1205,7 +1207,7 @@ void jwb_world_set_mass_unck(
  * void jwb_world_set_radius_unck(
  *   jwb_world_t *world,
  *   jwb_ehandle_t ent,
- *   double radius);
+ *   jwb_num_t radius);
  * ```
  *
  * #### Parameters
@@ -1216,7 +1218,7 @@ void jwb_world_set_mass_unck(
 void jwb_world_set_radius_unck(
 	jwb_world_t *world,
 	jwb_ehandle_t ent,
-	double radius);
+	jwb_num_t radius);
 
 #ifdef JWB_INTERNAL_
 /* Internal type name shortcuts, macros, and flags. */

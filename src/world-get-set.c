@@ -102,7 +102,7 @@ VECT_METHOD(accelerate, const VECT, {
 })
 
 #define SCALAR_GETTER(name, ret_expr) \
-	double jwb_world_get_##name(WORLD *world, EHANDLE ent) \
+	jwb_num_t jwb_world_get_##name(WORLD *world, EHANDLE ent) \
 	{ \
 		int err = jwb_world_confirm_ent(world, ent); \
 		if (err == -JWBE_DESTROYED_ENTITY) { \
@@ -110,7 +110,7 @@ VECT_METHOD(accelerate, const VECT, {
 		} \
 		return jwb_world_get_mass_unck(world, ent); \
 	} \
-	double jwb_world_get_##name##_unck(WORLD *world, EHANDLE ent) \
+	jwb_num_t jwb_world_get_##name##_unck(WORLD *world, EHANDLE ent) \
 	{ return ret_expr; }
 
 SCALAR_GETTER(mass, GET(world, ent).mass)
@@ -118,7 +118,7 @@ SCALAR_GETTER(mass, GET(world, ent).mass)
 SCALAR_GETTER(radius, GET(world, ent).radius)
 
 #define SCALAR_SETTER(name, extra_check, code) \
-	int jwb_world_set_##name(WORLD *world, EHANDLE ent, double v) \
+	int jwb_world_set_##name(WORLD *world, EHANDLE ent, jwb_num_t v) \
 	{ \
 		int err; \
 		if (v < 0. || (extra_check)) { \
@@ -131,7 +131,7 @@ SCALAR_GETTER(radius, GET(world, ent).radius)
 		jwb_world_set_##name##_unck(world, ent, v); \
 		return 0; \
 	} \
-	void jwb_world_set_##name##_unck(WORLD *world, EHANDLE ent, double v) \
+	void jwb_world_set_##name##_unck(WORLD *world, EHANDLE ent, jwb_num_t v) \
 	{ code }
 
 SCALAR_SETTER(mass, 0, {

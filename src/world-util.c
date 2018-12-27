@@ -7,11 +7,11 @@ void jwb_elastic_collision(
 	EHANDLE ent2,
 	struct jwb_hit_info *info)
 {
-	double mass1, mass2;
+	jwb_num_t mass1, mass2;
 	VECT vel1, vel2;
-	double bounced1, bounced2;
-	double overlap;
-	double cor1, cor2;
+	jwb_num_t bounced1, bounced2;
+	jwb_num_t overlap;
+	jwb_num_t cor1, cor2;
 	jwb_rotation_t rot;
 	if (info->dist == 0.) {
 		return;
@@ -51,11 +51,11 @@ void jwb_inelastic_collision(
 	EHANDLE ent2,
 	struct jwb_hit_info *info)
 {
-	double mass1, mass2;
+	jwb_num_t mass1, mass2;
 	VECT vel1, vel2;
-	double smashed;
-	double overlap;
-	double cor1, cor2;
+	jwb_num_t smashed;
+	jwb_num_t overlap;
+	jwb_num_t cor1, cor2;
 	jwb_rotation_t rot;
 	if (info->dist == 0.) {
 		return;
@@ -86,10 +86,10 @@ void jwb_inelastic_collision(
 	GET(world, ent2).correct.y += info->rel.y * cor2;
 }
 
-static int apply_friction(WORLD *world, EHANDLE ent, double friction)
+static int apply_friction(WORLD *world, EHANDLE ent, jwb_num_t friction)
 {
 	struct jwb_vect *vel;
-	double speed, ratio;
+	jwb_num_t speed, ratio;
 	vel = &GET(world, ent).vel;
 	speed = jwb_vect_magnitude(vel);
 	ratio = (speed - friction) / speed;
@@ -103,7 +103,7 @@ static int apply_friction(WORLD *world, EHANDLE ent, double friction)
 	return 0;
 }
 
-void jwb_world_apply_friction(WORLD *world, double friction)
+void jwb_world_apply_friction(WORLD *world, jwb_num_t friction)
 {
 	EHANDLE e;
 	for (e = jwb_world_first(world); e >= 0; e = jwb_world_next(world, e)) {
