@@ -12,7 +12,7 @@ testdir = tests
 test-header = $(testdir)/test.h
 tests = $(patsubst \
 	$(testdir)/%.c, $(testdir)/%.test, $(wildcard $(testdir)/*.c))
-test-flags = -I$(lib) -L/ \
+test-flags = -I$(lib) -L$(PWD) \
 	-Wall -Wno-unused-function -Wextra -Wpedantic -O0 $(CFLAGS)
 _uname_s := $(shell uname -s)
 ifeq ($(_uname_s),Linux)
@@ -46,10 +46,10 @@ $(obj)/%.o: $(src)/%.c $(header)
 
 .PHONY: test
 test: $(tests)
-	./run-tests
+	./run-tests $(library)
 
 $(testdir)/%.test: $(testdir)/%.c $(header) $(test-header) $(library)
-	$(CC) $(test-flags) -o $@ $< -l:$(PWD)/$(library) $(dep-flags)
+	env LD_LIBRARY_PATH=$(PWD) $(CC) $(test-flags) -o $@ $< -l$(name) $(dep-flags)
 
 docs.md: $(header)
 	awk -f extract-docs.awk $< > $@

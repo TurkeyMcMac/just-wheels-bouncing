@@ -1,5 +1,6 @@
 #!/bin/sh
 
+library=$1
 testdir=tests
 
 style_print() {
@@ -26,11 +27,12 @@ cd $testdir
 
 testfiles=`ls -1 | grep '\.test$'`
 
-
+ln -f ../$library
 for testfile in $testfiles; do
 	run_test $testfile &
 done
 wait
+rm -f $library
 
 logs=`ls | grep '\.log$'`
 if [ "$logs" ]; then
