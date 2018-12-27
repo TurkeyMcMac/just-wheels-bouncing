@@ -13,7 +13,7 @@ test-header = $(testdir)/test.h
 tests = $(patsubst \
 	$(testdir)/%.c, $(testdir)/%.test, $(wildcard $(testdir)/*.c))
 test-flags = -Wall -Wno-unused-function -Wextra -Wpedantic \
-	-I$(lib) -O0 $(CFLAGS)
+	-I$(lib) -L. -O0 $(CFLAGS)
 test-dep-flags = $(dep-flags)
 _uname_s := $(shell uname -s)
 ifeq ($(_uname_s),Linux)
@@ -23,7 +23,6 @@ ifeq ($(_uname_s),Linux)
 	dep-flags = -lm
 	c-flags += -fPIC
 	test-comp = $(CC)
-	test-flags += -L.
 	test-dep-flags += -l:./$(library)
 endif
 ifeq ($(_uname_s),Darwin)
