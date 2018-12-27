@@ -32,6 +32,11 @@ Return a string describing an error code.
 #### Return Value
 A description. This cannot be modified or freed.
 
+### `jwb_num_t`
+This is the scalar type for all floating-point calculations in the library.
+The default is `double`, but `float` can be specified by defining
+`JWBO_NUM_FLOAT` during compilation.
+
 ## Rotation
 Values used in vector rotation are cached for greater efficiency. Caches can
 also be created from angles and converted back again.
