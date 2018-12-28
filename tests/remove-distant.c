@@ -8,7 +8,7 @@
 static void count_remaining(int flags, size_t placed, size_t removed)
 {
 	jwb_world_t *world = malloc(sizeof(*world));
-	struct jwb_world_init alloc_info;
+	struct jwb_world_init alloc_info = JWB_WORLD_INIT_DEFAULT;
 	size_t n;
 	jwb_ehandle_t e;
 	alloc_info.cell_size = 10.;

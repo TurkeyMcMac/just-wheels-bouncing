@@ -48,7 +48,7 @@ static void sim_world(jwb_world_t *world)
 int main(void)
 {
 	jwb_world_t *world;
-	struct jwb_world_init alloc_info;
+	struct jwb_world_init alloc_info = JWB_WORLD_INIT_DEFAULT;
 	jwb_num_t energy_i, energy_f;
 	struct jwb_vect momentum_i, momentum_f;
 	size_t i;

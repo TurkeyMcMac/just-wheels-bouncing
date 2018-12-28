@@ -402,7 +402,6 @@ typedef struct jwb__world {
  *    allocation is turned off.
  */
 struct jwb_world_init {
-	jwb_world_t *world;
 	int flags;
 	jwb_num_t cell_size;
 	size_t width;
@@ -413,6 +412,25 @@ struct jwb_world_init {
 	void *cell_buf;
 };
 #define JWBF_REMOVE_DISTANT (1 << 0)
+
+/**
+ * ### `JWB_WORLD_INIT_DEFAULT`
+ * ```
+ * #define JWB_WORLD_INIT_DEFAULT
+ * ```
+ *
+ * The struct initializer containing the default values for world allocation.
+ * You should use this to make sure you don't pass in any garbage data.
+ */
+#define JWB_WORLD_INIT_DEFAULT \
+{	/* flags */        0, \
+	/* cell_size */    1, \
+	/* width */        1, \
+	/* height */       1, \
+	/* ent_buf_size */ 0, \
+	/* ent_extra */    0, \
+	/* ent_buf */   NULL, \
+	/* cell_buf */  NULL}
 
 /**
  * ### `jwb_world_alloc`

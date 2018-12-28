@@ -259,6 +259,14 @@ Initialization information for use in `jwb_world_alloc`.
    buffer of size `JWB_WORLD_CELL_BUF_SIZE(...)` must be provided if
    allocation is turned off.
 
+### `JWB_WORLD_INIT_DEFAULT`
+```
+#define JWB_WORLD_INIT_DEFAULT
+```
+
+The struct initializer containing the default values for world allocation.
+You should use this to make sure you don't pass in any garbage data.
+
 ### `jwb_world_alloc`
 ```
 int jwb_world_alloc(jwb_world_t *world, struct jwb_world_init *info);
