@@ -270,18 +270,26 @@ struct jwb__entity {
 	jwb_num_t radius;
 	int flags;
 #ifndef JWBO_EXTRA_ALIGN_4
+	/* Extra has 8-byte alignment. */
 	char padding_[8 - sizeof(int)];
 	char extra[1 /* Variadic */];
 #	define JWB__ENTITY_SIZE(extra) \
 	(sizeof(struct jwb__entity) - 8 + JWB__ALIGN((extra), 8))
 #	define JWB__ENTITY_EXTRA_MIN_SIZE 0
-#else /* defined(JWBO_EXTRA_ALIGN_4) */
+#elif defined(JWBO_NUM_FLOAT) && ULONG_MAX == 4294967295
+	/* Struct has 4-byte alignment. */
+	char extra[1 /* Variadic */];
+#	define JWB__ENTITY_SIZE(extra) \
+	(sizeof(struct jwb__entity) - 4 + JWB__ALIGN((extra), 4))
+#	define JWB__ENTITY_EXTRA_MIN_SIZE 0
+#else
+	/* Struct has 8-byte alignment. */
 #	define JWB__ENTITY_EXTRA_MIN_SIZE (8 - sizeof(int))
 	char extra[JWB__ENTITY_EXTRA_MIN_SIZE /* Variadic */];
 #	define JWB__ENTITY_SIZE(extra) (sizeof(struct jwb__entity) \
 		+ ((extra) <= JWB__ENTITY_EXTRA_MIN_SIZE \
 		? 0 : JWB__ALIGN((extra) - JWB__ENTITY_EXTRA_MIN_SIZE, 4)))
-#endif /* defined(JWBO_EXTRA_ALIGN_4) */
+#endif /* !defined(JWBO_EXTRA_ALIGN_4) */
 };
 
 struct jwb_hit_info;
