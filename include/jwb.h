@@ -371,7 +371,6 @@ typedef struct jwb__world {
  * ### `struct jwb_world_init`
  * ```
  * struct jwb_world_init {
- *   jwb_world_t *world;
  *   int flags;
  *   jwb_num_t cell_size;
  *   size_t width;

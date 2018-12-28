@@ -229,7 +229,6 @@ can be quite large, so you might consider allocating it on the heap.
 ### `struct jwb_world_init`
 ```
 struct jwb_world_init {
-  jwb_world_t *world;
   int flags;
   jwb_num_t cell_size;
   size_t width;
