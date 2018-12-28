@@ -97,8 +97,8 @@ static void remove_unck(WORLD *world, EHANDLE ent)
 
 static void pos_to_idx(WORLD *world, struct jwb_vect *pos, size_t *x, size_t *y)
 {
-	*x = (pos->x - world->offset.x) / world->cell_size;
-	*y = (pos->y - world->offset.y) / world->cell_size;
+	*x = pos->x / world->cell_size;
+	*y = pos->y / world->cell_size;
 }
 
 static size_t reposition(WORLD *world, EHANDLE ent)
@@ -110,9 +110,9 @@ static size_t reposition(WORLD *world, EHANDLE ent)
 	pos.y -= world->offset.y;
 	pos.x = fframe(pos.x, world->width * world->cell_size);
 	pos.y = fframe(pos.y, world->height * world->cell_size);
+	pos_to_idx(world, &pos, &x, &y);
 	pos.x += world->offset.x;
 	pos.y += world->offset.y;
-	pos_to_idx(world, &pos, &x, &y);
 	GET(world, ent).pos = pos;
 	return y * world->width + x;
 }
