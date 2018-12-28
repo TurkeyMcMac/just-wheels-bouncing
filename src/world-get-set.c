@@ -108,7 +108,7 @@ VECT_METHOD(accelerate, const VECT, {
 		if (err == -JWBE_DESTROYED_ENTITY) { \
 			return err; \
 		} \
-		return jwb_world_get_mass_unck(world, ent); \
+		return jwb_world_get_##name##_unck(world, ent); \
 	} \
 	jwb_num_t jwb_world_get_##name##_unck(WORLD *world, EHANDLE ent) \
 	{ return ret_expr; }
