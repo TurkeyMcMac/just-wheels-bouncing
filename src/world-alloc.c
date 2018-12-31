@@ -6,7 +6,7 @@
 int jwb_world_alloc(WORLD *world, struct jwb_world_init *info)
 {
 	int ret = 0;
-	if (info->width == 0 || info->height == 0) {
+	if (info->width == 0 || info->height == 0 || info->cell_size <= 0.) {
 		ret = -JWBE_INVALID_ARGUMENT;
 		goto error_validity;
 	}

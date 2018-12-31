@@ -446,6 +446,8 @@ struct jwb_world_init {
  * #### Return Value
  *  * `0`: Success.
  *  * `-JWBE_NO_MEMORY`: Buffer allocation failed.
+ *  * `-JWBE_INVALID_ARGUMENT`: Invalid parameter (such as zero for width,
+ *    height, or cell size)
  */
 int jwb_world_alloc(jwb_world_t *world, struct jwb_world_init *info);
 

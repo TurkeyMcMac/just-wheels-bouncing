@@ -280,6 +280,8 @@ Allocate the necessary resources for a given world.
 #### Return Value
  * `0`: Success.
  * `-JWBE_NO_MEMORY`: Buffer allocation failed.
+ * `-JWBE_INVALID_ARGUMENT`: Invalid parameter (such as zero for width,
+   height, or cell size)
 
 ### `JWB_WORLD_ENT_BUF_SIZE`
 ```
