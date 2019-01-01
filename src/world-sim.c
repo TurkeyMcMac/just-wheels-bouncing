@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+/* Put a number inside the range [0, lim). fframe(12, 5) is 2, while
+ * fframe(-12, 5) is 3. */
 static jwb_num_t fframe(jwb_num_t num, jwb_num_t lim)
 {
 	jwb_num_t mod = fmod(num, lim);
@@ -13,6 +15,8 @@ static jwb_num_t fframe(jwb_num_t num, jwb_num_t lim)
 	return mod;
 }
 
+/* Grow the entity buffer to give a new entity. Returns JWBE_NO_MEMORY on
+ * memory failures. */
 static EHANDLE alloc_new_ent(WORLD *world)
 {
 	if (world->n_ents >= world->ent_cap) {
@@ -37,6 +41,8 @@ static EHANDLE alloc_new_ent(WORLD *world)
 	return world->n_ents++;
 }
 
+/* Unlink an entity from a list of dead ones (the lists are `freed` or
+ * `available`.) Unchecked. */
 static void unlink_dead(WORLD *world,
 	EHANDLE ent,
 	EHANDLE *list)
@@ -54,6 +60,8 @@ static void unlink_dead(WORLD *world,
 	}
 }
 
+/* Link an entity into a list of dead ones (the lists are `freed` or
+ * `available`.) Unchecked. */
 static void link_dead(WORLD *world, EHANDLE ent, EHANDLE *list)
 {
 	GET(world, ent).last = -1;
@@ -61,6 +69,7 @@ static void link_dead(WORLD *world, EHANDLE ent, EHANDLE *list)
 	*list = ent;
 }
 
+/* Unlink an entity from its current cell. Unchecked. */
 static void unlink_living(WORLD *world, EHANDLE ent)
 {
 	EHANDLE next, last;
@@ -77,6 +86,8 @@ static void unlink_living(WORLD *world, EHANDLE ent)
 	}
 }
 
+/* Unlink an entity into the cell `cell_idx` (gotten from x and y by
+ * y * world->width + x). Unchecked. */
 static void link_living(WORLD *world, EHANDLE ent, size_t cell_idx)
 {
 	EHANDLE cell = world->cells[cell_idx];
@@ -88,6 +99,7 @@ static void link_living(WORLD *world, EHANDLE ent, size_t cell_idx)
 	world->cells[cell_idx] = ent;
 }
 
+/* Remove a living entity and put it into the `freed` list. Unchecked. */
 static void remove_unck(WORLD *world, EHANDLE ent)
 {
 	unlink_living(world, ent);
@@ -95,12 +107,15 @@ static void remove_unck(WORLD *world, EHANDLE ent)
 	GET(world, ent).flags |= REMOVED;
 }
 
+/* Convert a floating-point position to the cell which holds that position.
+ * Width and height unchecked. */
 static void pos_to_idx(WORLD *world, struct jwb_vect *pos, size_t *x, size_t *y)
 {
 	*x = pos->x / world->cell_size;
 	*y = pos->y / world->cell_size;
 }
 
+/* Get the cell where the entity should be present. For toroidal worlds. */
 static size_t reposition(WORLD *world, EHANDLE ent)
 {
 	size_t x, y;
@@ -117,6 +132,7 @@ static size_t reposition(WORLD *world, EHANDLE ent)
 	return y * world->width + x;
 }
 
+/* Same as `reposition`, but for worlds with no wrapping/boundary. */
 static size_t reposition_nowrap(WORLD *world, EHANDLE ent)
 {
 	size_t x, y;
@@ -131,6 +147,8 @@ static size_t reposition_nowrap(WORLD *world, EHANDLE ent)
 	return y * world->width + x;
 }
 
+/* Place an entity where its position dictates. Assumes that it is not alive;
+ * unchecked. */
 static void place_ent(WORLD *world, EHANDLE ent)
 {
 	size_t cell;
@@ -145,6 +163,7 @@ static void place_ent(WORLD *world, EHANDLE ent)
 	link_living(world, ent, cell);
 }
 
+/* Invoke the hit handler if two entities are touching. */
 static void check_hit(WORLD *world, EHANDLE ent1, EHANDLE ent2)
 {
 	struct jwb_hit_info info;
@@ -156,6 +175,7 @@ static void check_hit(WORLD *world, EHANDLE ent1, EHANDLE ent2)
 	}
 }
 
+/* Check the collisions of all entities within one cell. */
 static void update_cell(WORLD *world, size_t x, size_t y)
 {
 	EHANDLE next = world->cells[y * world->width + x];
@@ -173,6 +193,8 @@ static void update_cell(WORLD *world, size_t x, size_t y)
 	}
 }
 
+/* Check collisions between the entities of two cells, but not the collisions
+ * within any one cell. */
 static void update_cells(
 	WORLD *world,
 	size_t x1,
@@ -197,6 +219,9 @@ static void update_cells(
 	}
 }
 
+/* Put all entities in their appropriate places according to their position
+ * after factoring in velocity and correctional displacement (used to keep
+ * collided entities from overlapping.) */
 static void move_ents(WORLD *world, size_t x, size_t y)
 {
 	size_t here = y * world->width + x;
@@ -235,6 +260,8 @@ static void move_ents(WORLD *world, size_t x, size_t y)
 	}
 }
 
+/* Translate every entity in a cell by some amount. Used for collisions across
+ * the boundaries of toroidal worlds to simulate proximity. */
 static void cell_translate(WORLD *world, size_t x, size_t y, const VECT *disp)
 {
 	EHANDLE next;
@@ -247,6 +274,21 @@ static void cell_translate(WORLD *world, size_t x, size_t y, const VECT *disp)
 	}
 }
 
+/* CELL UPDATES: each cell is updated with itself and its surroundings in this
+ * pattern:
+ *   x#    x is the cell
+ *  ###    # is one surrounding.
+ * Most update functions have _nowrap variants for worlds which are not toruses.
+ * Instead of updating with cells on the opposite side, updates past the edges
+ * are merely neglected.
+ */
+
+/* Updates cells:
+ * #+++
+ * ++++
+ * ++++
+ * ++++
+ */
 static void update_top_left(WORLD *world)
 {
 	VECT wrap_left;
@@ -270,6 +312,12 @@ static void update_top_left_nowrap(WORLD *world)
 	update_cells(world, 0, 0, 0, 1);
 }
 
+/* Updates cells:
+ * +++#
+ * ++++
+ * ++++
+ * ++++
+ */
 static void update_top_right(WORLD *world)
 {
 	VECT wrap_right;
@@ -294,6 +342,12 @@ static void update_top_right_nowrap(WORLD *world)
 	update_cells(world, x, 0, x - 1, 1);
 }
 
+/* Updates cells:
+ * ++++
+ * #+++
+ * #+++
+ * ++++
+ */
 static void update_left(WORLD *world)
 {
 	VECT wrap_left;
@@ -324,6 +378,13 @@ static void update_left_nowrap(WORLD *world)
 	}
 }
 
+
+/* Updates cells:
+ * +##+
+ * +##+
+ * +##+
+ * ++++
+ */
 static void update_middle(WORLD *world)
 {
 	size_t x, y;
@@ -338,6 +399,12 @@ static void update_middle(WORLD *world)
 	}
 }
 
+/* Updates cells:
+ * ++++
+ * +++#
+ * +++#
+ * ++++
+ */
 static void update_right(WORLD *world)
 {
 	VECT wrap_right;
@@ -369,6 +436,12 @@ static void update_right_nowrap(WORLD *world)
 	}
 }
 
+/* Updates cells:
+ * ++++
+ * ++++
+ * ++++
+ * #+++
+ */
 static void update_bottom_left(WORLD *world)
 {
 	VECT wrap_left, wrap_down;
@@ -397,6 +470,12 @@ static void update_bottom_left_nowrap(WORLD *world)
 	update_cells(world, 0, y, 1, y);
 }
 
+/* Updates cells:
+ * ++++
+ * ++++
+ * ++++
+ * +##+
+ */
 static void update_bottom(WORLD *world)
 {
 	VECT wrap_down;
@@ -427,6 +506,12 @@ static void update_bottom_nowrap(WORLD *world)
 	}
 }
 
+/* Updates cells:
+ * ++++
+ * ++++
+ * ++++
+ * +++#
+ */
 static void update_bottom_right(WORLD *world)
 {
 	VECT wrap_right, wrap_down;
