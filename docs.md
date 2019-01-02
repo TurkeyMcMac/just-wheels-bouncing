@@ -341,6 +341,37 @@ Perform a collision between two circles where momentum is conserved, but not
 energy. This is designed to be used as a hit handler. See the documentation
 for `jwb_hit_handler_t`.
 
+### `jwb_get_hit_radial`
+```
+int jwb_get_hit_radial(struct jwb_hit_info *info, jwb_rotation_t *rot);
+```
+
+Get the rotation of the line going through both radii of two circles.
+
+#### Parameters
+ 1. `info`: Hit information.
+ 2. `rot`: Where to place the rotation of the radial.
+
+#### Return Value
+Returns 1 when a radial is found, or 0 if the circles overlap exactly.
+
+### `jwb_no_overlap`
+```
+void jwb_no_overlap(
+  jwb_world_t *world,
+  struct jwb_hit_info *info,
+  jwb_ehandle_t ent1,
+  jwb_ehandle_t ent2);
+```
+
+Move two entities so that they do not overlap.
+
+#### Parameters
+ 1. `world`: The world being worked on.
+ 2. `info`: The information of this collision.
+ 3. `ent1`: The first entity.
+ 4. `ent2`: The second.
+
 ### `jwb_world_apply_friction`
 ```
 void jwb_world_apply_friction(jwb_world_t *world, jwb_num_t friction);
