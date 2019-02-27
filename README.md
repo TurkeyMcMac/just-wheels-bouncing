@@ -20,6 +20,9 @@ Or, for WebAssembly:
 make shared target=wasm
 ```
 
+The Emscripten toolkit, specifically emcc, is required to build the WebAssembly
+version.
+
 ### Building the Documentation
 The documentation requires awk (not necessarily gawk) to build, and should be
 buildable on any system satisfying this dependency. To build the documentation,
