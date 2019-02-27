@@ -5,11 +5,19 @@ work-in-progress.
 
 ## Development
 ### Building the Library
-Currently, only the shared library is buildable. Furthermore, as of now, it can
-only be built on Linux or Mac OS. Here is how to build it:
+GNU Make is required for building the library.
+Currently, only the shared library is buildable. Furthermore, as of now, it
+cannot be built for Windows. However, Mac OS, Linux, and WebAssembly are
+supported. To build the library:
 
 ```
 make shared
+```
+
+Or, for WebAssembly:
+
+```
+make shared target=wasm
 ```
 
 ### Building the Documentation
