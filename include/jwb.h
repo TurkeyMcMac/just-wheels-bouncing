@@ -1262,7 +1262,8 @@ jwb_num_t jwb_world_get_mass_unck(jwb_world_t *world, jwb_ehandle_t ent);
  * ```
  *
  * Get extra data for an entity. This is aligned to 8 bytes unless
- * `JWBO_EXTRA_ALIGN_4` is defined during compilation.
+ * `JWBO_EXTRA_ALIGN_4` is defined during compilation. *This is only valid until
+ * `world_step` is called again or the entity is destroyed!*
  *
  * #### Parameters
  *  1. `world`: The world to look in.
@@ -1281,7 +1282,8 @@ void *jwb_world_get_extra(jwb_world_t *world, jwb_ehandle_t ent);
  * ```
  *
  * Get extra data for an entity. This is aligned to 8 bytes unless
- * `JWBO_EXTRA_ALIGN_4` is defined during compilation.
+ * `JWBO_EXTRA_ALIGN_4` is defined during compilation. *This is only valid until
+ * `world_step` is called again or the entity is destroyed!*
  *
  * #### Parameters
  *  1. `world`: The world to look in.
