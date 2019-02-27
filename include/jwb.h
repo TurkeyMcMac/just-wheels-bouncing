@@ -1,6 +1,10 @@
 #ifndef JWB_H_
 #define JWB_H_
 
+#ifdef __cplusplus
+extern "C" { /* C++ compatability */
+#endif
+
 #include <stddef.h>
 
 /**
@@ -1377,5 +1381,9 @@ typedef jwb_ehandle_t EHANDLE;
 #	define DESTROYED (1 << 2)
 
 #endif /* JWB_INTERNAL_ */
+
+#ifdef __cplusplus
+} /* C++ compatability */
+#endif
 
 #endif /* Header guard */
