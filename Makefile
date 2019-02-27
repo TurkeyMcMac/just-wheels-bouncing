@@ -16,20 +16,23 @@ test-flags = -Wall -Wno-unused-function -Wextra -Wpedantic \
 test-dep-flags = $(dep-flags)
 lib-flags = -flto
 target ?= $(shell uname -s)
+library-wasm = $(name).wasm
+library-Linux = lib$(name).so.$(version)
+library-Darwin = lib$(name).dylib
 ifeq ($(target),wasm)
 	CC = emcc
-	library = $(name).wasm
+	library = $(library-wasm)
 	c-flags += -s WASM=1 -s SIDE_MODULE=1 -s BINARYEN_TRAP_MODE=clamp
 endif
 ifeq ($(target),Linux)
-	library = lib$(name).so.$(version)
+	library = $(library-Linux)
 	lib-flags += -shared -fPIC
 	dep-flags = -lm
 	test-comp = $(CC)
 	test-dep-flags += -l:./$(library)
 endif
 ifeq ($(target),Darwin)
-	library = lib$(name).dylib
+	library = $(library-Darwin)
 	lib-flags += -dylib -macosx_version_min 10.13 -current_version $(version)
 	dep-flags = -lm -lc
 	test-comp = env LD_LIBRARY_PATH=$(PWD) $(CC)
@@ -62,4 +65,4 @@ docs.md: $(header)
 
 .PHONY: clean
 clean:
-	$(RM) -r $(library) $(tests) docs.md
+	$(RM) -r $(library-wasm) $(library-Linux) $(library-Darwin) $(tests) docs.md
