@@ -1,11 +1,10 @@
 name = jwb
 version = 0.13.7
 
-CC = c89
+CC ?= c89
 lib = include
 src = src
-obj = .obj
-objects = $(patsubst $(src)/%.c, $(obj)/%.o, $(wildcard $(src)/*))
+sources = $(wildcard $(src)/*)
 header = $(lib)/$(name).h
 c-flags = -I$(lib) -Wall -Wextra -Wpedantic -O3 $(CFLAGS)
 testdir = tests
@@ -15,20 +14,23 @@ tests = $(patsubst \
 test-flags = -Wall -Wno-unused-function -Wextra -Wpedantic \
 	-I$(lib) -L. -O0 $(CFLAGS)
 test-dep-flags = $(dep-flags)
-_uname_s := $(shell uname -s)
-ifeq ($(_uname_s),Linux)
+lib-flags = -flto
+target ?= $(shell uname -s)
+ifeq ($(target),wasm)
+	CC = emcc
+	library = $(name).wasm
+	c-flags += -s WASM=1 -s SIDE_MODULE=1 -s BINARYEN_TRAP_MODE=clamp
+endif
+ifeq ($(target),Linux)
 	library = lib$(name).so.$(version)
-	linker = $(CC)
-	linker-flags = -shared -fPIC
+	lib-flags += -shared -fPIC
 	dep-flags = -lm
-	c-flags += -fPIC
 	test-comp = $(CC)
 	test-dep-flags += -l:./$(library)
 endif
-ifeq ($(_uname_s),Darwin)
+ifeq ($(target),Darwin)
 	library = lib$(name).dylib
-	linker = $(LD)
-	linker-flags = -dylib -macosx_version_min 10.13 -current_version $(version)
+	lib-flags += -dylib -macosx_version_min 10.13 -current_version $(version)
 	dep-flags = -lm -lc
 	test-comp = env LD_LIBRARY_PATH=$(PWD) $(CC)
 	test-dep-flags += -ljwb
@@ -40,25 +42,24 @@ all: $(library) docs.md
 .PHONY: shared
 shared: $(library)
 
-$(library): $(objects)
-	$(linker) $(linker-flags) $(objects) -o $(library) $(dep-flags)
-
-.PHONY: objects
-objects: $(objects)
-
-$(obj)/%.o: $(src)/%.c $(header)
-	$(CC) $(c-flags) -o $@ -c $<
+$(library): $(sources)
+	$(CC) $(c-flags) $(lib-flags) $(sources) -o $(library) $(dep-flags)
 
 .PHONY: test
 test: $(tests)
 	./run-tests $(library)
 
 $(testdir)/%.test: $(testdir)/%.c $(header) $(test-header) $(library)
+	@[ '$(target)' = wasm ] \
+	&&	echo "Tests not supported with wasm target." \
+	&&	exit 1 \
+	|| true
 	$(test-comp) $(test-flags) -o $@ $< $(test-dep-flags)
+
 
 docs.md: $(header)
 	awk -f extract-docs.awk $< > $@
 
 .PHONY: clean
 clean:
-	$(RM) -r $(library) $(objects) $(tests) docs.md
+	$(RM) -r $(library) $(tests) docs.md
