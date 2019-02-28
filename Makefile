@@ -33,7 +33,12 @@ ifeq ($(target),Linux)
 endif
 ifeq ($(target),Darwin)
 	library = $(library-Darwin)
-	lib-flags += -dylib -macosx_version_min 10.13 -current_version $(version)
+	lib-flags +=\
+		-Xlinker -dylib \
+		-Xlinker -macosx_version_min \
+		-Xlinker 10.13 \
+		-Xlinker -current_version \
+		-Xlinker $(version)
 	dep-flags = -lm -lc
 	test-comp = env LD_LIBRARY_PATH=$(PWD) $(CC)
 	test-dep-flags += -ljwb
