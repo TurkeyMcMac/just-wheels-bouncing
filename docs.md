@@ -384,6 +384,44 @@ Apply an acceleration due to friction to every entity in the world.
  2. `friction`: The frictional acceleration to apply. This reduces velocity
     when positive.
 
+### `jwb_world_first_perm`
+```
+int jwb_world_first_perm(
+  jwb_world_t *world,
+  jwb_ehandle_t *ent1,
+  jwb_ehandle_t *ent2);
+```
+
+Get the first permutation when iterating through permutations.
+
+#### Parameters
+ 1. `world`: The world to look in.
+ 2. `ent1`: A pointer to the uninitialized first entity.
+ 3. `ent2`: A pointer to the uninitialized second entity.
+
+#### Return Value
+0 on sucess, or -1 if no permutations are available.
+
+### `jwb_world_next_perm`
+```
+int jwb_world_next_perm(
+  jwb_world_t *world,
+  jwb_ehandle_t *ent1,
+  jwb_ehandle_t *ent2);
+```
+
+Get the next permutation when iterating through permutations.
+
+#### Parameters
+ 1. `world`: The world to look in.
+ 2. `ent1`: A pointer to the first entity. Before the call, this should be
+    set to the prior entity.
+ 3. `ent2`: A pointer to the second entity. Before the call, this should be
+    set to the prior entity.
+
+#### Return Value
+0 on sucess, or -1 if no more permutations are available.
+
 ### `jwb_world_first`
 ```
 jwb_ehandle_t jwb_world_first(jwb_world_t *world);

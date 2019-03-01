@@ -10,6 +10,40 @@ static EHANDLE next(WORLD *world, EHANDLE now)
 	return now < (long)world->n_ents ? now : -1;
 }
 
+int jwb_world_first_perm(WORLD *world, EHANDLE *ent1, EHANDLE *ent2)
+{
+	*ent1 = next(world, -1);
+	if (*ent1 < 0) {
+		return -1;
+	}
+	*ent2 = next(world, *ent1);
+	if (*ent2 < 0) {
+		return -1;
+	}
+	return 0;
+}
+
+int jwb_world_next_perm(WORLD *world, EHANDLE *ent1, EHANDLE *ent2)
+{
+	if (*ent1 == -1) {
+		/* Failsafe to prevent infinite looping. */
+		return -1;
+	}
+	*ent2 = next(world, *ent2);
+	if (*ent2 >= 0) {
+		return 0;
+	}
+	*ent1 = next(world, *ent1);
+	if (*ent1 < 0) {
+		return -1;
+	}
+	*ent2 = next(world, *ent1);
+	if (*ent2 < 0) {
+		return -1;
+	}
+	return 0;
+}
+
 EHANDLE jwb_world_first(WORLD *world)
 {
 	return next(world, -1);
