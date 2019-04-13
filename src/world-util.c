@@ -51,8 +51,7 @@ void jwb_elastic_collision(
 	jwb_vect_rotate(&vel2, &rot);
 	bounced1 = (mass1 - mass2) / (mass1 + mass2) * vel1.x + 2 * mass2
 		/ (mass1 + mass2) * vel2.x;
-	bounced2 = (mass2 - mass1) / (mass2 + mass1) * vel2.x + 2 * mass1
-		/ (mass2 + mass1) * vel1.x;
+	bounced2 = vel1.x - vel2.x + bounced1;
 	vel1.x = bounced1;
 	vel2.x = bounced2;
 	jwb_rotation_flip(&rot);
